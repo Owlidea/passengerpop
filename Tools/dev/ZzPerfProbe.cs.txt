@@ -1,0 +1,50 @@
+using System.Collections;
+using MetroSort.Game;
+using MetroSort.Persistence;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
+
+namespace MetroSort.Tests
+{
+    // Development helper: copy into Assets/MetroSort/Tests/PlayMode as .cs to log render load for a big level.
+    public class ZzPerfProbe
+    {
+        [UnityTest]
+        public IEnumerator Probe()
+        {
+            GameApp app = GameApp.Create(new InMemoryFileStore());
+            app.Services.Save.Data.HighestUnlocked = 9999;
+            yield return null;
+            foreach (int id in new[] { 1, 86 })
+            {
+                app.Game.StartLevel(id);
+                yield return new WaitForSeconds(1.5f);
+                var rt = new RenderTexture(1080, 1920, 24);
+                Camera cam = app.Station.Cam;
+                cam.targetTexture = rt;
+                yield return null;
+                cam.Render();
+                int renderers = 0, active = 0, shadow = 0;
+                long tris = 0;
+                foreach (MeshRenderer r in Object.FindObjectsByType<MeshRenderer>())
+                {
+                    renderers++;
+                    if (!r.enabled || !r.gameObject.activeInHierarchy) continue;
+                    active++;
+                    if (r.shadowCastingMode != UnityEngine.Rendering.ShadowCastingMode.Off) shadow++;
+                    MeshFilter f = r.GetComponent<MeshFilter>();
+                    if (f != null && f.sharedMesh != null) tris += (long)f.sharedMesh.GetIndexCount(0) / 3;
+                }
+#if UNITY_EDITOR
+                Debug.Log("PERF level " + id + ": activeRenderers=" + active + " shadowCasters=" + shadow + " meshTris=" + tris
+                    + " drawCalls=" + UnityEditor.UnityStats.drawCalls
+                    + " setPass=" + UnityEditor.UnityStats.setPassCalls + " statsTris=" + UnityEditor.UnityStats.triangles);
+#endif
+                cam.targetTexture = null;
+            }
+            Object.Destroy(app.gameObject);
+            yield return null;
+        }
+    }
+}

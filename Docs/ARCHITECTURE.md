@@ -114,11 +114,28 @@ reported through `LastError` without losing in-memory progress. `ICloudSaveProvi
 
 Consent (ATT on iOS, UMP/GDPR) must be requested inside the ad adapter's `Initialize` before any ad loads.
 
+## Measured render load
+
+Measured in the editor with `Tools/dev/ZzPerfProbe.cs.txt` (copy into `Tests/PlayMode` to rerun), one frame at
+1080x1920, URP, on level 86 (30 passengers, 4 platforms):
+
+| | Before optimisation | After |
+|---|---:|---:|
+| Active mesh renderers | 1,868 | 981 |
+| Draw calls | 2,397 | 1,308 |
+| Triangles drawn | 1,371,834 | 277,794 |
+
+What changed: procedural low-polygon spheres, capsules and cylinders replace Unity's primitives (which are
+768-832 triangles each, even for an eye); very small parts skip the shadow pass; the static station is merged
+into one mesh per material (`MeshFactory.MergeStatic`); each passenger's same-colour parts are merged
+(`Prims.Combine`). These are editor measurements, not phone frame rates: about 1,300 draw calls is still a lot
+for low-end devices, and passengers remain the main cost (roughly 30 renderers each).
+
 ## Performance checklist
 
 | Area | What was done | Still to measure on device |
 |------|---------------|----------------------------|
-| Draw calls | One shared material per colour with GPU instancing; decorative pieces cast no shadows. Outlines roughly double the draw calls of outlined objects, and the station is built from several hundred small primitives | Frame debugger batch count; consider merging static station meshes |
+| Draw calls | One shared material per colour; static station merged per material; passenger parts merged per colour; small parts cast no shadows | Frame rate on a mid-range phone; merging each passenger further if needed |
 | Post-processing | Bloom, vignette and colour adjustment are on by default | Cost on low-end phones; make it a quality option if needed |
 | Allocation | Passengers, trains, confetti pooled; event list reused; views animate in `Update` without coroutines | GC allocations per frame in the Profiler |
 | Physics | None. Picking is done in screen space | - |

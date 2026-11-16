@@ -89,7 +89,6 @@ namespace MetroSort.Game
                 leg.SetParent(_visual, false);
                 leg.localPosition = new Vector3(side * 0.10f, 0.56f, 0f);
                 GameObject trouser = Prims.Make(PrimitiveType.Capsule, leg, new Vector3(0f, -0.25f, 0f), new Vector3(0.165f, 0.26f, 0.175f), TrouserTones[0], "LegShape");
-                InkOutline.Add(trouser, Ink);
                 _legParts[i] = trouser;
                 Prims.Make(PrimitiveType.Sphere, leg, new Vector3(0f, -0.505f, -0.04f), new Vector3(0.17f, 0.11f, 0.28f), new Color(0.16f, 0.16f, 0.20f), "Shoe");
                 _legs[i] = leg;
@@ -98,7 +97,6 @@ namespace MetroSort.Game
                 arm.SetParent(_visual, false);
                 arm.localPosition = new Vector3(side * 0.29f, 1.04f, 0f);
                 GameObject sleeve = Prims.Make(PrimitiveType.Capsule, arm, new Vector3(0f, -0.20f, 0f), new Vector3(0.125f, 0.21f, 0.13f), Palette.Neutral, "Sleeve");
-                InkOutline.Add(sleeve, Ink);
                 _jacketParts.Add(sleeve);
                 _skinParts.Add(Prims.Make(PrimitiveType.Sphere, arm, new Vector3(0f, -0.44f, 0f), new Vector3(0.115f, 0.125f, 0.115f), Palette.Skin, "Hand"));
                 _arms[i] = arm;
@@ -123,66 +121,72 @@ namespace MetroSort.Game
             head.localRotation = Quaternion.Euler(14f, 0f, 0f);
             head.localScale = Vector3.one * 0.84f;
 
+            // Parts that share a colour are merged into one mesh each, so a passenger costs far fewer draw calls.
             GameObject skull = Prims.Make(PrimitiveType.Sphere, head, new Vector3(0f, 0.21f, 0f), new Vector3(0.40f, 0.44f, 0.40f), Palette.Skin, "Skull");
-            InkOutline.Add(skull, Ink);
-            _skinParts.Add(skull);
+            GameObject earL = Prims.Make(PrimitiveType.Sphere, head, new Vector3(-0.20f, 0.20f, 0.01f), new Vector3(0.07f, 0.10f, 0.06f), Palette.Skin, "Ear");
+            GameObject earR = Prims.Make(PrimitiveType.Sphere, head, new Vector3(0.20f, 0.20f, 0.01f), new Vector3(0.07f, 0.10f, 0.06f), Palette.Skin, "Ear");
+            GameObject nose = Prims.Make(PrimitiveType.Sphere, head, new Vector3(0f, 0.185f, -0.205f), new Vector3(0.048f, 0.062f, 0.05f), Palette.Skin, "Nose");
+            skull.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+            GameObject face = Prims.Combine(head, "HeadSkin", skull, earL, earR, nose);
+            InkOutline.Add(face, Ink);
+            _skinParts.Add(face);
+
+            var brows = new GameObject[2];
+            var cheeks = new GameObject[2];
             for (int i = 0; i < 2; i++)
             {
                 int side = i == 0 ? -1 : 1;
-                _skinParts.Add(Prims.Make(PrimitiveType.Sphere, head, new Vector3(side * 0.20f, 0.20f, 0.01f), new Vector3(0.07f, 0.10f, 0.06f), Palette.Skin, "Ear"));
-
                 // Eye = white with a dark iris; the whole eye squashes to blink.
                 Transform eye = new GameObject("Eye").transform;
                 eye.SetParent(head, false);
                 eye.localPosition = new Vector3(side * 0.078f, 0.235f, -0.168f);
-                Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, eye, Vector3.zero, new Vector3(0.088f, 0.078f, 0.05f), Color.white, "White"));
-                Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, eye, new Vector3(0f, -0.003f, -0.02f), new Vector3(0.05f, 0.056f, 0.03f), new Color(0.16f, 0.12f, 0.10f), "Iris"));
-                Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, eye, new Vector3(-0.012f, 0.012f, -0.035f), new Vector3(0.018f, 0.018f, 0.01f), Color.white, "Glint"));
+                GameObject white = Prims.Make(PrimitiveType.Sphere, eye, Vector3.zero, new Vector3(0.088f, 0.078f, 0.05f), Color.white, "White");
+                GameObject glint = Prims.Make(PrimitiveType.Sphere, eye, new Vector3(-0.012f, 0.012f, -0.035f), new Vector3(0.018f, 0.018f, 0.01f), Color.white, "Glint");
+                Prims.Make(PrimitiveType.Sphere, eye, new Vector3(0f, -0.003f, -0.02f), new Vector3(0.05f, 0.056f, 0.03f), new Color(0.16f, 0.12f, 0.10f), "Iris");
+                Prims.Combine(eye, "EyeWhite", white, glint);
                 GameObject lash = Prims.Make(PrimitiveType.Cube, eye, new Vector3(side * 0.03f, 0.04f, -0.02f), new Vector3(0.07f, 0.014f, 0.012f), new Color(0.10f, 0.08f, 0.08f), "Lashes");
                 lash.transform.localRotation = Quaternion.Euler(0f, 0f, side * 22f);
-                Prims.NoShadow(lash);
                 _lashes[i] = lash;
                 _eyes[i] = eye;
 
-                GameObject brow = Prims.Make(PrimitiveType.Cube, head, new Vector3(side * 0.078f, 0.297f, -0.182f), new Vector3(0.092f, 0.017f, 0.02f), HairTones[0], "Brow");
-                brow.transform.localRotation = Quaternion.Euler(0f, 0f, side * -6f);
-                Prims.NoShadow(brow);
-                _hairParts.Add(brow);
-                Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, head, new Vector3(side * 0.118f, 0.155f, -0.158f), new Vector3(0.075f, 0.045f, 0.04f), Palette.Blush, "Cheek"));
+                brows[i] = Prims.Make(PrimitiveType.Cube, head, new Vector3(side * 0.078f, 0.297f, -0.182f), new Vector3(0.092f, 0.017f, 0.02f), HairTones[0], "Brow");
+                brows[i].transform.localRotation = Quaternion.Euler(0f, 0f, side * -6f);
+                cheeks[i] = Prims.Make(PrimitiveType.Sphere, head, new Vector3(side * 0.118f, 0.155f, -0.158f), new Vector3(0.075f, 0.045f, 0.04f), Palette.Blush, "Cheek");
             }
-            _skinParts.Add(Prims.Make(PrimitiveType.Sphere, head, new Vector3(0f, 0.185f, -0.205f), new Vector3(0.048f, 0.062f, 0.05f), Palette.Skin, "Nose"));
+            _hairParts.Add(Prims.Combine(head, "Brows", brows));
+            Prims.Combine(head, "Cheeks", cheeks);
             _mouth = Prims.Make(PrimitiveType.Sphere, head, new Vector3(0f, 0.115f, -0.182f), new Vector3(0.085f, 0.024f, 0.02f), new Color(0.72f, 0.32f, 0.33f), "Mouth");
-            Prims.NoShadow(_mouth);
             _moustache = Prims.Make(PrimitiveType.Sphere, head, new Vector3(0f, 0.148f, -0.196f), new Vector3(0.12f, 0.03f, 0.03f), HairTones[0], "Moustache");
-            Prims.NoShadow(_moustache);
             _hairParts.Add(_moustache);
 
-            // Hair: a cap of hair plus a style. 0 short, 1 fringe (men); 2 long, 3 bun, 4 ponytail (women).
-            _hairParts.Add(Prims.Make(PrimitiveType.Sphere, head, new Vector3(0f, 0.30f, 0.035f), new Vector3(0.435f, 0.36f, 0.43f), HairTones[0], "HairCap"));
+            // Hair: each style is one merged mesh (cap + its extra pieces). 0 short, 1 fringe (men); 2 long, 3 bun, 4 ponytail (women).
             for (int style = 0; style < _hairStyles.Length; style++)
             {
-                var root = new GameObject("HairStyle" + style);
-                root.transform.SetParent(head, false);
-                Transform h = root.transform;
+                var pieces = new System.Collections.Generic.List<GameObject>();
+                GameObject hairCap = Prims.Make(PrimitiveType.Sphere, head, new Vector3(0f, 0.30f, 0.035f), new Vector3(0.435f, 0.36f, 0.43f), HairTones[0], "HairCap");
+                hairCap.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                pieces.Add(hairCap);
                 if (style == 1 || style == 2 || style == 4)
-                    _hairParts.Add(Prims.Make(PrimitiveType.Sphere, h, new Vector3(0.03f, 0.355f, -0.15f), new Vector3(0.34f, 0.11f, 0.12f), HairTones[0], "Fringe"));
+                    pieces.Add(Prims.Make(PrimitiveType.Sphere, head, new Vector3(0.03f, 0.355f, -0.15f), new Vector3(0.34f, 0.11f, 0.12f), HairTones[0], "Fringe"));
                 if (style == 2)
                 {
-                    _hairParts.Add(Prims.Make(PrimitiveType.Capsule, h, new Vector3(0f, 0.06f, 0.13f), new Vector3(0.44f, 0.30f, 0.22f), HairTones[0], "LongHair"));
+                    pieces.Add(Prims.Make(PrimitiveType.Capsule, head, new Vector3(0f, 0.06f, 0.13f), new Vector3(0.44f, 0.30f, 0.22f), HairTones[0], "LongHair"));
                     for (int side = -1; side <= 1; side += 2)
-                        _hairParts.Add(Prims.Make(PrimitiveType.Capsule, h, new Vector3(side * 0.19f, 0.10f, 0.02f), new Vector3(0.10f, 0.22f, 0.16f), HairTones[0], "SideHair"));
+                        pieces.Add(Prims.Make(PrimitiveType.Capsule, head, new Vector3(side * 0.19f, 0.10f, 0.02f), new Vector3(0.10f, 0.22f, 0.16f), HairTones[0], "SideHair"));
                 }
                 if (style == 3)
-                    _hairParts.Add(Prims.Make(PrimitiveType.Sphere, h, new Vector3(0f, 0.44f, 0.17f), new Vector3(0.19f, 0.19f, 0.19f), HairTones[0], "Bun"));
+                    pieces.Add(Prims.Make(PrimitiveType.Sphere, head, new Vector3(0f, 0.44f, 0.17f), new Vector3(0.19f, 0.19f, 0.19f), HairTones[0], "Bun"));
                 if (style == 4)
                 {
-                    _hairParts.Add(Prims.Make(PrimitiveType.Sphere, h, new Vector3(0f, 0.30f, 0.23f), new Vector3(0.14f, 0.14f, 0.14f), HairTones[0], "PonytailKnot"));
-                    GameObject tail = Prims.Make(PrimitiveType.Capsule, h, new Vector3(0f, 0.10f, 0.28f), new Vector3(0.12f, 0.20f, 0.12f), HairTones[0], "Ponytail");
+                    pieces.Add(Prims.Make(PrimitiveType.Sphere, head, new Vector3(0f, 0.30f, 0.23f), new Vector3(0.14f, 0.14f, 0.14f), HairTones[0], "PonytailKnot"));
+                    GameObject tail = Prims.Make(PrimitiveType.Capsule, head, new Vector3(0f, 0.10f, 0.28f), new Vector3(0.12f, 0.20f, 0.12f), HairTones[0], "Ponytail");
                     tail.transform.localRotation = Quaternion.Euler(-18f, 0f, 0f);
-                    _hairParts.Add(tail);
+                    pieces.Add(tail);
                 }
-                root.SetActive(false);
-                _hairStyles[style] = root;
+                GameObject merged = Prims.Combine(head, "HairStyle" + style, pieces.ToArray());
+                _hairParts.Add(merged);
+                merged.SetActive(false);
+                _hairStyles[style] = merged;
             }
 
             for (int c = 0; c < _hats.Length; c++)
@@ -209,9 +213,11 @@ namespace MetroSort.Game
                 new[] { -0.055f, 0.865f, 0.035f, 0.055f }, new[] { 0f, 0.895f, 0.13f, 0.035f }, new[] { 0.055f, 0.845f, 0.035f, 0.09f },
                 new[] { 0.025f, 0.795f, 0.08f, 0.035f }, new[] { 0f, 0.75f, 0.035f, 0.07f }
             };
+            var markPieces = new System.Collections.Generic.List<GameObject>();
             foreach (float[] st in strokes)
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, mm, new Vector3(st[0], st[1], -0.02f), new Vector3(st[2], st[3], 0.03f), Color.white, "Stroke"));
-            Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, mm, new Vector3(0f, 0.665f, -0.02f), new Vector3(0.045f, 0.045f, 0.035f), Color.white, "Dot"));
+                markPieces.Add(Prims.Make(PrimitiveType.Cube, mm, new Vector3(st[0], st[1], -0.02f), new Vector3(st[2], st[3], 0.03f), Color.white, "Stroke"));
+            markPieces.Add(Prims.Make(PrimitiveType.Sphere, mm, new Vector3(0f, 0.665f, -0.02f), new Vector3(0.045f, 0.045f, 0.035f), Color.white, "Dot"));
+            Prims.Combine(mm, "QuestionMark", markPieces.ToArray());
             _mysteryMark.SetActive(false);
 
             _halo = Prims.Make(PrimitiveType.Cylinder, head, new Vector3(0f, 0.86f, 0f), new Vector3(0.42f, 0.018f, 0.42f), Palette.Gold, "VipHalo");
@@ -222,7 +228,11 @@ namespace MetroSort.Game
         private static void BuildHat(int color, Transform parent, Color tint)
         {
             BuildHatShape(color, parent, tint);
-            foreach (MeshFilter piece in parent.GetComponentsInChildren<MeshFilter>()) InkOutline.Add(piece.gameObject, 0.016f);
+            var pieces = new System.Collections.Generic.List<GameObject>();
+            foreach (MeshFilter piece in parent.GetComponentsInChildren<MeshFilter>()) pieces.Add(piece.gameObject);
+            GameObject merged = Prims.Combine(parent, "HatMesh", pieces.ToArray());
+            merged.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+            InkOutline.Add(merged, 0.016f);
         }
 
         private static void BuildHatShape(int color, Transform parent, Color tint)

@@ -118,8 +118,12 @@ namespace MetroSort.Game
             // Built from a cached mesh rather than CreatePrimitive, so no collider is created (and none is
             // needed: picking is done in screen space).
             var go = new GameObject(name ?? type.ToString());
-            go.AddComponent<MeshFilter>().sharedMesh = PrimitiveMesh(type);
-            go.AddComponent<MeshRenderer>();
+            float largest = Mathf.Max(Mathf.Abs(scale.x), Mathf.Max(Mathf.Abs(scale.y), Mathf.Abs(scale.z)));
+            bool small = largest < 0.22f;
+            go.AddComponent<MeshFilter>().sharedMesh = PrimitiveMesh(type, small);
+            MeshRenderer renderer = go.AddComponent<MeshRenderer>();
+            // Tiny details (eyes, buttons, lamps) are not worth a shadow pass.
+            if (small) renderer.shadowCastingMode = ShadowCastingMode.Off;
             Transform t = go.transform;
             t.SetParent(parent, false);
             t.localPosition = localPos;
@@ -128,17 +132,50 @@ namespace MetroSort.Game
             return go;
         }
 
-        private static readonly Dictionary<PrimitiveType, Mesh> PrimitiveMeshes = new Dictionary<PrimitiveType, Mesh>();
-
-        private static Mesh PrimitiveMesh(PrimitiveType type)
+        /// <summary>
+        /// Low-polygon procedural shapes with the same dimensions as Unity's primitives. Unity's sphere has 768
+        /// triangles, far too many for an eye or a button on a phone; small parts get an even coarser mesh.
+        /// Being generated at runtime they are also readable, which static batching requires.
+        /// </summary>
+        private static Mesh PrimitiveMesh(PrimitiveType type, bool small)
         {
-            Mesh mesh;
-            if (PrimitiveMeshes.TryGetValue(type, out mesh) && mesh != null) return mesh;
-            GameObject temp = GameObject.CreatePrimitive(type);
-            mesh = temp.GetComponent<MeshFilter>().sharedMesh;
-            UnityEngine.Object.Destroy(temp);
-            PrimitiveMeshes[type] = mesh;
-            return mesh;
+            switch (type)
+            {
+                case PrimitiveType.Sphere: return small ? MeshFactory.Sphere(8, 5) : MeshFactory.Sphere(14, 9);
+                case PrimitiveType.Capsule: return small ? MeshFactory.Capsule(8, 3) : MeshFactory.Capsule(12, 4);
+                case PrimitiveType.Cylinder: return small ? MeshFactory.Cylinder(8) : MeshFactory.Cylinder(18);
+                default: return MeshFactory.Cube();
+            }
+        }
+
+        /// <summary>
+        /// Merges several same-material parts into one object under parent (fewer draw calls). The parts are
+        /// destroyed; the merged object takes the first part's material and shadow setting.
+        /// </summary>
+        public static GameObject Combine(Transform parent, string name, params GameObject[] parts)
+        {
+            var instances = new CombineInstance[parts.Length];
+            Matrix4x4 toParent = parent.worldToLocalMatrix;
+            for (int i = 0; i < parts.Length; i++)
+            {
+                instances[i].mesh = parts[i].GetComponent<MeshFilter>().sharedMesh;
+                instances[i].transform = toParent * parts[i].transform.localToWorldMatrix;
+            }
+            var mesh = new Mesh { name = name };
+            mesh.CombineMeshes(instances, true, true);
+            var first = parts[0].GetComponent<MeshRenderer>();
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            go.AddComponent<MeshFilter>().sharedMesh = mesh;
+            var renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = first.sharedMaterial;
+            renderer.shadowCastingMode = first.shadowCastingMode;
+            foreach (GameObject part in parts)
+            {
+                part.SetActive(false);
+                UnityEngine.Object.Destroy(part);
+            }
+            return go;
         }
 
         public static void SetColor(GameObject go, Color color)
@@ -213,10 +250,13 @@ namespace MetroSort.Game
             Vector3 size = Vector3.Scale(filter.sharedMesh.bounds.size, target.transform.lossyScale);
             var go = new GameObject("Outline");
             go.transform.SetParent(target.transform, false);
+            // Grow around the mesh's own centre (merged meshes are not centred on their pivot).
+            Vector3 centre = filter.sharedMesh.bounds.center;
             go.transform.localScale = new Vector3(
                 1f + 2f * thickness / Mathf.Max(0.02f, Mathf.Abs(size.x)),
                 growY ? 1f + 2f * thickness / Mathf.Max(0.02f, Mathf.Abs(size.y)) : 0.96f,
                 1f + 2f * thickness / Mathf.Max(0.02f, Mathf.Abs(size.z)));
+            go.transform.localPosition = Vector3.Scale(centre, Vector3.one - go.transform.localScale);
             go.AddComponent<MeshFilter>().sharedMesh = filter.sharedMesh;
             var renderer = go.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = material;
@@ -229,6 +269,225 @@ namespace MetroSort.Game
     public static class MeshFactory
     {
         private static readonly Dictionary<string, Mesh> Cache = new Dictionary<string, Mesh>();
+
+        private sealed class Builder
+        {
+            public readonly List<Vector3> Vertices = new List<Vector3>();
+            public readonly List<Vector3> Normals = new List<Vector3>();
+            public readonly List<int> Triangles = new List<int>();
+
+            public int Add(Vector3 position, Vector3 normal)
+            {
+                Vertices.Add(position);
+                Normals.Add(normal);
+                return Vertices.Count - 1;
+            }
+
+            /// <summary>Adds a triangle wound so that it faces away from the shape's centre; skips degenerate ones.</summary>
+            public void Tri(int a, int b, int c)
+            {
+                Vector3 va = Vertices[a], vb = Vertices[b], vc = Vertices[c];
+                Vector3 n = Vector3.Cross(vb - va, vc - va);
+                if (n.sqrMagnitude < 1e-10f) return;
+                if (Vector3.Dot(n, Normals[a] + Normals[b] + Normals[c]) < 0f) { int t = b; b = c; c = t; }
+                Triangles.Add(a);
+                Triangles.Add(b);
+                Triangles.Add(c);
+            }
+
+            public void Quad(int a, int b, int c, int d)
+            {
+                Tri(a, b, c);
+                Tri(c, b, d);
+            }
+
+            public Mesh Build(string name)
+            {
+                var mesh = new Mesh { name = name };
+                mesh.SetVertices(Vertices);
+                mesh.SetNormals(Normals);
+                mesh.SetTriangles(Triangles, 0);
+                mesh.RecalculateBounds();
+                return mesh;
+            }
+        }
+
+        /// <summary>
+        /// Replaces every mesh under root with one merged mesh per material (and shadow setting). Use for
+        /// scenery that never moves: hundreds of small objects become a handful of draw calls.
+        /// </summary>
+        public static void MergeStatic(Transform root)
+        {
+            var groups = new Dictionary<string, List<CombineInstance>>();
+            var materials = new Dictionary<string, Material>();
+            var shadows = new Dictionary<string, ShadowCastingMode>();
+            var materialIds = new Dictionary<Material, int>(); // stable small ids, independent of engine object ids
+            Matrix4x4 toRoot = root.worldToLocalMatrix;
+            foreach (MeshFilter filter in root.GetComponentsInChildren<MeshFilter>(false))
+            {
+                var renderer = filter.GetComponent<MeshRenderer>();
+                if (renderer == null || filter.sharedMesh == null || renderer.sharedMaterial == null) continue;
+                int materialId;
+                if (!materialIds.TryGetValue(renderer.sharedMaterial, out materialId))
+                {
+                    materialId = materialIds.Count;
+                    materialIds[renderer.sharedMaterial] = materialId;
+                }
+                string key = materialId + "_" + (int)renderer.shadowCastingMode;
+                List<CombineInstance> list;
+                if (!groups.TryGetValue(key, out list))
+                {
+                    list = new List<CombineInstance>();
+                    groups[key] = list;
+                    materials[key] = renderer.sharedMaterial;
+                    shadows[key] = renderer.shadowCastingMode;
+                }
+                list.Add(new CombineInstance { mesh = filter.sharedMesh, transform = toRoot * filter.transform.localToWorldMatrix });
+            }
+
+            var originals = new List<GameObject>();
+            foreach (Transform child in root) originals.Add(child.gameObject);
+
+            foreach (KeyValuePair<string, List<CombineInstance>> group in groups)
+            {
+                var mesh = new Mesh { name = "Merged_" + group.Key, indexFormat = IndexFormat.UInt32 };
+                mesh.CombineMeshes(group.Value.ToArray(), true, true);
+                var go = new GameObject("Merged_" + materials[group.Key].name);
+                go.transform.SetParent(root, false);
+                go.AddComponent<MeshFilter>().sharedMesh = mesh;
+                var merged = go.AddComponent<MeshRenderer>();
+                merged.sharedMaterial = materials[group.Key];
+                merged.shadowCastingMode = shadows[group.Key];
+            }
+
+            foreach (GameObject original in originals)
+            {
+                original.SetActive(false);
+                UnityEngine.Object.Destroy(original);
+            }
+        }
+
+        /// <summary>UV sphere, diameter 1.</summary>
+        public static Mesh Sphere(int longitude, int latitude)
+        {
+            string key = "sphere_" + longitude + "_" + latitude;
+            Mesh mesh;
+            if (Cache.TryGetValue(key, out mesh) && mesh != null) return mesh;
+            var b = new Builder();
+            for (int i = 0; i <= latitude; i++)
+            {
+                float theta = Mathf.PI * i / latitude;
+                for (int j = 0; j <= longitude; j++)
+                {
+                    float phi = 2f * Mathf.PI * j / longitude;
+                    var n = new Vector3(Mathf.Sin(theta) * Mathf.Cos(phi), Mathf.Cos(theta), Mathf.Sin(theta) * Mathf.Sin(phi));
+                    b.Add(n * 0.5f, n);
+                }
+            }
+            int w = longitude + 1;
+            for (int i = 0; i < latitude; i++)
+                for (int j = 0; j < longitude; j++)
+                    b.Quad(i * w + j, (i + 1) * w + j, i * w + j + 1, (i + 1) * w + j + 1);
+            return Cache[key] = b.Build(key);
+        }
+
+        /// <summary>Capsule along Y, radius 0.5, total height 2 (same as Unity's primitive).</summary>
+        public static Mesh Capsule(int longitude, int capRings)
+        {
+            string key = "capsule_" + longitude + "_" + capRings;
+            Mesh mesh;
+            if (Cache.TryGetValue(key, out mesh) && mesh != null) return mesh;
+            var ringY = new List<float>();
+            var ringR = new List<float>();
+            var ringNy = new List<float>();
+            for (int k = 0; k <= capRings; k++)
+            {
+                float a = Mathf.PI * 0.5f * k / capRings;
+                ringY.Add(0.5f + 0.5f * Mathf.Cos(a)); ringR.Add(0.5f * Mathf.Sin(a)); ringNy.Add(Mathf.Cos(a));
+            }
+            for (int k = 0; k <= capRings; k++)
+            {
+                float a = Mathf.PI * 0.5f * k / capRings;
+                ringY.Add(-0.5f - 0.5f * Mathf.Sin(a)); ringR.Add(0.5f * Mathf.Cos(a)); ringNy.Add(-Mathf.Sin(a));
+            }
+            var b = new Builder();
+            for (int i = 0; i < ringY.Count; i++)
+            {
+                float radial = Mathf.Sqrt(Mathf.Max(0f, 1f - ringNy[i] * ringNy[i]));
+                for (int j = 0; j <= longitude; j++)
+                {
+                    float phi = 2f * Mathf.PI * j / longitude;
+                    float cx = Mathf.Cos(phi), sz = Mathf.Sin(phi);
+                    b.Add(new Vector3(cx * ringR[i], ringY[i], sz * ringR[i]), new Vector3(cx * radial, ringNy[i], sz * radial));
+                }
+            }
+            int w = longitude + 1;
+            for (int i = 0; i < ringY.Count - 1; i++)
+                for (int j = 0; j < longitude; j++)
+                    b.Quad(i * w + j, (i + 1) * w + j, i * w + j + 1, (i + 1) * w + j + 1);
+            return Cache[key] = b.Build(key);
+        }
+
+        /// <summary>Cylinder along Y, radius 0.5, height 2 (same as Unity's primitive), with flat caps.</summary>
+        public static Mesh Cylinder(int longitude)
+        {
+            string key = "cylinder_" + longitude;
+            Mesh mesh;
+            if (Cache.TryGetValue(key, out mesh) && mesh != null) return mesh;
+            var b = new Builder();
+            for (int j = 0; j <= longitude; j++)
+            {
+                float phi = 2f * Mathf.PI * j / longitude;
+                var radial = new Vector3(Mathf.Cos(phi), 0f, Mathf.Sin(phi));
+                b.Add(radial * 0.5f + Vector3.up, radial);
+                b.Add(radial * 0.5f - Vector3.up, radial);
+            }
+            for (int j = 0; j < longitude; j++) b.Quad(j * 2, j * 2 + 1, j * 2 + 2, j * 2 + 3);
+            for (int side = -1; side <= 1; side += 2)
+            {
+                Vector3 normal = Vector3.up * side;
+                int centre = b.Add(normal, normal);
+                int first = b.Vertices.Count;
+                for (int j = 0; j <= longitude; j++)
+                {
+                    float phi = 2f * Mathf.PI * j / longitude;
+                    b.Add(new Vector3(Mathf.Cos(phi) * 0.5f, side, Mathf.Sin(phi) * 0.5f), normal);
+                }
+                for (int j = 0; j < longitude; j++) b.Tri(centre, first + j, first + j + 1);
+            }
+            return Cache[key] = b.Build(key);
+        }
+
+        /// <summary>Unit cube with flat-shaded faces.</summary>
+        public static Mesh Cube()
+        {
+            const string key = "cube";
+            Mesh mesh;
+            if (Cache.TryGetValue(key, out mesh) && mesh != null) return mesh;
+            var b = new Builder();
+            for (int axis = 0; axis < 3; axis++)
+            {
+                int u = (axis + 1) % 3, v = (axis + 2) % 3;
+                for (int sign = -1; sign <= 1; sign += 2)
+                {
+                    Vector3 normal = Vector3.zero;
+                    normal[axis] = sign;
+                    int start = b.Vertices.Count;
+                    for (int cu = -1; cu <= 1; cu += 2)
+                    {
+                        for (int cv = -1; cv <= 1; cv += 2)
+                        {
+                            Vector3 p = normal * 0.5f;
+                            p[u] = cu * 0.5f;
+                            p[v] = cv * 0.5f;
+                            b.Add(p, normal);
+                        }
+                    }
+                    b.Quad(start, start + 1, start + 2, start + 3);
+                }
+            }
+            return Cache[key] = b.Build(key);
+        }
 
         public static Mesh RoundedBox(Vector3 size, float radius, int segments)
         {

@@ -19,7 +19,7 @@ namespace MetroSort.Game
 
         private ObjectPoolManager _pool;
         private readonly Dictionary<int, PassengerView> _passengers = new Dictionary<int, PassengerView>();
-        private Transform _env, _actors;
+        private Transform _env, _platformRoot, _actors;
         private string _signature;
         private Vector3[] _queueFront = new Vector3[0];
         private float _queueStep = 0.9f;
@@ -320,7 +320,11 @@ namespace MetroSort.Game
         private void BuildEnvironment(BoardState state)
         {
             if (_env != null) Destroy(_env.gameObject);
+            if (_platformRoot != null) Destroy(_platformRoot.gameObject);
             Platforms.Clear();
+            // Platforms animate (pulse, highlight), so they live outside the statically batched environment.
+            _platformRoot = new GameObject("Platforms").transform;
+            _platformRoot.SetParent(transform, false);
             _env = new GameObject("Environment").transform;
             _env.SetParent(transform, false);
 
@@ -424,6 +428,11 @@ namespace MetroSort.Game
                     Prims.MakeRounded(_env, new Vector3(side * (sideX + 0.1f), 0.22f, -1.0f), new Vector3(0.6f, 0.44f, 1.6f), 0.12f, Palette.Wood, "DecorBench");
             }
 
+            // Nothing in the environment moves: merge it into one mesh per material so the floor tiles, sleepers,
+            // railings and wall details cost a handful of draw calls instead of several hundred.
+            if (_benchGlow != null) _benchGlow.transform.SetParent(_platformRoot, true);
+            MeshFactory.MergeStatic(_env);
+
             FitCamera();
         }
 
@@ -437,7 +446,7 @@ namespace MetroSort.Game
             {
                 PlatformState ps = state.Platforms[first + i];
                 float w = PlatformView.WidthFor(ps.Capacity);
-                Platforms.Add(PlatformView.Create(_env, first + i, ps, new Vector3(x + w * 0.5f, 0f, z)));
+                Platforms.Add(PlatformView.Create(_platformRoot, first + i, ps, new Vector3(x + w * 0.5f, 0f, z)));
                 x += w + gap;
             }
             return total;
