@@ -1,0 +1,46 @@
+{
+  "id": 169,
+  "name": "Polar Granite",
+  "group": "Polar",
+  "stages": [
+    [
+      "RRGBY",
+      "PBGBR",
+      "GBGPB",
+      "PRGYY",
+      "RBGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 73.8,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

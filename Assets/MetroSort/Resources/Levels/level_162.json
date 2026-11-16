@@ -1,0 +1,46 @@
+{
+  "id": 162,
+  "name": "Polar Garden",
+  "group": "Polar",
+  "stages": [
+    [
+      "YBGYR",
+      "BRRYG",
+      "RYBBG",
+      "RBGRY",
+      "GGBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 57.6,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

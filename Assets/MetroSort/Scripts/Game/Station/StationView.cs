@@ -32,6 +32,7 @@ namespace MetroSort.Game
         private Transform _gateRoot;
         private GameObject[] _gateBars = new GameObject[0];
         private int[] _gateRemaining = new int[0];
+        private int[] _gateColor = new int[0];
 
         public void Init(Camera cam, ObjectPoolManager pool)
         {
@@ -112,7 +113,10 @@ namespace MetroSort.Game
         public string GateLabel(int queue)
         {
             int n = queue < _gateRemaining.Length ? _gateRemaining[queue] : 0;
-            return n > 0 ? Loc.F(n == 1 ? "{0} train" : "{0} trains", n) : null;
+            if (n <= 0) return null;
+            int color = queue < _gateColor.Length ? _gateColor[queue] : ColorCodes.Any;
+            if (color >= 0) return Loc.F(n == 1 ? "{0} {1} train" : "{0} {1} trains", n, Loc.T(ColorCodes.Names[color]));
+            return Loc.F(n == 1 ? "{0} train" : "{0} trains", n);
         }
 
         public Vector3 GateAnchor(int queue)
@@ -128,23 +132,28 @@ namespace MetroSort.Game
             {
                 _gateBars = new GameObject[_queueFront.Length];
                 _gateRemaining = new int[_queueFront.Length];
+                _gateColor = new int[_queueFront.Length];
             }
             for (int q = 0; q < _queueFront.Length; q++)
             {
                 int remaining = q < state.Queues.Length && !state.Queues[q].IsEmpty ? state.GateRemaining(q) : 0;
                 _gateRemaining[q] = remaining;
-                if (remaining > 0 && _gateBars[q] == null) _gateBars[q] = BuildGate(q, state.Queues[q].Count);
+                _gateColor[q] = state.GateColor(q);
+                if (remaining > 0 && _gateBars[q] == null) _gateBars[q] = BuildGate(q, state.Queues[q].Count, _gateColor[q]);
                 if (_gateBars[q] != null && _gateBars[q].activeSelf != (remaining > 0)) _gateBars[q].SetActive(remaining > 0);
             }
         }
 
-        private GameObject BuildGate(int queue, int depth)
+        private GameObject BuildGate(int queue, int depth, int color)
         {
             var root = new GameObject("QueueGate");
             root.transform.SetParent(_gateRoot, false);
             root.transform.localPosition = new Vector3(_queueFront[queue].x, 0f, _queueFront[queue].z);
             var steel = new Color(0.52f, 0.56f, 0.64f);
-            var red = new Color(0.90f, 0.20f, 0.22f);
+            // A colour-keyed turnstile wears the colour of the line it waits for.
+            // An "any train" turnstile is a black and yellow hazard bar, so it cannot be mistaken for a line colour.
+            Color red = color >= 0 ? Palette.Lines[color] : new Color(0.17f, 0.18f, 0.22f);
+            Color stripe = color >= 0 ? Color.white : new Color(1.00f, 0.82f, 0.10f);
             // The lane is "switched off" while its turnstile is closed.
             float laneLength = (depth - 1) * _queueStep + 1.0f;
             Prims.NoShadow(Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(0f, 0.014f, -laneLength * 0.5f + 0.5f), new Vector3(0.96f, 0.02f, laneLength), new Color(0.56f, 0.58f, 0.64f), "ClosedLane"));
@@ -154,7 +163,7 @@ namespace MetroSort.Game
             Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(0.56f, 0.38f, z), new Vector3(0.14f, 0.76f, 0.14f), steel, "Post");
             Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(0f, 0.62f, z), new Vector3(1.00f, 0.24f, 0.10f), red, "Bar");
             for (int i = -1; i <= 1; i++)
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(i * 0.30f, 0.62f, z - 0.005f), new Vector3(0.11f, 0.245f, 0.11f), Color.white, "Stripe"));
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(i * 0.30f, 0.62f, z - 0.005f), new Vector3(0.11f, 0.245f, 0.11f), stripe, "Stripe"));
             return root;
         }
 

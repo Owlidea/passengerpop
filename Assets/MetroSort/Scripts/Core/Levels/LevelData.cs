@@ -49,6 +49,11 @@ namespace MetroSort.Levels
         /// turnstile opens (0 = open from the start). May be shorter than the queue list.
         /// </summary>
         public int[] Gates = new int[0];
+        /// <summary>
+        /// Optional, parallel to Gates: the line whose trains open that gate (ColorCodes.Any = every train).
+        /// Empty when every gate counts all trains. JSON: "gateColors": ["", "", "B"].
+        /// </summary>
+        public int[] GateColors = new int[0];
         /// <summary>How many Extra Platform boosters this level accepts.</summary>
         public int ExtraPlatforms = 1;
         public string Tutorial = "";
@@ -119,6 +124,14 @@ namespace MetroSort.Levels
             level.Gates = new int[gateList.Count];
             for (int i = 0; i < gateList.Count; i++)
                 level.Gates[i] = gateList[i] is double ? (int)Math.Round((double)gateList[i]) : 0;
+            List<object> gateColorList = JsonRead.List(root, "gateColors");
+            level.GateColors = new int[gateColorList.Count];
+            for (int i = 0; i < gateColorList.Count; i++)
+            {
+                string code = gateColorList[i] as string ?? "";
+                int gc; bool gv;
+                level.GateColors[i] = code.Length == 1 && ColorCodes.TryParse(code[0], out gc, out gv) ? gc : ColorCodes.Any;
+            }
             foreach (object platObj in JsonRead.List(root, "platforms"))
             {
                 var pd = JsonRead.AsDict(platObj);
@@ -180,6 +193,12 @@ namespace MetroSort.Levels
                 var gates = new List<object>();
                 foreach (int g in Gates) gates.Add(g);
                 root["gates"] = gates;
+                if (GateColors != null && GateColors.Length > 0)
+                {
+                    var colors = new List<object>();
+                    foreach (int c in GateColors) colors.Add(c >= 0 ? ColorCodes.Letters[c].ToString() : "");
+                    root["gateColors"] = colors;
+                }
             }
             root["extraPlatforms"] = ExtraPlatforms;
             root["tutorial"] = Tutorial;

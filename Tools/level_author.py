@@ -26,9 +26,12 @@ def initial_state(level):
     for p in level["platforms"]:
         lock_trains = p.get("lockTrains", 0)
         plats.append((p.get("cap", 3), p.get("uses", 0) or -1, p.get("lockColor", "*") if lock_trains else "", lock_trains, "", 0, p.get("color", "")))
-    # A gated queue carries its remaining train count as a leading digit, e.g. "2RGB".
+    # A gated queue carries a two-character prefix: remaining trains and the line that counts ("*" = any),
+    # e.g. "2*RGB" or "1BRGB".
     gates = level.get("gates") or []
-    first = [(str(gates[i]) if i < len(gates) and gates[i] > 0 else "") + q for i, q in enumerate(level["stages"][0]) if q]
+    colors = level.get("gateColors") or []
+    first = [((str(gates[i]) + (colors[i] if i < len(colors) and colors[i] else "*")) if i < len(gates) and gates[i] > 0 else "") + q
+             for i, q in enumerate(level["stages"][0]) if q]
     return (0, tuple(sorted(first)), "", tuple(sorted(plats)))
 
 
@@ -69,7 +72,8 @@ def place(level, state, char, queues, bench):
                     rem = o[3] - 1
                     new_plats[j] = (o[0], o[1], o[2] if rem > 0 else "", rem, o[4], o[5], o[6])
             # A departed train brings every closed turnstile one step closer to opening.
-            queues = [(q[1:] if q[0] == "1" else str(int(q[0]) - 1) + q[1:]) if q and q[0].isdigit() else q for q in queues]
+            queues = [(q[2:] if q[0] == "1" else str(int(q[0]) - 1) + q[1:]) if q and q[0].isdigit() and q[1] in ("*", col) else q
+                      for q in queues]
         else:
             new_plats[i] = (cap, uses, "", 0, col, count + 1, fixed)
         yield finish(level, stage, queues, bench, new_plats)
@@ -205,7 +209,7 @@ def draft(spec, rng):
             queues[i % spec["queues"]] += c
         stages.append(queues)
     return {"stages": stages, "platforms": [dict(p) for p in spec["platforms"]], "bench": spec.get("bench", 0),
-            "gates": list(spec.get("gates", []))}
+            "gates": list(spec.get("gates", [])), "gateColors": list(spec.get("gate_colors", []))}
 
 
 def search(spec, seed):
@@ -427,10 +431,45 @@ def build_grand_specs():
     return specs
 
 
+def build_polar_specs():
+    """Levels 161-180: colour-keyed gates (only trains of one line open the turnstile), with tighter bands."""
+    places = ["Harbour", "Garden", "Market", "Castle", "River", "Summit", "Lantern", "Willow", "Granite", "Silver",
+              "Meadow", "Beacon", "Orchard", "Tower", "Bridge", "Canal", "Forest", "Sunset", "Crystal", "Copper"]
+    lock = lambda color, trains: {"cap": 3, "lockColor": color, "lockTrains": trains}
+    express = lambda color: {"cap": 2, "express": True, "color": color}
+    specs = []
+
+    def add(gate_list, color_list, **kw):
+        n = len(specs)
+        kw["name"] = "Polar " + places[n % len(places)]
+        kw["group"] = "Polar"
+        pad = kw["queues"] - len(gate_list)
+        kw["gates"] = [0] * pad + list(gate_list)
+        kw["gate_colors"] = [""] * pad + list(color_list)
+        kw.setdefault("dead", (0.35, 0.75))
+        kw.setdefault("attempts", 80 if sum(kw["counts"]) <= 21 else 30)
+        if n == 0:
+            kw["tutorial"] = "gate_color"
+        specs.append(kw)
+
+    sizes = [[6, 6, 3, 3], [6, 6, 6, 3], [6, 6, 6, 6], [6, 6, 6, 3, 3]]
+    for r in range(4):
+        counts = [6, 3, 3] if r == 0 else sizes[r]
+        queues = 4 if sum(sizes[r]) <= 21 else 5
+        add([1], ["R"], counts=counts, queues=4 if r == 0 else queues, platforms=P(3), dead=(0.15, 0.55))
+        counts = sizes[r]
+        add([1, 1], ["R", "B"], counts=counts, queues=queues, platforms=P(3))
+        add([1 + r // 2], ["B"], counts=counts, queues=queues, platforms=P(3), visible=2)
+        add([1, 2], ["R", ""], counts=counts, queues=queues, platforms=P(2, lock("*", 1)))
+        add([1], ["B"], counts=[5] + counts[1:], queues=queues, platforms=P(2, express("R")), vip=1 + r // 2)
+    return specs
+
+
 SPECS.extend(build_extra_specs())
 SPECS.extend(build_expert_specs())
 SPECS.extend(build_master_specs())
 SPECS.extend(build_grand_specs())
+SPECS.extend(build_polar_specs())
 
 
 def draft_one(job):
@@ -468,7 +507,7 @@ def main():
             # Keep the shipped level exactly as it is; only re-analyse it for the report.
             with open(path) as f:
                 data = json.load(f)
-            level = {"stages": data["stages"], "platforms": data["platforms"], "bench": data.get("bench", 0), "moveLimit": data.get("moveLimit", 0), "gates": data.get("gates", [])}
+            level = {"stages": data["stages"], "platforms": data["platforms"], "bench": data.get("bench", 0), "moveLimit": data.get("moveLimit", 0), "gates": data.get("gates", []), "gateColors": data.get("gateColors", [])}
             a = analyze(level)
             entries[i] = {"spec": dict(spec, name=data["name"], visible=data.get("visible", 0), tutorial=data.get("tutorial", "")), "level": level, "a": a, "in_band": True, "difficulty": difficulty(level, a), "kept": True}
         elif "hand" in spec:
@@ -490,7 +529,7 @@ def main():
 
     # Curate each generated group: order by measured difficulty so the curve rises, keeping planned names in place.
     # Levels kept from disk are never moved.
-    for group in ("Basic", "Intermediate", "Advanced", "Expert", "Master", "Grand"):
+    for group in ("Basic", "Intermediate", "Advanced", "Expert", "Master", "Grand", "Polar"):
         idx = [i for i, e in enumerate(entries) if e["spec"]["group"] == group and not e.get("kept") and not e["spec"].get("tutorial")]
         ordered = sorted((entries[i] for i in idx), key=lambda e: e["difficulty"])
         names = [entries[i]["spec"]["name"] for i in idx]
@@ -522,6 +561,8 @@ def main():
         }
         if level.get("gates"):
             data["gates"] = level["gates"]
+            if level.get("gateColors"):
+                data["gateColors"] = level["gateColors"]
         with open(os.path.join(out_dir, "level_%03d.json" % level_id), "w") as f:
             json.dump(data, f, indent=2)
             f.write("\n")

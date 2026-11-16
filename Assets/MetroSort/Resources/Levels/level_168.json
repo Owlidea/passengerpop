@@ -1,0 +1,43 @@
+{
+  "id": 168,
+  "name": "Polar Willow",
+  "group": "Polar",
+  "stages": [
+    [
+      "GBRBYB",
+      "BYBRB",
+      "YRGRR",
+      "GGGRG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 72.3,
+  "gates": [
+    0,
+    0,
+    1,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "R",
+    "B"
+  ]
+}

@@ -37,6 +37,7 @@ One JSON file per level in `Assets/MetroSort/Resources/Levels/level_NNN.json`. N
 | `moveLimit` | 0 = unlimited |
 | `visible` | Mystery queue: how many passengers at the front of each queue show their line (0 = all) |
 | `gates` | Gated queues (first stage only): entry *q* is how many trains must depart before queue *q*'s turnstile opens (0 = open). Omitted when no queue is gated |
+| `gateColors` | Optional, parallel to `gates`: a line letter means only trains of that line count towards the gate; `""` = every train. Omitted when no gate is colour-keyed |
 | `extraPlatforms` | How many Extra Platform boosters the level accepts |
 | `tutorial` | Tutorial id, see `TutorialManager` |
 | `par` | Minimum solution length from the solver; used for stars |
@@ -56,6 +57,7 @@ One JSON file per level in `Assets/MetroSort/Resources/Levels/level_NNN.json`. N
 | 101-120 | Expert | Mystery queues (`visible` 3, then 2) combined with locked, temporary and express platforms |
 | 121-140 | Master | Mystery queues (`visible` 2) combined with a second mechanic: VIP, two stages behind a locked platform, bench with a move limit, long platform, express plus temporary platform |
 | 141-160 | Grand | Gated queues (`gates`): one or two closed turnstiles, alone and combined with locked platforms, temporary platforms and mystery queues |
+| 161-180 | Polar | Colour-keyed gates (`gateColors`), alone and with a second gate, mystery queues, a locked platform, or an express platform plus VIPs; tighter dead-end bands (scores up to 90) |
 
 Levels 37-100 come from `build_extra_specs()` in `Tools/level_author.py`. When a spec is too large to analyse
 completely or yields no winnable draft, the tool removes one train-load from the largest line and retries.

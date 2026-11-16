@@ -447,6 +447,28 @@ namespace MetroSort.Tests
         }
 
         [Test]
+        public void ColourGate_OnlyCountsTrainsOfItsLine()
+        {
+            LevelData level = TestLevels.Make(new[] { "BBB", "RRR", "GGG" }, 2);
+            level.Gates = new[] { 0, 0, 1 };
+            level.GateColors = new[] { ColorCodes.Any, ColorCodes.Any, 0 };
+            var board = new PuzzleBoard(level);
+            var events = new List<BoardEvent>();
+            for (int i = 0; i < 3; i++) board.TryMove(Move.FromQueue(0, 0), events);
+            Assert.AreEqual(1, board.State.GateRemaining(2), "a blue train must not open a red gate");
+            Assert.IsNull(events.Find(e => e.Type == BoardEventType.QueueGateOpened));
+            Assert.AreEqual(MoveError.QueueGated, board.TryMove(Move.FromQueue(2, 0), null));
+            for (int i = 0; i < 3; i++) board.TryMove(Move.FromQueue(1, 1), events);
+            Assert.IsNotNull(events.Find(e => e.Type == BoardEventType.QueueGateOpened && e.Queue == 2));
+            Assert.AreEqual(MoveError.None, board.TryMove(Move.FromQueue(2, 0), null));
+            LevelData copy = LevelData.FromJson(level.ToJson());
+            Assert.AreEqual(level.GateColors, copy.GateColors);
+            Assert.AreEqual(BoardState.Create(level).CanonicalKey(), BoardState.Create(copy).CanonicalKey());
+            level.GateColors = new int[0];
+            Assert.AreNotEqual(BoardState.Create(level).CanonicalKey(), BoardState.Create(copy).CanonicalKey());
+        }
+
+        [Test]
         public void LevelJson_RoundTrips()
         {
             LevelData level = TestLevels.Make(new[] { "Rb", "BR" }, 1, bench: 1, moveLimit: 9);

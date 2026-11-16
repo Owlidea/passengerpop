@@ -65,6 +65,7 @@ namespace MetroSort.Puzzle
             }
             s.Boarded += plat.Count;
             s.TrainsDeparted++;
+            if (s.TrainsByColor != null && color >= 0) s.TrainsByColor[color]++;
             plat.Occupants.Clear();
             plat.Color = ColorCodes.None;
 
@@ -126,12 +127,17 @@ namespace MetroSort.Puzzle
                     events.Add(new BoardEvent { Type = BoardEventType.PassengerMoved, PassengerId = p.Id, Move = m, Platform = m.Target, Slot = plat.Count - 1, Color = p.Color });
                     if (assigns) events.Add(new BoardEvent { Type = BoardEventType.PlatformColorAssigned, Platform = m.Target, Color = p.Color });
                 }
-                int trainsBefore = s.TrainsDeparted;
-                MatchResolver.Resolve(s, m.Target, events);
-                if (events != null && s.Gates != null && s.Stage == 0 && s.TrainsDeparted > trainsBefore)
+                int[] gatesBefore = null;
+                if (events != null && s.Gates != null && s.Stage == 0)
                 {
-                    for (int q = 0; q < s.Gates.Length && q < s.Queues.Length; q++)
-                        if (s.Gates[q] > trainsBefore && s.Gates[q] <= s.TrainsDeparted)
+                    gatesBefore = new int[s.Gates.Length];
+                    for (int q = 0; q < gatesBefore.Length; q++) gatesBefore[q] = s.GateRemaining(q);
+                }
+                MatchResolver.Resolve(s, m.Target, events);
+                if (gatesBefore != null)
+                {
+                    for (int q = 0; q < gatesBefore.Length && q < s.Queues.Length; q++)
+                        if (gatesBefore[q] > 0 && s.GateRemaining(q) == 0)
                             events.Add(new BoardEvent { Type = BoardEventType.QueueGateOpened, Queue = q });
                 }
             }

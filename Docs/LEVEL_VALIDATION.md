@@ -166,5 +166,25 @@ no longer be won.
 | 158 | Grand Sunset | Grand | 24 | 3 | 2673 | 24 | 0.28 | 9 | 71.2 | yes |  |
 | 159 | Grand Crystal | Grand | 21 | 3 | 836 | 21 | 0.31 | 11 | 72.1 | yes |  |
 | 160 | Grand Copper | Grand | 21 | 3 | 453 | 21 | 0.32 | 9 | 72.6 | yes |  |
+| 161 | Polar Harbour | Polar | 12 | 3 | 235 | 12 | 0.34 | 6 | 47.3 | yes |  |
+| 162 | Polar Garden | Polar | 24 | 3 | 7866 | 24 | 0.20 | 7 | 57.6 | yes |  |
+| 163 | Polar Market | Polar | 21 | 3 | 465 | 21 | 0.28 | 8 | 63.6 | yes |  |
+| 164 | Polar Castle | Polar | 18 | 3 | 392 | 18 | 0.37 | 8 | 65.8 | yes |  |
+| 165 | Polar River | Polar | 18 | 3 | 119 | 18 | 0.38 | 6 | 66.1 | yes |  |
+| 166 | Polar Summit | Polar | 17 | 3 | 426 | 17 | 0.44 | 7 | 66.2 | yes |  |
+| 167 | Polar Lantern | Polar | 18 | 3 | 474 | 18 | 0.36 | 10 | 69.6 | yes |  |
+| 168 | Polar Willow | Polar | 21 | 3 | 222 | 21 | 0.36 | 10 | 72.3 | yes |  |
+| 169 | Polar Granite | Polar | 24 | 3 | 2573 | 24 | 0.29 | 9 | 73.8 | yes |  |
+| 170 | Polar Silver | Polar | 21 | 3 | 422 | 21 | 0.38 | 11 | 75.9 | yes |  |
+| 171 | Polar Meadow | Polar | 21 | 3 | 116 | 21 | 0.39 | 9 | 76.5 | yes |  |
+| 172 | Polar Beacon | Polar | 24 | 3 | 851 | 24 | 0.33 | 12 | 76.6 | yes | closest to band |
+| 173 | Polar Orchard | Polar | 24 | 3 | 2424 | 24 | 0.29 | 14 | 79.3 | yes | closest to band |
+| 174 | Polar Tower | Polar | 23 | 3 | 2074 | 23 | 0.54 | 10 | 81.1 | yes |  |
+| 175 | Polar Bridge | Polar | 24 | 3 | 695 | 24 | 0.32 | 13 | 83.5 | yes | closest to band |
+| 176 | Polar Canal | Polar | 24 | 3 | 427 | 24 | 0.38 | 10 | 85.9 | yes |  |
+| 177 | Polar Forest | Polar | 20 | 3 | 1255 | 20 | 0.63 | 12 | 89.2 | yes |  |
+| 178 | Polar Sunset | Polar | 24 | 3 | 636 | 24 | 0.36 | 14 | 90.1 | yes |  |
+| 179 | Polar Crystal | Polar | 23 | 3 | 1342 | 23 | 0.66 | 9 | 90.5 | yes |  |
+| 180 | Polar Copper | Polar | 24 | 3 | 454 | 24 | 0.43 | 13 | 90.7 | yes |  |
 
-160 levels, 0 failed.
+180 levels, 0 failed.
