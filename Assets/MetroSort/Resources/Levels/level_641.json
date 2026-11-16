@@ -1,0 +1,43 @@
+{
+  "id": 641,
+  "name": "Autumn Harbour",
+  "group": "Autumn",
+  "stages": [
+    [
+      "RBRYG",
+      "RBBYB",
+      "BGBG",
+      "RRYR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 57.8,
+  "gates": [
+    0,
+    0,
+    1,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "R",
+    "B"
+  ]
+}

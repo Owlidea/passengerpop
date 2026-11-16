@@ -1,0 +1,45 @@
+{
+  "id": 668,
+  "name": "Winter Willow",
+  "group": "Winter",
+  "stages": [
+    [
+      "YYY",
+      "GRB",
+      "BB",
+      "RG",
+      "RR"
+    ],
+    [
+      "YYR",
+      "BGB",
+      "GR",
+      "GY",
+      "GB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "R",
+      "lockTrains": 1
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 76.0
+}

@@ -10,12 +10,13 @@ Environment: macOS, Unity 6.6 (6000.6.9f1) in batch mode, URP, Input System 1.20
 | Unity EditMode tests | **53 passed, 0 failed** |
 | Unity PlayMode tests | **5 passed, 0 failed** |
 | `dotnet test Tools/CoreTests` | **53 passed, 0 failed** |
-| `dotnet run --project Tools/LevelTool -- validate` | **600 checked, 0 failed** |
-| `python3 Tools/level_author.py` (independent rules mirror) | **600 levels, 0 failed**; state counts, minimum moves and dead-end ratios match the C# solver |
+| `dotnet run --project Tools/LevelTool -- validate` | **700 checked, 0 failed** |
+| `python3 Tools/level_author.py` (independent rules mirror) | **700 levels, 0 failed**; state counts, minimum moves and dead-end ratios match the C# solver |
 | `MetroSortProjectSetup.RunSetup` via `-executeMethod` | **Completed**: bootstrap scene, URP assets, shared material, economy config created |
 | Frames rendered from the running game at 1080x1920 | **Inspected**: `Docs/screenshots/` |
 | Android App Bundle build (batch mode) | **Succeeded**: `Builds/Android/MetroSort.aab` |
-| iOS Xcode export (device and simulator) | **Succeeded** |
+| iOS Xcode export (device and simulator) | **Succeeded**; the device project compiles unsigned for `iphoneos` arm64 (not installed on a phone) |
+| Emulator/simulator performance spot check (level 200, the heaviest) | Android 16 emulator on an Apple M3: 60 fps idle and while playing, 253 MB PSS, cold start 1.4 s. iOS simulator (Debug build): 210 MB footprint, about 45% of one core. **Not representative of phones.** |
 | Xcode build for the iOS Simulator, run on iPhone 17 Pro simulator | **Succeeded**; played with injected touches: menu, level start, tap-to-move, match, train arrival |
 | Test APK installed on an Android 16 (API 36) emulator | **Succeeded**; played with injected taps: menu, level start, guided moves, match, train arrival and boarding |
 | One train per track / platform reserved until departure | **Verified** from a scripted frame sequence (`Docs/screenshots/train_queue_*.png`) |
@@ -106,7 +107,7 @@ restart, and progress across a relaunch.
   performance of outlines and post-processing on a phone have not been checked.
 - **No device testing**: frame rate, memory, touch feel, safe-area layout and audio latency are unmeasured.
 - **Levels are not human-playtested.** They are proven winnable and ordered by a computed score only.
-- **All 600 levels are machine-generated and solver-selected**; none has been playtested by a person, and
+- **All 700 levels are machine-generated and solver-selected**; none has been playtested by a person, and
   levels 37-100 introduce mechanics in difficulty order rather than a hand-designed teaching order.
 - **TextMeshPro, Addressables and Animator controllers are not used** (see assumptions in `GAME_DESIGN.md`).
 - **Art and audio are procedural**: meshes built in code (with outlines and post-processing), synthesised sound. No prefabs or imported

@@ -500,11 +500,12 @@ def build_capital_specs():
 
 NETWORK_GROUPS = ["Coastal", "Desert", "Alpine", "Tropic", "Royal", "Lakeside", "Canyon", "Island", "Aurora", "Golden",
                   "Crimson", "Emerald", "Sapphire", "Amber", "Ivory",
-                  "Northern", "Southern", "Eastern", "Western", "Uptown"]
+                  "Northern", "Southern", "Eastern", "Western", "Uptown",
+                  "Spring", "Summer", "Autumn", "Winter", "Festival"]
 
 
 def build_network_specs():
-    """Levels 201-600: twenty more lines, each built around its own mix of mechanics. Every line starts gentler
+    """Levels 201-700: twenty-five more lines, each built around its own mix of mechanics. Every line starts gentler
     than the previous one ended and tightens over its four rounds."""
     places = ["Harbour", "Garden", "Market", "Castle", "River", "Summit", "Lantern", "Willow", "Granite", "Silver",
               "Meadow", "Beacon", "Orchard", "Tower", "Bridge", "Canal", "Forest", "Sunset", "Crystal", "Copper"]
@@ -702,6 +703,46 @@ def build_network_specs():
         lambda r, c, q: dict(counts=[7] + c[1:], platforms=P(2, long_p("R"), temp(3)), vip=2),
         lambda r, c, q: dict(counts=[10] + c[1:], platforms=P(3, long_p("R")), stages=2),
         lambda r, c, q: dict(counts=[7, 5] + c[2:], platforms=P(2, long_p("R"), express("B")), gate=[1]),
+    ])
+    # Spring: pairings that have not met before, at a gentle pace.
+    line("Spring", medium, [
+        lambda r, c, q: dict(platforms=P(2, temp(2), temp(3)), gate=[1]),
+        lambda r, c, q: dict(platforms=P(2, lock("R", 1)), stages=2),
+        lambda r, c, q: dict(platforms=P(3), vip=3 + r // 2, gate=[1, 2]),
+        lambda r, c, q: dict(platforms=P(2, temp(3)), visible=2, vip=2),
+        lambda r, c, q: dict(platforms=P(3), stages=2, gate=[1], gate_color=["R"], visible=2),
+    ])
+    # Summer: one bench seat and a move limit, with a second obstacle.
+    line("Summer", small, [
+        lambda r, c, q: dict(queues=4, platforms=P(2), bench=1, move_slack=3, gate=[1], gate_color=["R"]),
+        lambda r, c, q: dict(queues=4, platforms=P(1, lock("B", 1)), bench=1, move_slack=4),
+        lambda r, c, q: dict(queues=4, platforms=P(2), bench=1, move_slack=3, vip=2, visible=2),
+        lambda r, c, q: dict(queues=4, platforms=P(1, temp(2 + r // 2)), bench=1, move_slack=3, gate=[1]),
+        lambda r, c, q: dict(queues=4, counts=[5] + c[1:], platforms=P(1, express("R")), bench=1, move_slack=4, vip=1),
+    ])
+    # Autumn: deep mystery with two more ideas.
+    line("Autumn", medium, [
+        lambda r, c, q: dict(platforms=P(3), visible=1, stages=2, gate=[1]),
+        lambda r, c, q: dict(platforms=P(3), visible=1, vip=3 + r // 2),
+        lambda r, c, q: dict(platforms=P(3), visible=1, gate=[1, 1], gate_color=["R", "B"]),
+        lambda r, c, q: dict(platforms=P(2, temp(3), lock("*", 1)), visible=1),
+        lambda r, c, q: dict(counts=[7, 5] + c[2:], platforms=P(2, long_p("R"), express("B")), visible=1),
+    ])
+    # Winter: frozen platforms - several locks at once.
+    line("Winter", medium, [
+        lambda r, c, q: dict(platforms=P(2, lock("*", 1), lock("R", 1), lock("*", 3))),
+        lambda r, c, q: dict(platforms=P(2, lock("*", 2)), gate=[1, 2]),
+        lambda r, c, q: dict(platforms=P(2, lock("R", 1), temp(2)), stages=2),
+        lambda r, c, q: dict(counts=[5] + c[1:], platforms=P(2, lock("B", 1), express("R")), vip=2),
+        lambda r, c, q: dict(platforms=P(2, lock("*", 1), lock("B", 2)), visible=2),
+    ])
+    # Festival: five and six lines, crowds and several gates.
+    line("Festival", large, [
+        lambda r, c, q: dict(platforms=P(4), gate=[1, 1, 2], gate_color=["R", "B", ""]),
+        lambda r, c, q: dict(platforms=P(3, temp(3), temp(2)), vip=2),
+        lambda r, c, q: dict(counts=[7, 5] + c[2:], platforms=P(2, long_p("R"), express("B")), stages=2),
+        lambda r, c, q: dict(platforms=P(3, lock("*", 1)), visible=1),
+        lambda r, c, q: dict(platforms=P(4), stages=3, gate=[1]),
     ])
     return specs
 

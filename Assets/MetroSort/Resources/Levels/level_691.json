@@ -1,0 +1,52 @@
+{
+  "id": 691,
+  "name": "Festival Meadow",
+  "group": "Festival",
+  "stages": [
+    [
+      "PRBBG",
+      "GBBPG",
+      "GYRYB",
+      "RRGY",
+      "PYRY",
+      "RYBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 84.6,
+  "gates": [
+    0,
+    0,
+    0,
+    1,
+    1,
+    2
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R",
+    "B",
+    ""
+  ]
+}

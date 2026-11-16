@@ -1,0 +1,40 @@
+{
+  "id": 627,
+  "name": "Summer Lantern",
+  "group": "Summer",
+  "stages": [
+    [
+      "RGYRR",
+      "BYGBR",
+      "RYBB",
+      "BRGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 22,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 67.1,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

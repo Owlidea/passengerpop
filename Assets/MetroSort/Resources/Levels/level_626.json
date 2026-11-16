@@ -1,0 +1,40 @@
+{
+  "id": 626,
+  "name": "Summer Summit",
+  "group": "Summer",
+  "stages": [
+    [
+      "RRBY",
+      "GBYG",
+      "GBRR",
+      "RYR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 19,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 16,
+  "difficulty": 65.9,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

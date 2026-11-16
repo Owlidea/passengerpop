@@ -106,6 +106,8 @@ namespace MetroSort.Game
             { "Crimson Line", "Kızıl Hat" }, { "Emerald Line", "Zümrüt Hattı" }, { "Sapphire Line", "Safir Hattı" }, { "Amber Line", "Kehribar Hattı" }, { "Ivory Line", "Fildişi Hattı" },
             { "name:Northern", "Kuzey" }, { "name:Southern", "Güney" }, { "name:Eastern", "Doğu" }, { "name:Western", "Batı" }, { "name:Uptown", "Yukarı Şehir" },
             { "Northern Line", "Kuzey Hattı" }, { "Southern Line", "Güney Hattı" }, { "Eastern Line", "Doğu Hattı" }, { "Western Line", "Batı Hattı" }, { "Uptown Line", "Yukarı Şehir Hattı" },
+            { "name:Spring", "Bahar" }, { "name:Summer", "Yaz" }, { "name:Autumn", "Sonbahar" }, { "name:Winter", "Kış" }, { "name:Festival", "Festival" },
+            { "Spring Line", "Bahar Hattı" }, { "Summer Line", "Yaz Hattı" }, { "Autumn Line", "Sonbahar Hattı" }, { "Winter Line", "Kış Hattı" }, { "Festival Line", "Festival Hattı" },
             { "name:Coastal", "Sahil" }, { "name:Desert", "Çöl" }, { "name:Alpine", "Alp" }, { "name:Tropic", "Tropik" }, { "name:Royal", "Kraliyet" },
             { "Coastal Line", "Sahil Hattı" }, { "Desert Line", "Çöl Hattı" }, { "Alpine Line", "Alp Hattı" }, { "Tropic Line", "Tropik Hat" }, { "Royal Line", "Kraliyet Hattı" }, { "Capital Line", "Başkent Hattı" }, { "Polar Line", "Kutup Hattı" },
             { "{0} {1} train", "{0} {1} tren" }, { "{0} {1} trains", "{0} {1} tren" },

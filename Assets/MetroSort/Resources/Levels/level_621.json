@@ -1,0 +1,28 @@
+{
+  "id": 621,
+  "name": "Summer Harbour",
+  "group": "Summer",
+  "stages": [
+    [
+      "rBBR",
+      "rYRG",
+      "RGGY",
+      "YRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 18,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 15,
+  "difficulty": 52.1
+}

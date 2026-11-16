@@ -1,0 +1,53 @@
+{
+  "id": 612,
+  "name": "Spring Beacon",
+  "group": "Spring",
+  "stages": [
+    [
+      "RYG",
+      "YGR",
+      "RR",
+      "BY",
+      "GB"
+    ],
+    [
+      "GRY",
+      "YBB",
+      "GB",
+      "YG",
+      "RB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 71.0,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

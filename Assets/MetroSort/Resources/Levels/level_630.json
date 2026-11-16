@@ -1,0 +1,28 @@
+{
+  "id": 630,
+  "name": "Summer Silver",
+  "group": "Summer",
+  "stages": [
+    [
+      "GBRBG",
+      "rRRBY",
+      "RYRG",
+      "BBbY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 22,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 71.0
+}

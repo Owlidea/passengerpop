@@ -1,0 +1,30 @@
+{
+  "id": 638,
+  "name": "Summer Sunset",
+  "group": "Summer",
+  "stages": [
+    [
+      "RRbYR",
+      "BBRR",
+      "GYYB",
+      "GGBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 21,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 17,
+  "difficulty": 94.2
+}

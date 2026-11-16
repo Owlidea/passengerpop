@@ -287,6 +287,8 @@ namespace MetroSort.EditorTools
         public static void BuildIOS()
         {
             MetroSortProjectSetup.RunSetup();
+            // Always state the SDK: a simulator build must never leave the device export pointing at the simulator.
+            PlayerSettings.iOS.sdkVersion = iOSSdkVersion.DeviceSDK;
             Build(BuildTarget.iOS, "Builds/iOS");
         }
 
@@ -295,10 +297,9 @@ namespace MetroSort.EditorTools
         public static void BuildIOSSimulator()
         {
             MetroSortProjectSetup.RunSetup();
-            iOSSdkVersion previous = PlayerSettings.iOS.sdkVersion;
             PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;
             try { Build(BuildTarget.iOS, "Builds/iOSSimulator"); }
-            finally { PlayerSettings.iOS.sdkVersion = previous; }
+            finally { PlayerSettings.iOS.sdkVersion = iOSSdkVersion.DeviceSDK; }
         }
 
         private static void Build(BuildTarget target, string output)

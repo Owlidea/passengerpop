@@ -1,0 +1,30 @@
+{
+  "id": 628,
+  "name": "Summer Willow",
+  "group": "Summer",
+  "stages": [
+    [
+      "RBBR",
+      "YRRR",
+      "BGY",
+      "GGy"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 18,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 14,
+  "difficulty": 67.4
+}

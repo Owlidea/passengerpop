@@ -510,7 +510,7 @@ no longer be won.
 | 502 | Northern Garden | Northern | 19 | 4 | 35957 | 19 | 0.54 | 8 | 69.1 | yes |  |
 | 503 | Northern Market | Northern | 19 | 3 | 970 | 19 | 0.44 | 8 | 69.3 | yes |  |
 | 504 | Northern Castle | Northern | 26 | 4 | 90695 | 26 | 0.48 | 8 | 70.2 | yes |  |
-| 505 | Northern River | Northern | 18 | 4 | 1530 | 18 | 0.63 | 8 | 71.1 | yes | closest to band |
+| 505 | Northern River | Northern | 18 | 4 | 1530 | 18 | 0.63 | 8 | 71.1 | yes |  |
 | 506 | Northern Summit | Northern | 22 | 3 | 693 | 22 | 0.54 | 7 | 73.9 | yes |  |
 | 507 | Northern Lantern | Northern | 22 | 4 | 64457 | 22 | 0.44 | 11 | 74.2 | yes |  |
 | 508 | Northern Willow | Northern | 23 | 4 | 21745 | 23 | 0.61 | 9 | 77.4 | yes |  |
@@ -524,26 +524,26 @@ no longer be won.
 | 516 | Northern Canal | Northern | 23 | 4 | 20565 | 23 | 0.55 | 15 | 89.5 | yes |  |
 | 517 | Northern Forest | Northern | 26 | 4 | 52649 | 26 | 0.52 | 13 | 91.7 | yes |  |
 | 518 | Northern Sunset | Northern | 24 | 4 | 5190 | 24 | 0.70 | 14 | 92.0 | yes |  |
-| 519 | Northern Crystal | Northern | 22 | 4 | 132379 | 22 | 0.65 | 17 | 96.9 | yes | closest to band |
+| 519 | Northern Crystal | Northern | 22 | 4 | 132379 | 22 | 0.65 | 17 | 96.9 | yes |  |
 | 520 | Northern Copper | Northern | 24 | 4 | 3940 | 24 | 0.77 | 16 | 100.0 | yes |  |
 | 521 | Southern Harbour | Southern | 15 | 2 | 2468 | 15 | 0.14 | 2 | 45.6 | yes |  |
 | 522 | Southern Garden | Southern | 15 | 2 | 2854 | 15 | 0.14 | 2 | 47.3 | yes |  |
 | 523 | Southern Market | Southern | 18 | 2 | 4665 | 19 | 0.18 | 2 | 50.8 | yes |  |
 | 524 | Southern Castle | Southern | 18 | 2 | 4339 | 18 | 0.21 | 1 | 51.0 | yes |  |
-| 525 | Southern River | Southern | 21 | 2 | 6648 | 21 | 0.16 | 1 | 51.1 | yes | closest to band |
+| 525 | Southern River | Southern | 21 | 2 | 6648 | 21 | 0.16 | 1 | 51.1 | yes |  |
 | 526 | Southern Summit | Southern | 15 | 2 | 1392 | 16 | 0.17 | 3 | 51.6 | yes |  |
 | 527 | Southern Lantern | Southern | 18 | 2 | 12871 | 19 | 0.25 | 1 | 51.9 | yes |  |
-| 528 | Southern Willow | Southern | 18 | 2 | 22020 | 18 | 0.20 | 3 | 54.1 | yes | closest to band |
+| 528 | Southern Willow | Southern | 18 | 2 | 22020 | 18 | 0.20 | 3 | 54.1 | yes |  |
 | 529 | Southern Granite | Southern | 15 | 2 | 6898 | 15 | 0.22 | 4 | 55.0 | yes |  |
 | 530 | Southern Silver | Southern | 18 | 2 | 4002 | 19 | 0.18 | 3 | 55.0 | yes |  |
 | 531 | Southern Meadow | Southern | 18 | 2 | 3864 | 18 | 0.15 | 4 | 55.5 | yes |  |
 | 532 | Southern Beacon | Southern | 18 | 2 | 2749 | 20 | 0.19 | 4 | 57.8 | yes |  |
 | 533 | Southern Orchard | Southern | 18 | 2 | 4466 | 18 | 0.20 | 4 | 58.1 | yes |  |
-| 534 | Southern Tower | Southern | 21 | 2 | 6025 | 22 | 0.20 | 3 | 58.1 | yes | closest to band |
-| 535 | Southern Bridge | Southern | 21 | 2 | 8604 | 21 | 0.17 | 4 | 58.7 | yes | closest to band |
+| 534 | Southern Tower | Southern | 21 | 2 | 6025 | 22 | 0.20 | 3 | 58.1 | yes |  |
+| 535 | Southern Bridge | Southern | 21 | 2 | 8604 | 21 | 0.17 | 4 | 58.7 | yes |  |
 | 536 | Southern Canal | Southern | 16 | 2 | 3065 | 17 | 0.24 | 5 | 59.4 | yes |  |
 | 537 | Southern Forest | Southern | 19 | 2 | 5493 | 20 | 0.35 | 3 | 61.9 | yes |  |
-| 538 | Southern Sunset | Southern | 21 | 2 | 40620 | 21 | 0.21 | 5 | 62.0 | yes | closest to band |
+| 538 | Southern Sunset | Southern | 21 | 2 | 40620 | 21 | 0.21 | 5 | 62.0 | yes |  |
 | 539 | Southern Crystal | Southern | 19 | 2 | 6257 | 20 | 0.33 | 5 | 66.1 | yes |  |
 | 540 | Southern Copper | Southern | 22 | 2 | 10522 | 23 | 0.35 | 6 | 71.9 | yes |  |
 | 541 | Eastern Harbour | Eastern | 21 | 3 | 145 | 21 | 0.34 | 4 | 52.5 | yes |  |
@@ -593,7 +593,7 @@ no longer be won.
 | 585 | Uptown River | Uptown | 25 | 4 | 113164 | 25 | 0.43 | 11 | 80.9 | yes |  |
 | 586 | Uptown Summit | Uptown | 22 | 4 | 3407 | 22 | 0.54 | 12 | 81.3 | yes |  |
 | 587 | Uptown Lantern | Uptown | 29 | 4 | 98153 | 29 | 0.41 | 8 | 81.3 | yes |  |
-| 588 | Uptown Willow | Uptown | 25 | 4 | 130902 | 25 | 0.45 | 11 | 81.6 | yes | closest to band |
+| 588 | Uptown Willow | Uptown | 25 | 4 | 130902 | 25 | 0.45 | 11 | 81.6 | yes |  |
 | 589 | Uptown Granite | Uptown | 29 | 4 | 120250 | 29 | 0.57 | 8 | 81.9 | yes |  |
 | 590 | Uptown Silver | Uptown | 23 | 4 | 16939 | 23 | 0.52 | 13 | 82.9 | yes |  |
 | 591 | Uptown Meadow | Uptown | 28 | 4 | 27098 | 28 | 0.47 | 8 | 83.6 | yes |  |
@@ -606,5 +606,105 @@ no longer be won.
 | 598 | Uptown Sunset | Uptown | 27 | 4 | 106841 | 27 | 0.69 | 14 | 100.0 | yes |  |
 | 599 | Uptown Crystal | Uptown | 31 | 4 | 37976 | 31 | 0.69 | 14 | 100.0 | yes |  |
 | 600 | Uptown Copper | Uptown | 27 | 4 | 12271 | 27 | 0.75 | 14 | 100.0 | yes |  |
+| 601 | Spring Harbour | Spring | 21 | 3 | 10419 | 21 | 0.28 | 5 | 55.9 | yes |  |
+| 602 | Spring Garden | Spring | 18 | 3 | 4533 | 18 | 0.24 | 7 | 56.5 | yes |  |
+| 603 | Spring Market | Spring | 18 | 3 | 295 | 18 | 0.39 | 5 | 58.6 | yes |  |
+| 604 | Spring Castle | Spring | 18 | 4 | 53177 | 18 | 0.41 | 7 | 60.1 | yes |  |
+| 605 | Spring River | Spring | 18 | 3 | 202 | 18 | 0.37 | 5 | 60.7 | yes |  |
+| 606 | Spring Summit | Spring | 21 | 4 | 158864 | 21 | 0.28 | 10 | 62.6 | yes | closest to band |
+| 607 | Spring Lantern | Spring | 24 | 3 | 1423 | 24 | 0.37 | 6 | 62.9 | yes |  |
+| 608 | Spring Willow | Spring | 24 | 3 | 61731 | 24 | 0.26 | 8 | 62.9 | yes | closest to band |
+| 609 | Spring Granite | Spring | 18 | 3 | 131 | 18 | 0.38 | 8 | 64.5 | yes |  |
+| 610 | Spring Silver | Spring | 24 | 3 | 685 | 24 | 0.31 | 8 | 68.2 | yes |  |
+| 611 | Spring Meadow | Spring | 21 | 3 | 339 | 21 | 0.43 | 9 | 70.5 | yes |  |
+| 612 | Spring Beacon | Spring | 24 | 3 | 639 | 24 | 0.36 | 10 | 71.0 | yes |  |
+| 613 | Spring Orchard | Spring | 21 | 3 | 867 | 21 | 0.52 | 7 | 71.9 | yes |  |
+| 614 | Spring Tower | Spring | 24 | 3 | 1924 | 24 | 0.41 | 6 | 72.2 | yes |  |
+| 615 | Spring Bridge | Spring | 21 | 4 | 94176 | 21 | 0.37 | 12 | 72.8 | yes |  |
+| 616 | Spring Canal | Spring | 24 | 3 | 15315 | 24 | 0.38 | 9 | 78.1 | yes |  |
+| 617 | Spring Forest | Spring | 24 | 3 | 621 | 24 | 0.38 | 8 | 78.6 | yes |  |
+| 618 | Spring Sunset | Spring | 21 | 4 | 119995 | 21 | 0.44 | 11 | 79.7 | yes | closest to band |
+| 619 | Spring Crystal | Spring | 21 | 3 | 280 | 21 | 0.43 | 12 | 83.1 | yes |  |
+| 620 | Spring Copper | Spring | 24 | 3 | 386 | 24 | 0.48 | 11 | 86.2 | yes |  |
+| 621 | Summer Harbour | Summer | 15 | 2 | 1030 | 15 | 0.26 | 2 | 52.1 | yes |  |
+| 622 | Summer Garden | Summer | 18 | 2 | 3021 | 18 | 0.26 | 4 | 59.5 | yes |  |
+| 623 | Summer Market | Summer | 18 | 2 | 1544 | 18 | 0.28 | 5 | 62.7 | yes |  |
+| 624 | Summer Castle | Summer | 15 | 2 | 258 | 16 | 0.33 | 4 | 63.5 | yes |  |
+| 625 | Summer River | Summer | 18 | 2 | 1609 | 19 | 0.33 | 5 | 65.3 | yes |  |
+| 626 | Summer Summit | Summer | 15 | 2 | 322 | 16 | 0.29 | 7 | 65.9 | yes |  |
+| 627 | Summer Lantern | Summer | 18 | 2 | 509 | 19 | 0.26 | 7 | 67.1 | yes |  |
+| 628 | Summer Willow | Summer | 14 | 2 | 688 | 14 | 0.42 | 6 | 67.4 | yes |  |
+| 629 | Summer Granite | Summer | 21 | 2 | 3551 | 21 | 0.38 | 4 | 67.6 | yes |  |
+| 630 | Summer Silver | Summer | 18 | 2 | 1800 | 19 | 0.33 | 7 | 71.0 | yes |  |
+| 631 | Summer Meadow | Summer | 18 | 2 | 555 | 19 | 0.27 | 7 | 71.1 | yes |  |
+| 632 | Summer Beacon | Summer | 18 | 2 | 411 | 18 | 0.42 | 6 | 72.0 | yes |  |
+| 633 | Summer Orchard | Summer | 15 | 2 | 360 | 16 | 0.48 | 7 | 74.9 | yes |  |
+| 634 | Summer Tower | Summer | 21 | 2 | 762 | 22 | 0.37 | 7 | 78.5 | yes |  |
+| 635 | Summer Bridge | Summer | 18 | 2 | 1148 | 19 | 0.44 | 9 | 84.5 | yes |  |
+| 636 | Summer Canal | Summer | 21 | 2 | 989 | 22 | 0.42 | 10 | 84.8 | yes |  |
+| 637 | Summer Forest | Summer | 17 | 2 | 1570 | 18 | 0.65 | 10 | 91.6 | yes |  |
+| 638 | Summer Sunset | Summer | 17 | 2 | 1405 | 17 | 0.49 | 14 | 94.2 | yes |  |
+| 639 | Summer Crystal | Summer | 21 | 2 | 6643 | 22 | 0.52 | 13 | 97.2 | yes |  |
+| 640 | Summer Copper | Summer | 20 | 2 | 2081 | 21 | 0.71 | 13 | 100.0 | yes |  |
+| 641 | Autumn Harbour | Autumn | 18 | 3 | 547 | 18 | 0.32 | 6 | 57.8 | yes |  |
+| 642 | Autumn Garden | Autumn | 18 | 3 | 321 | 18 | 0.44 | 4 | 58.7 | yes |  |
+| 643 | Autumn Market | Autumn | 18 | 3 | 198 | 18 | 0.34 | 8 | 62.0 | yes |  |
+| 644 | Autumn Castle | Autumn | 24 | 4 | 176053 | 24 | 0.26 | 8 | 63.0 | yes | closest to band |
+| 645 | Autumn River | Autumn | 21 | 3 | 1933 | 21 | 0.31 | 8 | 64.6 | yes |  |
+| 646 | Autumn Summit | Autumn | 24 | 3 | 8118 | 24 | 0.32 | 8 | 65.5 | yes |  |
+| 647 | Autumn Lantern | Autumn | 18 | 4 | 16856 | 18 | 0.45 | 7 | 66.7 | yes |  |
+| 648 | Autumn Willow | Autumn | 24 | 3 | 1299 | 24 | 0.34 | 8 | 67.0 | yes |  |
+| 649 | Autumn Granite | Autumn | 21 | 3 | 322 | 21 | 0.32 | 9 | 67.9 | yes |  |
+| 650 | Autumn Silver | Autumn | 21 | 3 | 369 | 21 | 0.43 | 9 | 70.1 | yes |  |
+| 651 | Autumn Meadow | Autumn | 18 | 4 | 5288 | 18 | 0.61 | 8 | 71.9 | yes |  |
+| 652 | Autumn Beacon | Autumn | 24 | 3 | 1124 | 24 | 0.37 | 12 | 76.4 | yes |  |
+| 653 | Autumn Orchard | Autumn | 21 | 4 | 30300 | 21 | 0.39 | 12 | 78.7 | yes |  |
+| 654 | Autumn Tower | Autumn | 21 | 4 | 13964 | 21 | 0.61 | 10 | 79.3 | yes |  |
+| 655 | Autumn Bridge | Autumn | 24 | 3 | 3843 | 24 | 0.47 | 8 | 79.6 | yes |  |
+| 656 | Autumn Canal | Autumn | 24 | 4 | 40131 | 24 | 0.59 | 11 | 81.0 | yes |  |
+| 657 | Autumn Forest | Autumn | 24 | 3 | 627 | 24 | 0.37 | 12 | 85.5 | yes |  |
+| 658 | Autumn Sunset | Autumn | 24 | 4 | 85003 | 24 | 0.40 | 12 | 86.2 | yes |  |
+| 659 | Autumn Crystal | Autumn | 24 | 3 | 385 | 24 | 0.38 | 13 | 86.5 | yes |  |
+| 660 | Autumn Copper | Autumn | 24 | 4 | 33728 | 24 | 0.59 | 12 | 90.8 | yes |  |
+| 661 | Winter Harbour | Winter | 21 | 3 | 504 | 21 | 0.30 | 4 | 59.1 | yes |  |
+| 662 | Winter Garden | Winter | 18 | 3 | 148 | 18 | 0.37 | 6 | 65.4 | yes |  |
+| 663 | Winter Market | Winter | 24 | 4 | 9230 | 24 | 0.28 | 7 | 66.4 | yes | closest to band |
+| 664 | Winter Castle | Winter | 18 | 4 | 921 | 18 | 0.29 | 9 | 68.9 | yes |  |
+| 665 | Winter River | Winter | 24 | 3 | 1115 | 24 | 0.30 | 9 | 72.2 | yes | closest to band |
+| 666 | Winter Summit | Winter | 18 | 4 | 3256 | 18 | 0.60 | 7 | 72.4 | yes |  |
+| 667 | Winter Lantern | Winter | 21 | 4 | 1812 | 21 | 0.32 | 10 | 75.5 | yes |  |
+| 668 | Winter Willow | Winter | 24 | 4 | 10176 | 24 | 0.36 | 12 | 76.0 | yes |  |
+| 669 | Winter Granite | Winter | 17 | 4 | 1592 | 17 | 0.51 | 10 | 76.5 | yes |  |
+| 670 | Winter Silver | Winter | 21 | 5 | 4280 | 21 | 0.49 | 8 | 78.3 | yes |  |
+| 671 | Winter Meadow | Winter | 24 | 5 | 27042 | 24 | 0.46 | 9 | 80.1 | yes |  |
+| 672 | Winter Beacon | Winter | 18 | 5 | 1657 | 18 | 0.51 | 10 | 81.8 | yes |  |
+| 673 | Winter Orchard | Winter | 21 | 4 | 2639 | 21 | 0.50 | 13 | 83.9 | yes |  |
+| 674 | Winter Tower | Winter | 23 | 4 | 20673 | 23 | 0.48 | 13 | 85.5 | yes |  |
+| 675 | Winter Bridge | Winter | 24 | 4 | 4126 | 24 | 0.54 | 11 | 89.1 | yes |  |
+| 676 | Winter Canal | Winter | 24 | 3 | 1214 | 24 | 0.38 | 12 | 90.3 | yes |  |
+| 677 | Winter Forest | Winter | 20 | 4 | 5780 | 20 | 0.61 | 14 | 92.6 | yes |  |
+| 678 | Winter Sunset | Winter | 24 | 5 | 5733 | 24 | 0.64 | 8 | 93.6 | yes |  |
+| 679 | Winter Crystal | Winter | 24 | 4 | 1284 | 24 | 0.43 | 13 | 95.3 | yes |  |
+| 680 | Winter Copper | Winter | 23 | 4 | 2354 | 23 | 0.59 | 13 | 97.6 | yes |  |
+| 681 | Festival Harbour | Festival | 21 | 4 | 425 | 21 | 0.48 | 6 | 58.9 | yes |  |
+| 682 | Festival Garden | Festival | 21 | 4 | 260 | 21 | 0.46 | 7 | 65.0 | yes |  |
+| 683 | Festival Market | Festival | 21 | 4 | 5419 | 21 | 0.42 | 8 | 70.0 | yes |  |
+| 684 | Festival Castle | Festival | 21 | 5 | 95763 | 21 | 0.56 | 8 | 72.2 | yes |  |
+| 685 | Festival River | Festival | 18 | 5 | 173652 | 18 | 0.61 | 8 | 73.3 | yes | closest to band |
+| 686 | Festival Summit | Festival | 15 | 5 | 103128 | 15 | 0.72 | 7 | 74.8 | yes | closest to band |
+| 687 | Festival Lantern | Festival | 24 | 4 | 8693 | 24 | 0.38 | 8 | 75.5 | yes |  |
+| 688 | Festival Willow | Festival | 24 | 4 | 499 | 24 | 0.54 | 8 | 76.2 | yes |  |
+| 689 | Festival Granite | Festival | 27 | 4 | 968 | 27 | 0.42 | 12 | 81.1 | yes |  |
+| 690 | Festival Silver | Festival | 21 | 4 | 2052 | 21 | 0.66 | 12 | 83.0 | yes | closest to band |
+| 691 | Festival Meadow | Festival | 27 | 4 | 11258 | 27 | 0.43 | 12 | 84.6 | yes |  |
+| 692 | Festival Beacon | Festival | 27 | 4 | 68441 | 27 | 0.34 | 12 | 84.7 | yes |  |
+| 693 | Festival Orchard | Festival | 27 | 4 | 39110 | 27 | 0.37 | 9 | 85.6 | yes |  |
+| 694 | Festival Tower | Festival | 27 | 4 | 8778 | 27 | 0.41 | 11 | 87.9 | yes |  |
+| 695 | Festival Bridge | Festival | 18 | 5 | 175851 | 18 | 0.70 | 12 | 93.9 | yes | closest to band |
+| 696 | Festival Canal | Festival | 24 | 4 | 2036 | 24 | 0.66 | 13 | 94.8 | yes |  |
+| 697 | Festival Forest | Festival | 27 | 4 | 2676 | 27 | 0.75 | 9 | 96.9 | yes |  |
+| 698 | Festival Sunset | Festival | 24 | 4 | 765 | 24 | 0.63 | 14 | 98.5 | yes |  |
+| 699 | Festival Crystal | Festival | 27 | 4 | 7807 | 27 | 0.66 | 18 | 100.0 | yes |  |
+| 700 | Festival Copper | Festival | 27 | 4 | 930 | 27 | 0.63 | 15 | 100.0 | yes |  |
 
-600 levels, 0 failed.
+700 levels, 0 failed.

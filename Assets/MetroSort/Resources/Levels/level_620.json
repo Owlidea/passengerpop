@@ -1,0 +1,53 @@
+{
+  "id": 620,
+  "name": "Spring Copper",
+  "group": "Spring",
+  "stages": [
+    [
+      "YGR",
+      "GGR",
+      "BG",
+      "PR",
+      "BB"
+    ],
+    [
+      "RBB",
+      "GYR",
+      "YB",
+      "PG",
+      "PR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 86.2,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

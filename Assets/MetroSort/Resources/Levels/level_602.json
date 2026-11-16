@@ -1,0 +1,32 @@
+{
+  "id": 602,
+  "name": "Spring Garden",
+  "group": "Spring",
+  "stages": [
+    [
+      "GBBRB",
+      "YRYRR",
+      "BRYR",
+      "bgBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 56.5
+}

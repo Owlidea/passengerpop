@@ -1,0 +1,40 @@
+{
+  "id": 636,
+  "name": "Summer Canal",
+  "group": "Summer",
+  "stages": [
+    [
+      "GGBGGR",
+      "BRYYG",
+      "BBRRG",
+      "BRRYB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 25,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 22,
+  "difficulty": 84.8,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

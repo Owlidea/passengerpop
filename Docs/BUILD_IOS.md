@@ -1,6 +1,6 @@
 # Building for iOS
 
-**Status: the export below was run successfully** with Unity 6.6 (`Builds/iOS/`). A simulator variant (`Metro Sort > Build > iOS Simulator Xcode Project`, output `Builds/iOSSimulator/`) was compiled with Xcode and played on an iPhone 17 Pro simulator. A device build has not been compiled or signed.
+**Status: the export below was run successfully** with Unity 6.6 (`Builds/iOS/`). A simulator variant (`Metro Sort > Build > iOS Simulator Xcode Project`, output `Builds/iOSSimulator/`) was compiled with Xcode and played on an iPhone 17 Pro simulator. The device export was also compiled with Xcode for `iphoneos` (arm64, Release, `CODE_SIGNING_ALLOWED=NO`): it builds, producing a 104 MB unsigned app. It has not been signed or installed on a phone. Note: until November 2026 the project setting was stuck on the Simulator SDK, so earlier "device" exports were simulator projects; `BuildIOS` now sets the Device SDK explicitly.
 
 ## You need
 

@@ -22,7 +22,8 @@ namespace MetroSort.Game
             "Coastal Line", "Desert Line", "Alpine Line", "Tropic Line", "Royal Line",
             "Lakeside Line", "Canyon Line", "Island Line", "Aurora Line", "Golden Line",
             "Crimson Line", "Emerald Line", "Sapphire Line", "Amber Line", "Ivory Line",
-            "Northern Line", "Southern Line", "Eastern Line", "Western Line", "Uptown Line"
+            "Northern Line", "Southern Line", "Eastern Line", "Western Line", "Uptown Line",
+            "Spring Line", "Summer Line", "Autumn Line", "Winter Line", "Festival Line"
         };
 
         public static readonly StationTheme[] Themes =
@@ -56,7 +57,12 @@ namespace MetroSort.Game
             Make(new Color(0.92f, 0.40f, 0.30f), new Color(0.97f, 0.90f, 0.78f), new Color(0.70f, 0.92f, 0.82f)), // southern coral
             Make(new Color(0.50f, 0.26f, 0.60f), new Color(0.92f, 0.88f, 0.84f), new Color(0.98f, 0.88f, 0.56f)), // eastern plum and saffron
             Make(new Color(0.60f, 0.40f, 0.24f), new Color(0.88f, 0.84f, 0.74f), new Color(0.70f, 0.84f, 0.96f)), // western leather and sky
-            Make(new Color(0.12f, 0.14f, 0.20f), new Color(0.80f, 0.83f, 0.88f), new Color(0.56f, 0.94f, 0.92f))  // uptown black and neon
+            Make(new Color(0.12f, 0.14f, 0.20f), new Color(0.80f, 0.83f, 0.88f), new Color(0.56f, 0.94f, 0.92f)), // uptown black and neon
+            Make(new Color(0.94f, 0.52f, 0.66f), new Color(0.92f, 0.96f, 0.88f), new Color(0.80f, 0.94f, 0.72f)), // blossom pink and new leaf
+            Make(new Color(0.98f, 0.70f, 0.14f), new Color(0.96f, 0.94f, 0.80f), new Color(0.60f, 0.86f, 0.98f)), // sun yellow and pool blue
+            Make(new Color(0.72f, 0.34f, 0.12f), new Color(0.92f, 0.84f, 0.70f), new Color(0.98f, 0.78f, 0.46f)), // rust and maple
+            Make(new Color(0.40f, 0.56f, 0.72f), new Color(0.94f, 0.96f, 0.99f), new Color(0.80f, 0.90f, 1.00f)), // frost blue and snow
+            Make(new Color(0.84f, 0.16f, 0.44f), new Color(0.96f, 0.92f, 0.86f), new Color(0.66f, 0.94f, 0.80f))  // festival pink and mint
         };
 
         public static int IndexFor(int levelId)

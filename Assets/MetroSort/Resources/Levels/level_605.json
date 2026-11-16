@@ -1,0 +1,39 @@
+{
+  "id": 605,
+  "name": "Spring River",
+  "group": "Spring",
+  "stages": [
+    [
+      "GRR",
+      "GR",
+      "GR",
+      "BY"
+    ],
+    [
+      "YRB",
+      "BB",
+      "BY",
+      "RB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "R",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 60.7
+}

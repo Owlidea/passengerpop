@@ -1,0 +1,30 @@
+{
+  "id": 634,
+  "name": "Summer Tower",
+  "group": "Summer",
+  "stages": [
+    [
+      "YBYBBY",
+      "GGGBB",
+      "GBGRR",
+      "RRRRG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 26,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 22,
+  "difficulty": 78.5
+}

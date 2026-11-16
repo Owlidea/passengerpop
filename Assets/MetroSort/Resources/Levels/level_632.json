@@ -1,0 +1,40 @@
+{
+  "id": 632,
+  "name": "Summer Beacon",
+  "group": "Summer",
+  "stages": [
+    [
+      "YGGRR",
+      "BRBYY",
+      "BBBR",
+      "RRGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 21,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 72.0,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

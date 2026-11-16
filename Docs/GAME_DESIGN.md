@@ -150,7 +150,7 @@ Audio is synthesised at startup: 14 sound effects and an 8-bar seamless loop, wi
 ## Chapters
 
 Levels are grouped into chapters of twenty, each a metro line with its own station colours (wall tiles, floor,
-queue lanes): Central, Old Town, Garden, Palace, Harbour, Misty, Night, Grand, Polar, Capital, Coastal, Desert, Alpine, Tropic, Royal, Lakeside, Canyon, Island, Aurora, Golden, Crimson, Emerald, Sapphire, Amber, Ivory, Northern, Southern, Eastern, Western and Uptown. The level select shows one chapter per page.
+queue lanes): Central, Old Town, Garden, Palace, Harbour, Misty, Night, Grand, Polar, Capital, Coastal, Desert, Alpine, Tropic, Royal, Lakeside, Canyon, Island, Aurora, Golden, Crimson, Emerald, Sapphire, Amber, Ivory, Northern, Southern, Eastern, Western, Uptown, Spring, Summer, Autumn, Winter and Festival. The level select shows one chapter per page.
 Themes are cosmetic and live in `Game/Station/Chapters.cs`.
 
 ## Languages

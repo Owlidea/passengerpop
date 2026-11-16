@@ -1,0 +1,30 @@
+{
+  "id": 631,
+  "name": "Summer Meadow",
+  "group": "Summer",
+  "stages": [
+    [
+      "YYYRG",
+      "RGBBB",
+      "GRBR",
+      "BRRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 23,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 71.1
+}

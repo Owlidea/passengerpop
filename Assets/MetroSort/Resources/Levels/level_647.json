@@ -1,0 +1,37 @@
+{
+  "id": 647,
+  "name": "Autumn Lantern",
+  "group": "Autumn",
+  "stages": [
+    [
+      "BBRRR",
+      "RBBYG",
+      "GGRY",
+      "BYBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 66.7
+}

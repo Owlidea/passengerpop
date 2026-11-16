@@ -1,0 +1,33 @@
+{
+  "id": 608,
+  "name": "Spring Willow",
+  "group": "Spring",
+  "stages": [
+    [
+      "GyYGY",
+      "BRRRR",
+      "YYGGB",
+      "BbGYG",
+      "BRBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 62.9
+}

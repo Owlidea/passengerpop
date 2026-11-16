@@ -1,0 +1,35 @@
+{
+  "id": 625,
+  "name": "Summer River",
+  "group": "Summer",
+  "stages": [
+    [
+      "RGRRB",
+      "GYBRR",
+      "YBGB",
+      "RBBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 22,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 65.3,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": 606,
+  "name": "Spring Summit",
+  "group": "Spring",
+  "stages": [
+    [
+      "GYRGB",
+      "YRGB",
+      "YYBR",
+      "GGBY",
+      "BYGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 62.6,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    1
+  ]
+}

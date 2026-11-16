@@ -1,0 +1,35 @@
+{
+  "id": 639,
+  "name": "Summer Crystal",
+  "group": "Summer",
+  "stages": [
+    [
+      "RYBRYG",
+      "GGRBG",
+      "BBRGR",
+      "BRGBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 25,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 22,
+  "difficulty": 97.2,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

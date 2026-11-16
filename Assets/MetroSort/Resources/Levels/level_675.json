@@ -1,0 +1,45 @@
+{
+  "id": 675,
+  "name": "Winter Bridge",
+  "group": "Winter",
+  "stages": [
+    [
+      "BBR",
+      "BRG",
+      "PG",
+      "YP",
+      "GY"
+    ],
+    [
+      "GBG",
+      "GPB",
+      "RY",
+      "RR",
+      "RB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "R",
+      "lockTrains": 1
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 89.1
+}

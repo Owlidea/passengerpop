@@ -79,8 +79,13 @@ One JSON file per level in `Assets/MetroSort/Resources/Levels/level_NNN.json`. N
 | 541-560 | Eastern | Three waves behind locks, colour gates, temporary platforms or deep mystery |
 | 561-580 | Western | Colour locks against colour gates: the order of trains matters twice |
 | 581-600 | Uptown | Five and six lines around reserved long platforms |
+| 601-620 | Spring | New pairings at a gentle pace: two temporary platforms with a gate, colour lock with a second wave, VIPs with two gates |
+| 621-640 | Summer | One bench seat and a move limit plus a second obstacle (colour gate, colour lock, VIPs, temporary or express platform) |
+| 641-660 | Autumn | Deep mystery with two more ideas (waves and a gate, VIPs, colour gate pairs, long plus express) |
+| 661-680 | Winter | Several locks at once, with gates, a temporary platform, an express platform or mystery |
+| 681-700 | Festival | Five and six lines: three gates, two temporary platforms, three waves |
 
-Lines 201-600 each start gentler than the previous line ended (score about 50) and tighten over four rounds
+Lines 201-700 each start gentler than the previous line ended (score about 50) and tighten over four rounds
 (dead-end band rising from 0.20 to 0.35 at the low end), so the difficulty curve is a sawtooth rather than a
 single climb.
 

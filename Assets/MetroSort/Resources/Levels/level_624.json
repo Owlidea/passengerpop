@@ -1,0 +1,30 @@
+{
+  "id": 624,
+  "name": "Summer Castle",
+  "group": "Summer",
+  "stages": [
+    [
+      "YRGR",
+      "RGYY",
+      "RBRB",
+      "BRG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 20,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 16,
+  "difficulty": 63.5
+}

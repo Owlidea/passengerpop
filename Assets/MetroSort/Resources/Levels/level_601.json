@@ -1,0 +1,32 @@
+{
+  "id": 601,
+  "name": "Spring Harbour",
+  "group": "Spring",
+  "stages": [
+    [
+      "BYBYGG",
+      "GRYBR",
+      "RGGBR",
+      "GrrBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 55.9
+}

@@ -1,0 +1,35 @@
+{
+  "id": 622,
+  "name": "Summer Garden",
+  "group": "Summer",
+  "stages": [
+    [
+      "RYBBR",
+      "GYBBY",
+      "RBRR",
+      "GGBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 21,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 59.5,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

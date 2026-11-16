@@ -1,0 +1,38 @@
+{
+  "id": 692,
+  "name": "Festival Beacon",
+  "group": "Festival",
+  "stages": [
+    [
+      "YBRYR",
+      "GGYYR",
+      "PYRRY",
+      "GPPR",
+      "GGBB",
+      "BBGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 84.7
+}

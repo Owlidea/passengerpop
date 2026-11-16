@@ -1,0 +1,46 @@
+{
+  "id": 648,
+  "name": "Autumn Willow",
+  "group": "Autumn",
+  "stages": [
+    [
+      "GBRGR",
+      "BYYBG",
+      "YGBGY",
+      "RYBBR",
+      "YGRR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 67.0,
+  "gates": [
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R",
+    "B"
+  ]
+}

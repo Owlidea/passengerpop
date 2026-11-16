@@ -1,0 +1,46 @@
+{
+  "id": 682,
+  "name": "Festival Garden",
+  "group": "Festival",
+  "stages": [
+    [
+      "BBBGRB",
+      "RYBGR",
+      "GYBGR",
+      "GRRGY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 65.0,
+  "gates": [
+    0,
+    1,
+    1,
+    2
+  ],
+  "gateColors": [
+    "",
+    "R",
+    "B",
+    ""
+  ]
+}

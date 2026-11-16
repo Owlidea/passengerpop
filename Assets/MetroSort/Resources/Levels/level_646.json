@@ -1,0 +1,32 @@
+{
+  "id": 646,
+  "name": "Autumn Summit",
+  "group": "Autumn",
+  "stages": [
+    [
+      "GrGRR",
+      "bRBGG",
+      "YGBbY",
+      "RGRYY",
+      "BByY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 65.5
+}

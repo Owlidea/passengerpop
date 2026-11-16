@@ -1,0 +1,35 @@
+{
+  "id": 633,
+  "name": "Summer Orchard",
+  "group": "Summer",
+  "stages": [
+    [
+      "BRGB",
+      "GRBR",
+      "YGYR",
+      "YRR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 19,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 16,
+  "difficulty": 74.9,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

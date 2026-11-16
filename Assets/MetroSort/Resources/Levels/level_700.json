@@ -1,0 +1,60 @@
+{
+  "id": 700,
+  "name": "Festival Copper",
+  "group": "Festival",
+  "stages": [
+    [
+      "GB",
+      "RR",
+      "BY",
+      "B",
+      "B",
+      "G"
+    ],
+    [
+      "GR",
+      "BO",
+      "YB",
+      "O",
+      "G",
+      "G"
+    ],
+    [
+      "YP",
+      "GP",
+      "RR",
+      "O",
+      "P",
+      "R"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 100.0,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ]
+}

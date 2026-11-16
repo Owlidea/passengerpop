@@ -1,0 +1,52 @@
+{
+  "id": 681,
+  "name": "Festival Harbour",
+  "group": "Festival",
+  "stages": [
+    [
+      "BR",
+      "YY",
+      "GY",
+      "G"
+    ],
+    [
+      "BB",
+      "BB",
+      "GG",
+      "R"
+    ],
+    [
+      "RR",
+      "GG",
+      "RR",
+      "B"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 58.9,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}
