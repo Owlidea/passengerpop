@@ -95,6 +95,8 @@ namespace MetroSort.Puzzle
         ColorMismatch,
         VipNeedsCompany,
         BenchFull,
+        /// <summary>The queue's turnstile is still closed; it opens after enough trains have departed.</summary>
+        QueueGated,
         /// <summary>Never produced by the rules: the presentation layer is still seeing a train off at that platform.</summary>
         PlatformBusy
     }
@@ -107,6 +109,7 @@ namespace MetroSort.Puzzle
         PlatformUnlocked,
         PlatformClosed,
         PlatformAdded,
+        QueueGateOpened,
         StageAdvanced,
         Won,
         Lost
@@ -120,6 +123,7 @@ namespace MetroSort.Puzzle
         public Move Move;
         public int Platform = -1;
         public int Slot = -1;
+        public int Queue = -1;
         public int Color = ColorCodes.None;
         public int[] PassengerIds;
         public int Stage;

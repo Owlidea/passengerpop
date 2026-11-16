@@ -39,7 +39,8 @@ namespace MetroSort.Game
             { "bench", new Definition("Tap a passenger, then the bench to park them. Moves are limited!", 0, null) },
             { "stages", new Definition("A second wave arrives when the queues are empty.", 0, null) },
             { "long", new Definition("The long platform needs four passengers and serves one line only.", 0, null) },
-            { "mystery", new Definition("Grey passengers hide their line until they move up the queue.", 0, null) }
+            { "mystery", new Definition("Grey passengers hide their line until they move up the queue.", 0, null) },
+            { "gate", new Definition("A closed turnstile opens after the number of trains shown on it have left.", 0, null) }
         };
 
         private GameApp _app;

@@ -19,6 +19,7 @@ namespace MetroSort.Puzzle
             {
                 if (m.Source >= s.Queues.Length) return MoveError.BadSource;
                 if (s.Queues[m.Source].IsEmpty) return MoveError.QueueEmpty;
+                if (s.GateRemaining(m.Source) > 0) return MoveError.QueueGated;
                 p = s.Queues[m.Source].Front;
             }
 
@@ -125,7 +126,14 @@ namespace MetroSort.Puzzle
                     events.Add(new BoardEvent { Type = BoardEventType.PassengerMoved, PassengerId = p.Id, Move = m, Platform = m.Target, Slot = plat.Count - 1, Color = p.Color });
                     if (assigns) events.Add(new BoardEvent { Type = BoardEventType.PlatformColorAssigned, Platform = m.Target, Color = p.Color });
                 }
+                int trainsBefore = s.TrainsDeparted;
                 MatchResolver.Resolve(s, m.Target, events);
+                if (events != null && s.Gates != null && s.Stage == 0 && s.TrainsDeparted > trainsBefore)
+                {
+                    for (int q = 0; q < s.Gates.Length && q < s.Queues.Length; q++)
+                        if (s.Gates[q] > trainsBefore && s.Gates[q] <= s.TrainsDeparted)
+                            events.Add(new BoardEvent { Type = BoardEventType.QueueGateOpened, Queue = q });
+                }
             }
 
             if (s.AllQueuesEmpty && !s.IsLastStage)

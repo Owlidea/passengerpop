@@ -44,6 +44,11 @@ namespace MetroSort.Levels
         /// the rest stay grey until they move up. Presentation only - the rules and the solver are unaffected.
         /// </summary>
         public int Visible;
+        /// <summary>
+        /// Gated queues of the first stage: entry q is the number of trains that must depart before queue q's
+        /// turnstile opens (0 = open from the start). May be shorter than the queue list.
+        /// </summary>
+        public int[] Gates = new int[0];
         /// <summary>How many Extra Platform boosters this level accepts.</summary>
         public int ExtraPlatforms = 1;
         public string Tutorial = "";
@@ -110,6 +115,10 @@ namespace MetroSort.Levels
                 for (int i = 0; i < queues.Length; i++) queues[i] = stageList[i] as string ?? "";
                 level.Stages.Add(queues);
             }
+            List<object> gateList = JsonRead.List(root, "gates");
+            level.Gates = new int[gateList.Count];
+            for (int i = 0; i < gateList.Count; i++)
+                level.Gates[i] = gateList[i] is double ? (int)Math.Round((double)gateList[i]) : 0;
             foreach (object platObj in JsonRead.List(root, "platforms"))
             {
                 var pd = JsonRead.AsDict(platObj);
@@ -166,6 +175,12 @@ namespace MetroSort.Levels
             root["bench"] = Bench;
             root["moveLimit"] = MoveLimit;
             if (Visible > 0) root["visible"] = Visible;
+            if (Gates != null && Gates.Length > 0)
+            {
+                var gates = new List<object>();
+                foreach (int g in Gates) gates.Add(g);
+                root["gates"] = gates;
+            }
             root["extraPlatforms"] = ExtraPlatforms;
             root["tutorial"] = Tutorial;
             root["par"] = Par;

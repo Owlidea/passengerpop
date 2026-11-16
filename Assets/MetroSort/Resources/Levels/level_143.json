@@ -1,0 +1,37 @@
+{
+  "id": 143,
+  "name": "Grand Market",
+  "group": "Grand",
+  "stages": [
+    [
+      "BRGBBR",
+      "GRRGG",
+      "YRYYB",
+      "GBBRG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 53.2,
+  "gates": [
+    0,
+    0,
+    1,
+    2
+  ]
+}

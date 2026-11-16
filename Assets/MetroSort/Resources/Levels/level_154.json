@@ -1,0 +1,38 @@
+{
+  "id": 154,
+  "name": "Grand Tower",
+  "group": "Grand",
+  "stages": [
+    [
+      "GBBRGY",
+      "RRRYB",
+      "YGGRB",
+      "GBRGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 67.2,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

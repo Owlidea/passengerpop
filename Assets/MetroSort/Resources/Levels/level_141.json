@@ -1,0 +1,37 @@
+{
+  "id": 141,
+  "name": "Grand Harbour",
+  "group": "Grand",
+  "stages": [
+    [
+      "BRB",
+      "RRR",
+      "GRR",
+      "GGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "gate",
+  "par": 12,
+  "difficulty": 48.3,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

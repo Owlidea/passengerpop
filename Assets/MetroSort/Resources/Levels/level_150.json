@@ -1,0 +1,37 @@
+{
+  "id": 150,
+  "name": "Grand Silver",
+  "group": "Grand",
+  "stages": [
+    [
+      "YRGBBB",
+      "BGBGY",
+      "GRRRB",
+      "GRYRG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 63.7,
+  "gates": [
+    0,
+    0,
+    0,
+    3
+  ]
+}

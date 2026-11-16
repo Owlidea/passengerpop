@@ -96,6 +96,18 @@ namespace MetroSort.Puzzle
         public int Boarded;
         public int Total;
         public int TrainsDeparted;
+        /// <summary>
+        /// Gated queues (first stage only): queue q stays closed until this many trains have departed.
+        /// Shared, never mutated. May be null or shorter than the queue list.
+        /// </summary>
+        public int[] Gates;
+
+        /// <summary>Trains that still have to depart before the queue's turnstile opens; 0 = open.</summary>
+        public int GateRemaining(int queue)
+        {
+            if (Gates == null || Stage != 0 || queue < 0 || queue >= Gates.Length) return 0;
+            return Math.Max(0, Gates[queue] - TrainsDeparted);
+        }
 
         public int StageCount { get { return AllStages.Length; } }
         public bool IsLastStage { get { return Stage >= AllStages.Length - 1; } }
@@ -151,6 +163,7 @@ namespace MetroSort.Puzzle
             }
             s.BenchCapacity = level.Bench;
             s.MoveLimit = level.MoveLimit;
+            s.Gates = level.Gates != null && level.Gates.Length > 0 ? (int[])level.Gates.Clone() : null;
             s.Queues = new PassengerQueue[0];
             if (s.AllStages.Length > 0) s.LoadStage(0);
             return s;
@@ -175,7 +188,8 @@ namespace MetroSort.Puzzle
                 MoveLimit = MoveLimit,
                 Boarded = Boarded,
                 Total = Total,
-                TrainsDeparted = TrainsDeparted
+                TrainsDeparted = TrainsDeparted,
+                Gates = Gates
             };
             c.Queues = new PassengerQueue[Queues.Length];
             for (int i = 0; i < Queues.Length; i++) c.Queues[i] = Queues[i].Clone();
@@ -199,6 +213,8 @@ namespace MetroSort.Puzzle
             {
                 if (Queues[i].IsEmpty) continue;
                 tmp.Length = 0;
+                int gate = GateRemaining(i);
+                if (gate > 0) tmp.Append('g').Append(gate).Append(':');
                 Queues[i].AppendCode(tmp);
                 parts.Add(tmp.ToString());
             }

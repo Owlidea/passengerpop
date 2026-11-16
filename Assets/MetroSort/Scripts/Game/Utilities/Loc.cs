@@ -99,7 +99,10 @@ namespace MetroSort.Game
             { "name:Central", "Merkez" }, { "name:Crossing", "Geçidi" }, { "name:Depot", "Deposu" }, { "name:Gate", "Kapısı" },
             { "name:Halt", "Durağı" }, { "name:Interchange", "Aktarması" }, { "name:Junction", "Kavşağı" }, { "name:Loop", "Ringi" },
             { "All levels unlocked for testing", "Test için tüm seviyeler açıldı" },
-            { "name:Parkway", "Bulvarı" }, { "name:Terminal", "Terminali" }, { "name:Foggy", "Sisli" }, { "name:Midnight", "Geceyarısı" },
+            { "name:Parkway", "Bulvarı" }, { "name:Terminal", "Terminali" }, { "name:Foggy", "Sisli" }, { "name:Midnight", "Geceyarısı" }, { "name:Grand", "Büyük" },
+            { "Grand Line", "Büyük Hat" }, { "{0} train", "{0} tren" }, { "{0} trains", "{0} tren" },
+            { "This turnstile is still closed", "Bu turnike henüz kapalı" },
+            { "A closed turnstile opens after the number of trains shown on it have left.", "Kapalı turnike, üzerinde yazan sayıda tren kalkınca açılır." },
             // Chapters
             { "Central Line", "Merkez Hattı" }, { "Old Town Line", "Eski Şehir Hattı" }, { "Garden Line", "Bahçe Hattı" },
             { "Palace Line", "Saray Hattı" }, { "Harbour Line", "Liman Hattı" }, { "Misty Line", "Sisli Hat" }, { "Night Line", "Gece Hattı" },

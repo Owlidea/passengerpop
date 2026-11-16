@@ -146,5 +146,25 @@ no longer be won.
 | 138 | Midnight Sunset | Master | 18 | 2 | 1656 | 19 | 0.27 | 10 | 76.2 | yes |  |
 | 139 | Midnight Crystal | Master | 20 | 4 | 32515 | 20 | 0.61 | 11 | 79.9 | yes |  |
 | 140 | Midnight Copper | Master | 22 | 3 | 3272 | 22 | 0.40 | 13 | 82.1 | yes |  |
+| 141 | Grand Harbour | Grand | 12 | 3 | 229 | 12 | 0.41 | 5 | 48.3 | yes |  |
+| 142 | Grand Garden | Grand | 18 | 3 | 4997 | 18 | 0.25 | 5 | 52.1 | yes |  |
+| 143 | Grand Market | Grand | 21 | 3 | 1006 | 21 | 0.28 | 4 | 53.2 | yes |  |
+| 144 | Grand Castle | Grand | 21 | 3 | 1822 | 21 | 0.24 | 5 | 53.7 | yes |  |
+| 145 | Grand River | Grand | 24 | 3 | 4555 | 24 | 0.22 | 6 | 56.1 | yes |  |
+| 146 | Grand Summit | Grand | 21 | 3 | 1007 | 21 | 0.25 | 6 | 56.9 | yes |  |
+| 147 | Grand Lantern | Grand | 18 | 3 | 544 | 18 | 0.21 | 6 | 57.7 | yes |  |
+| 148 | Grand Willow | Grand | 24 | 3 | 3624 | 24 | 0.24 | 7 | 59.5 | yes |  |
+| 149 | Grand Granite | Grand | 24 | 3 | 30356 | 24 | 0.26 | 7 | 60.8 | yes |  |
+| 150 | Grand Silver | Grand | 21 | 3 | 420 | 21 | 0.34 | 7 | 63.7 | yes |  |
+| 151 | Grand Meadow | Grand | 18 | 3 | 156 | 18 | 0.33 | 8 | 63.8 | yes |  |
+| 152 | Grand Beacon | Grand | 24 | 3 | 5253 | 24 | 0.20 | 10 | 64.7 | yes |  |
+| 153 | Grand Orchard | Grand | 21 | 3 | 6961 | 21 | 0.34 | 8 | 66.5 | yes |  |
+| 154 | Grand Tower | Grand | 21 | 3 | 5309 | 21 | 0.41 | 7 | 67.2 | yes |  |
+| 155 | Grand Bridge | Grand | 18 | 3 | 422 | 18 | 0.40 | 9 | 69.1 | yes |  |
+| 156 | Grand Canal | Grand | 21 | 3 | 834 | 21 | 0.46 | 7 | 69.5 | yes |  |
+| 157 | Grand Forest | Grand | 21 | 3 | 557 | 21 | 0.31 | 8 | 69.9 | yes |  |
+| 158 | Grand Sunset | Grand | 24 | 3 | 2673 | 24 | 0.28 | 9 | 71.2 | yes |  |
+| 159 | Grand Crystal | Grand | 21 | 3 | 836 | 21 | 0.31 | 11 | 72.1 | yes |  |
+| 160 | Grand Copper | Grand | 21 | 3 | 453 | 21 | 0.32 | 9 | 72.6 | yes |  |
 
-140 levels, 0 failed.
+160 levels, 0 failed.

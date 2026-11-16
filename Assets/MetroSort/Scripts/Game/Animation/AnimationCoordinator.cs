@@ -100,6 +100,10 @@ namespace MetroSort.Game
                         _audio.Play(Sfx.Booster);
                         if (e.Platform < _station.Platforms.Count) _station.Platforms[e.Platform].Pulse();
                         break;
+                    case BoardEventType.QueueGateOpened:
+                        _audio.Play(Sfx.Booster);
+                        if (!GameSettings.ReducedMotion) Puff.Burst(_pool, _station.GateAnchor(e.Queue) + new Vector3(0f, -0.6f, 0f), 6, 0.35f);
+                        break;
                     case BoardEventType.StageAdvanced:
                         _station.SpawnMissing(stateAfter);
                         _audio.Play(Sfx.Booster);

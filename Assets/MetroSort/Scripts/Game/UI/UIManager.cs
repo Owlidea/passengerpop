@@ -653,6 +653,20 @@ namespace MetroSort.Game
                     label.rectTransform.anchoredPosition = local;
                 }
             }
+            if (_labelLayer.gameObject.activeSelf)
+            {
+                StationView station = _app.Station;
+                for (int q = 0; q < station.GateLaneCount; q++)
+                {
+                    string caption = station.GateLabel(q);
+                    if (caption == null || !WorldToCanvas(station.GateAnchor(q), out local)) continue;
+                    Text label = used < _labels.Count ? _labels[used] : NewLabel();
+                    used++;
+                    if (!label.gameObject.activeSelf) label.gameObject.SetActive(true);
+                    if (label.text != caption) label.text = caption;
+                    label.rectTransform.anchoredPosition = local;
+                }
+            }
             for (int i = used; i < _labels.Count; i++)
                 if (_labels[i].gameObject.activeSelf) _labels[i].gameObject.SetActive(false);
         }

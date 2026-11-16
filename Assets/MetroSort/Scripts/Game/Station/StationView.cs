@@ -29,6 +29,9 @@ namespace MetroSort.Game
         private float _minX, _maxX, _minZ, _maxZ;
         private float _fittedAspect, _shake;
         private Vector3 _cameraHome;
+        private Transform _gateRoot;
+        private GameObject[] _gateBars = new GameObject[0];
+        private int[] _gateRemaining = new int[0];
 
         public void Init(Camera cam, ObjectPoolManager pool)
         {
@@ -69,12 +72,15 @@ namespace MetroSort.Game
             }
             foreach (KeyValuePair<int, PassengerView> kv in _passengers) _pool.Release(PassengerView.PoolKey, kv.Value.gameObject);
             _passengers.Clear();
+            // Gate barriers are sized for the queue they close, so they are rebuilt with the passengers.
+            for (int g = 0; g < _gateBars.Length; g++)
+                if (_gateBars[g] != null) { Destroy(_gateBars[g]); _gateBars[g] = null; }
 
             for (int q = 0; q < state.Queues.Length; q++)
             {
                 for (int i = 0; i < state.Queues[q].Count; i++)
                 {
-                    PassengerView view = Spawn(state.Queues[q][i], QueueSlot(q, i), i == 0);
+                    PassengerView view = Spawn(state.Queues[q][i], QueueSlot(q, i), i == 0 && state.GateRemaining(q) == 0);
                     view.SetMystery(IsHidden(i), false);
                     // Level intro: passengers pop in lane by lane, front to back.
                     if (intro) view.PopIn(0.10f + q * 0.07f + i * 0.045f);
@@ -93,6 +99,63 @@ namespace MetroSort.Game
         public void RefreshPlatforms(BoardState state)
         {
             for (int p = 0; p < state.Platforms.Count && p < Platforms.Count; p++) Platforms[p].Refresh(state.Platforms[p]);
+            RefreshGates(state);
+        }
+
+        // ------------------------------------------------------------------ gated queues
+
+        private const float GateOffset = 0.95f;
+
+        public int GateLaneCount { get { return _gateRemaining.Length; } }
+
+        /// <summary>Caption for a closed turnstile ("2 trains"), or null when the lane is open.</summary>
+        public string GateLabel(int queue)
+        {
+            int n = queue < _gateRemaining.Length ? _gateRemaining[queue] : 0;
+            return n > 0 ? Loc.F(n == 1 ? "{0} train" : "{0} trains", n) : null;
+        }
+
+        public Vector3 GateAnchor(int queue)
+        {
+            Vector3 front = queue < _queueFront.Length ? _queueFront[queue] : Vector3.zero;
+            return new Vector3(front.x, 1.25f, front.z + GateOffset);
+        }
+
+        /// <summary>Shows a barrier in front of every queue whose turnstile is still closed.</summary>
+        private void RefreshGates(BoardState state)
+        {
+            if (_gateBars.Length != _queueFront.Length)
+            {
+                _gateBars = new GameObject[_queueFront.Length];
+                _gateRemaining = new int[_queueFront.Length];
+            }
+            for (int q = 0; q < _queueFront.Length; q++)
+            {
+                int remaining = q < state.Queues.Length && !state.Queues[q].IsEmpty ? state.GateRemaining(q) : 0;
+                _gateRemaining[q] = remaining;
+                if (remaining > 0 && _gateBars[q] == null) _gateBars[q] = BuildGate(q, state.Queues[q].Count);
+                if (_gateBars[q] != null && _gateBars[q].activeSelf != (remaining > 0)) _gateBars[q].SetActive(remaining > 0);
+            }
+        }
+
+        private GameObject BuildGate(int queue, int depth)
+        {
+            var root = new GameObject("QueueGate");
+            root.transform.SetParent(_gateRoot, false);
+            root.transform.localPosition = new Vector3(_queueFront[queue].x, 0f, _queueFront[queue].z);
+            var steel = new Color(0.52f, 0.56f, 0.64f);
+            var red = new Color(0.90f, 0.20f, 0.22f);
+            // The lane is "switched off" while its turnstile is closed.
+            float laneLength = (depth - 1) * _queueStep + 1.0f;
+            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(0f, 0.014f, -laneLength * 0.5f + 0.5f), new Vector3(0.96f, 0.02f, laneLength), new Color(0.56f, 0.58f, 0.64f), "ClosedLane"));
+            // Barrier across the lane, far enough ahead that the front passenger does not hide it.
+            const float z = GateOffset;
+            Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(-0.56f, 0.38f, z), new Vector3(0.14f, 0.76f, 0.14f), steel, "Post");
+            Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(0.56f, 0.38f, z), new Vector3(0.14f, 0.76f, 0.14f), steel, "Post");
+            Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(0f, 0.62f, z), new Vector3(1.00f, 0.24f, 0.10f), red, "Bar");
+            for (int i = -1; i <= 1; i++)
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(i * 0.30f, 0.62f, z - 0.005f), new Vector3(0.11f, 0.245f, 0.11f), Color.white, "Stripe"));
+            return root;
         }
 
         /// <summary>Moves queue and bench passengers to where the state says they stand.</summary>
@@ -104,7 +167,7 @@ namespace MetroSort.Game
                 {
                     PassengerView v;
                     if (!_passengers.TryGetValue(state.Queues[q][i].Id, out v)) continue;
-                    v.SetAccessible(i == 0);
+                    v.SetAccessible(i == 0 && state.GateRemaining(q) == 0);
                     v.SetMystery(IsHidden(i), animate);
                     MoveView(v, QueueSlot(q, i), animate, i * 0.04f);
                 }
@@ -321,6 +384,10 @@ namespace MetroSort.Game
         {
             if (_env != null) Destroy(_env.gameObject);
             if (_platformRoot != null) Destroy(_platformRoot.gameObject);
+            if (_gateRoot != null) Destroy(_gateRoot.gameObject);
+            _gateRoot = new GameObject("Gates").transform;
+            _gateRoot.SetParent(transform, false);
+            _gateBars = new GameObject[0];
             Platforms.Clear();
             // Platforms animate (pulse, highlight), so they live outside the statically batched environment.
             _platformRoot = new GameObject("Platforms").transform;

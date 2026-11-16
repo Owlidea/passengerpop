@@ -95,6 +95,7 @@ namespace MetroSort.Game
                 PassengerView view = _app.Station.SourceView(state, source);
                 if (view != null) view.Shake();
                 _app.Audio.Play(Sfx.Invalid);
+                if (source >= 0 && state.GateRemaining(source) > 0) _app.Game.Say("This turnstile is still closed");
                 Deselect();
                 return;
             }

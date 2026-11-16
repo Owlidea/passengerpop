@@ -63,6 +63,7 @@ All are plain level-data fields; a level without them is a standard level.
 | Move limit | `moveLimit` | Lose when used up before everyone has boarded |
 | Multi-stage station | several entries in `stages` | Next wave arrives when the queues are empty |
 | Mystery queue | `visible: N` | Only the first N passengers of each queue show their line; the rest are grey with a question mark until they move up. Presentation only: rules and solver are unchanged |
+| Gated queue | `gates: [0, 0, 2]` | A closed turnstile blocks the whole queue until the given number of trains (any colour, any platform) have departed. Part of the rules: the solver, hints, shuffle and undo all respect it. First stage only. |
 
 The express rule was changed during development: an express platform that accepted any colour made 76-94% of
 reachable states unwinnable in test levels, because a group of three split 2+1 can never finish. Reserving the
@@ -148,7 +149,7 @@ Audio is synthesised at startup: 14 sound effects and an 8-bar seamless loop, wi
 ## Chapters
 
 Levels are grouped into chapters of twenty, each a metro line with its own station colours (wall tiles, floor,
-queue lanes): Central, Old Town, Garden, Palace, Harbour, Misty and Night. The level select shows one chapter per page.
+queue lanes): Central, Old Town, Garden, Palace, Harbour, Misty, Night and Grand. The level select shows one chapter per page.
 Themes are cosmetic and live in `Game/Station/Chapters.cs`.
 
 ## Languages

@@ -130,6 +130,7 @@ namespace MetroSort.Game
             else if (error == MoveError.PlatformLocked) Message("That platform is still locked");
             else if (error == MoveError.PlatformClosed) Message("That platform is closed");
             else if (error == MoveError.BenchFull) Message("The bench is full");
+            else if (error == MoveError.QueueGated) Message("This turnstile is still closed");
         }
 
         private void OnAnimationFinished(BoardEvent end)
@@ -296,7 +297,7 @@ namespace MetroSort.Game
             Hint = default(Move);
         }
 
-        private void Say(string text)
+        public void Say(string text)
         {
             if (Message != null) Message(text);
         }

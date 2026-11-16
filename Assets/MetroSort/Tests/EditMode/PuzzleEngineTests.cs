@@ -414,6 +414,39 @@ namespace MetroSort.Tests
         }
 
         [Test]
+        public void GatedQueue_OpensAfterRequiredTrains_AndUndoClosesItAgain()
+        {
+            LevelData level = TestLevels.Make(new[] { "BBB", "RRR" }, 2);
+            level.Gates = new[] { 0, 1 };
+            var board = new PuzzleBoard(level);
+            Assert.AreEqual(MoveError.QueueGated, board.TryMove(Move.FromQueue(1, 1), null));
+            Assert.IsFalse(board.GetLegalMoves().Exists(m => m.Source == 1));
+            var events = new List<BoardEvent>();
+            for (int i = 0; i < 3; i++) Assert.AreEqual(MoveError.None, board.TryMove(Move.FromQueue(0, 0), events));
+            Assert.IsNotNull(events.Find(e => e.Type == BoardEventType.QueueGateOpened && e.Queue == 1));
+            Assert.AreEqual(0, board.State.GateRemaining(1));
+            Assert.IsTrue(board.Undo());
+            Assert.AreEqual(1, board.State.GateRemaining(1));
+            Assert.AreEqual(MoveError.QueueGated, board.TryMove(Move.FromQueue(1, 1), null));
+            board.TryMove(Move.FromQueue(0, 0), null);
+            for (int i = 0; i < 3; i++) Assert.AreEqual(MoveError.None, board.TryMove(Move.FromQueue(1, 1), null));
+            Assert.AreEqual(GameStatus.Won, board.Status);
+        }
+
+        [Test]
+        public void GatedQueue_ThatCanNeverOpen_IsUnsolvable_AndKeysDiffer()
+        {
+            LevelData open = TestLevels.Make(new[] { "BRB", "RBR" }, 2);
+            LevelData gated = TestLevels.Make(new[] { "BRB", "RBR" }, 2);
+            gated.Gates = new[] { 0, 1 };
+            Assert.IsTrue(LevelValidator.Validate(open).IsValid);
+            Assert.IsFalse(LevelValidator.Validate(gated).IsValid);
+            Assert.AreNotEqual(BoardState.Create(open).CanonicalKey(), BoardState.Create(gated).CanonicalKey());
+            LevelData copy = LevelData.FromJson(gated.ToJson());
+            Assert.AreEqual(new[] { 0, 1 }, copy.Gates);
+        }
+
+        [Test]
         public void LevelJson_RoundTrips()
         {
             LevelData level = TestLevels.Make(new[] { "Rb", "BR" }, 1, bench: 1, moveLimit: 9);

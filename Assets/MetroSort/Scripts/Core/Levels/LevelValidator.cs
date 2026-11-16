@@ -52,6 +52,12 @@ namespace MetroSort.Levels
                 if (!any) errors.Add("stage " + s + " has no passengers");
             }
 
+            if (level.Gates != null && level.Gates.Length > 0)
+            {
+                if (level.Stages.Count > 0 && level.Gates.Length > level.Stages[0].Length) errors.Add("more gates than queues");
+                foreach (int g in level.Gates) if (g < 0 || g > 9) errors.Add("gate must be 0-9 trains");
+            }
+
             var capacities = new List<int>();
             bool anyOpen = false;
             foreach (PlatformConfig p in level.Platforms)

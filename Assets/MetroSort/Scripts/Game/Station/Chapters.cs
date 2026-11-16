@@ -18,7 +18,7 @@ namespace MetroSort.Game
 
         public static readonly string[] Names =
         {
-            "Central Line", "Old Town Line", "Garden Line", "Palace Line", "Harbour Line", "Misty Line", "Night Line"
+            "Central Line", "Old Town Line", "Garden Line", "Palace Line", "Harbour Line", "Misty Line", "Night Line", "Grand Line"
         };
 
         public static readonly StationTheme[] Themes =
@@ -29,7 +29,8 @@ namespace MetroSort.Game
             Make(new Color(0.50f, 0.38f, 0.70f), new Color(0.81f, 0.79f, 0.85f), new Color(0.84f, 0.78f, 0.96f)), // purple
             Make(new Color(0.20f, 0.32f, 0.56f), new Color(0.78f, 0.81f, 0.85f), new Color(0.98f, 0.88f, 0.60f)), // navy and gold
             Make(new Color(0.42f, 0.46f, 0.54f), new Color(0.72f, 0.75f, 0.80f), new Color(0.82f, 0.86f, 0.92f)), // misty grey
-            Make(new Color(0.16f, 0.18f, 0.36f), new Color(0.50f, 0.53f, 0.66f), new Color(0.99f, 0.80f, 0.42f))  // night indigo and lamp amber
+            Make(new Color(0.16f, 0.18f, 0.36f), new Color(0.50f, 0.53f, 0.66f), new Color(0.99f, 0.80f, 0.42f)), // night indigo and lamp amber
+            Make(new Color(0.56f, 0.20f, 0.27f), new Color(0.90f, 0.86f, 0.78f), new Color(0.72f, 0.90f, 0.86f))  // burgundy, marble and mint
         };
 
         public static int IndexFor(int levelId)

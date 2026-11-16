@@ -1,0 +1,37 @@
+{
+  "id": 151,
+  "name": "Grand Meadow",
+  "group": "Grand",
+  "stages": [
+    [
+      "GRBRB",
+      "YRGYR",
+      "RGBR",
+      "BYBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 63.8,
+  "gates": [
+    0,
+    0,
+    1,
+    2
+  ]
+}
