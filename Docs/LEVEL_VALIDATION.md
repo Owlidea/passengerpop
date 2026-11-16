@@ -329,7 +329,7 @@ no longer be won.
 | 321 | Canyon Harbour | Canyon | 18 | 4 | 4807 | 18 | 0.30 | 7 | 59.4 | yes |  |
 | 322 | Canyon Garden | Canyon | 24 | 4 | 109605 | 24 | 0.31 | 6 | 60.0 | yes |  |
 | 323 | Canyon Market | Canyon | 18 | 3 | 888 | 18 | 0.29 | 6 | 61.6 | yes |  |
-| 324 | Canyon Castle | Canyon | 24 | 3 | 3702 | 24 | 0.26 | 6 | 62.9 | yes | closest to band |
+| 324 | Canyon Castle | Canyon | 24 | 3 | 3702 | 24 | 0.26 | 6 | 62.9 | yes |  |
 | 325 | Canyon River | Canyon | 21 | 4 | 20426 | 21 | 0.34 | 7 | 63.8 | yes |  |
 | 326 | Canyon Summit | Canyon | 24 | 4 | 15493 | 24 | 0.31 | 6 | 65.0 | yes |  |
 | 327 | Canyon Lantern | Canyon | 24 | 3 | 1229 | 24 | 0.31 | 7 | 68.2 | yes |  |
@@ -358,7 +358,7 @@ no longer be won.
 | 350 | Island Silver | Island | 21 | 3 | 874 | 21 | 0.39 | 6 | 69.1 | yes |  |
 | 351 | Island Meadow | Island | 15 | 2 | 718 | 16 | 0.35 | 8 | 69.7 | yes |  |
 | 352 | Island Beacon | Island | 18 | 3 | 1537 | 18 | 0.31 | 9 | 69.7 | yes |  |
-| 353 | Island Orchard | Island | 21 | 2 | 2420 | 22 | 0.31 | 6 | 69.7 | yes | closest to band |
+| 353 | Island Orchard | Island | 21 | 2 | 2420 | 22 | 0.31 | 6 | 69.7 | yes |  |
 | 354 | Island Tower | Island | 21 | 3 | 5553 | 21 | 0.36 | 10 | 72.2 | yes |  |
 | 355 | Island Bridge | Island | 18 | 3 | 174 | 18 | 0.49 | 8 | 77.0 | yes |  |
 | 356 | Island Canal | Island | 17 | 3 | 892 | 17 | 0.53 | 10 | 77.7 | yes |  |
@@ -406,5 +406,105 @@ no longer be won.
 | 398 | Golden Sunset | Golden | 24 | 4 | 29760 | 24 | 0.60 | 14 | 95.8 | yes |  |
 | 399 | Golden Crystal | Golden | 27 | 4 | 78352 | 27 | 0.54 | 20 | 100.0 | yes |  |
 | 400 | Golden Copper | Golden | 27 | 4 | 30437 | 27 | 0.65 | 23 | 100.0 | yes |  |
+| 401 | Crimson Harbour | Crimson | 18 | 3 | 218 | 18 | 0.30 | 4 | 49.8 | yes |  |
+| 402 | Crimson Garden | Crimson | 18 | 3 | 1067 | 18 | 0.30 | 4 | 51.6 | yes |  |
+| 403 | Crimson Market | Crimson | 24 | 3 | 427 | 24 | 0.35 | 3 | 52.9 | yes |  |
+| 404 | Crimson Castle | Crimson | 21 | 3 | 852 | 21 | 0.27 | 6 | 58.0 | yes |  |
+| 405 | Crimson River | Crimson | 24 | 3 | 3971 | 24 | 0.36 | 5 | 59.9 | yes |  |
+| 406 | Crimson Summit | Crimson | 24 | 3 | 3599 | 24 | 0.36 | 5 | 60.1 | yes |  |
+| 407 | Crimson Lantern | Crimson | 21 | 3 | 1638 | 21 | 0.27 | 5 | 60.6 | yes |  |
+| 408 | Crimson Willow | Crimson | 18 | 3 | 723 | 18 | 0.33 | 7 | 61.0 | yes |  |
+| 409 | Crimson Granite | Crimson | 21 | 3 | 196 | 21 | 0.45 | 6 | 64.3 | yes |  |
+| 410 | Crimson Silver | Crimson | 20 | 3 | 1312 | 20 | 0.33 | 8 | 64.4 | yes |  |
+| 411 | Crimson Meadow | Crimson | 21 | 3 | 547 | 21 | 0.36 | 7 | 64.8 | yes |  |
+| 412 | Crimson Beacon | Crimson | 24 | 3 | 824 | 24 | 0.39 | 4 | 65.9 | yes |  |
+| 413 | Crimson Orchard | Crimson | 18 | 3 | 746 | 18 | 0.32 | 8 | 67.5 | yes |  |
+| 414 | Crimson Tower | Crimson | 23 | 3 | 4878 | 23 | 0.53 | 7 | 72.3 | yes |  |
+| 415 | Crimson Bridge | Crimson | 24 | 3 | 4949 | 24 | 0.36 | 9 | 75.0 | yes |  |
+| 416 | Crimson Canal | Crimson | 17 | 3 | 721 | 17 | 0.57 | 9 | 77.1 | yes |  |
+| 417 | Crimson Forest | Crimson | 24 | 3 | 2078 | 24 | 0.44 | 6 | 77.9 | yes |  |
+| 418 | Crimson Sunset | Crimson | 24 | 3 | 707 | 24 | 0.48 | 9 | 82.9 | yes |  |
+| 419 | Crimson Crystal | Crimson | 24 | 3 | 713 | 24 | 0.40 | 12 | 84.6 | yes |  |
+| 420 | Crimson Copper | Crimson | 23 | 3 | 2032 | 23 | 0.55 | 9 | 86.1 | yes |  |
+| 421 | Emerald Harbour | Emerald | 15 | 2 | 318 | 15 | 0.28 | 4 | 55.9 | yes |  |
+| 422 | Emerald Garden | Emerald | 14 | 2 | 1057 | 14 | 0.49 | 1 | 58.9 | yes |  |
+| 423 | Emerald Market | Emerald | 15 | 2 | 369 | 16 | 0.25 | 5 | 62.9 | yes |  |
+| 424 | Emerald Castle | Emerald | 15 | 2 | 821 | 16 | 0.27 | 7 | 65.2 | yes |  |
+| 425 | Emerald River | Emerald | 18 | 2 | 333 | 19 | 0.32 | 6 | 65.5 | yes |  |
+| 426 | Emerald Summit | Emerald | 18 | 2 | 1314 | 18 | 0.32 | 4 | 65.6 | yes |  |
+| 427 | Emerald Lantern | Emerald | 16 | 2 | 1020 | 17 | 0.41 | 5 | 65.9 | yes |  |
+| 428 | Emerald Willow | Emerald | 21 | 2 | 446 | 22 | 0.32 | 6 | 67.1 | yes | closest to band |
+| 429 | Emerald Granite | Emerald | 21 | 2 | 3195 | 21 | 0.38 | 6 | 72.4 | yes |  |
+| 430 | Emerald Silver | Emerald | 18 | 2 | 1345 | 19 | 0.39 | 7 | 73.9 | yes |  |
+| 431 | Emerald Meadow | Emerald | 18 | 2 | 1409 | 19 | 0.36 | 8 | 74.5 | yes |  |
+| 432 | Emerald Beacon | Emerald | 17 | 2 | 473 | 18 | 0.54 | 6 | 76.7 | yes |  |
+| 433 | Emerald Orchard | Emerald | 17 | 2 | 665 | 18 | 0.52 | 7 | 78.3 | yes |  |
+| 434 | Emerald Tower | Emerald | 18 | 2 | 351 | 19 | 0.32 | 12 | 80.8 | yes |  |
+| 435 | Emerald Bridge | Emerald | 22 | 2 | 4865 | 22 | 0.58 | 6 | 81.1 | yes |  |
+| 436 | Emerald Canal | Emerald | 21 | 2 | 1719 | 22 | 0.42 | 8 | 83.2 | yes |  |
+| 437 | Emerald Forest | Emerald | 18 | 2 | 1245 | 19 | 0.41 | 10 | 85.5 | yes |  |
+| 438 | Emerald Sunset | Emerald | 19 | 2 | 993 | 21 | 0.55 | 12 | 92.8 | yes |  |
+| 439 | Emerald Crystal | Emerald | 20 | 2 | 1829 | 22 | 0.63 | 12 | 97.6 | yes |  |
+| 440 | Emerald Copper | Emerald | 19 | 2 | 666 | 21 | 0.67 | 13 | 100.0 | yes |  |
+| 441 | Sapphire Harbour | Sapphire | 18 | 3 | 6187 | 18 | 0.25 | 5 | 52.3 | yes |  |
+| 442 | Sapphire Garden | Sapphire | 18 | 3 | 356 | 18 | 0.35 | 5 | 56.7 | yes |  |
+| 443 | Sapphire Market | Sapphire | 24 | 3 | 64642 | 24 | 0.24 | 6 | 56.9 | yes | closest to band |
+| 444 | Sapphire Castle | Sapphire | 17 | 3 | 1306 | 17 | 0.44 | 8 | 68.6 | yes |  |
+| 445 | Sapphire River | Sapphire | 21 | 3 | 668 | 21 | 0.28 | 10 | 68.6 | yes |  |
+| 446 | Sapphire Summit | Sapphire | 22 | 3 | 2200 | 22 | 0.38 | 8 | 68.9 | yes |  |
+| 447 | Sapphire Lantern | Sapphire | 21 | 3 | 8917 | 21 | 0.30 | 10 | 69.2 | yes |  |
+| 448 | Sapphire Willow | Sapphire | 24 | 3 | 3685 | 24 | 0.31 | 10 | 70.3 | yes |  |
+| 449 | Sapphire Granite | Sapphire | 18 | 4 | 1044 | 18 | 0.50 | 8 | 76.6 | yes |  |
+| 450 | Sapphire Silver | Sapphire | 25 | 3 | 14480 | 25 | 0.39 | 11 | 77.3 | yes |  |
+| 451 | Sapphire Meadow | Sapphire | 19 | 3 | 1183 | 19 | 0.46 | 11 | 77.8 | yes |  |
+| 452 | Sapphire Beacon | Sapphire | 24 | 3 | 20167 | 24 | 0.36 | 10 | 79.5 | yes |  |
+| 453 | Sapphire Orchard | Sapphire | 20 | 3 | 1803 | 20 | 0.65 | 9 | 82.4 | yes |  |
+| 454 | Sapphire Tower | Sapphire | 25 | 3 | 8184 | 25 | 0.36 | 11 | 82.5 | yes |  |
+| 455 | Sapphire Bridge | Sapphire | 21 | 4 | 1786 | 21 | 0.42 | 12 | 85.4 | yes |  |
+| 456 | Sapphire Canal | Sapphire | 24 | 4 | 12387 | 24 | 0.33 | 14 | 86.1 | yes |  |
+| 457 | Sapphire Forest | Sapphire | 24 | 3 | 1741 | 24 | 0.36 | 13 | 86.8 | yes |  |
+| 458 | Sapphire Sunset | Sapphire | 24 | 4 | 6183 | 24 | 0.41 | 10 | 86.8 | yes |  |
+| 459 | Sapphire Crystal | Sapphire | 23 | 3 | 2117 | 23 | 0.49 | 11 | 88.3 | yes |  |
+| 460 | Sapphire Copper | Sapphire | 23 | 3 | 7025 | 23 | 0.53 | 14 | 90.8 | yes |  |
+| 461 | Amber Harbour | Amber | 20 | 3 | 306 | 20 | 0.48 | 5 | 62.6 | yes |  |
+| 462 | Amber Garden | Amber | 17 | 3 | 126 | 17 | 0.61 | 6 | 69.0 | yes |  |
+| 463 | Amber Market | Amber | 17 | 3 | 3992 | 17 | 0.35 | 10 | 69.3 | yes |  |
+| 464 | Amber Castle | Amber | 17 | 4 | 2170 | 17 | 0.58 | 6 | 70.2 | yes |  |
+| 465 | Amber River | Amber | 20 | 3 | 5245 | 20 | 0.54 | 9 | 77.5 | yes |  |
+| 466 | Amber Summit | Amber | 16 | 4 | 2311 | 16 | 0.65 | 11 | 79.6 | yes | closest to band |
+| 467 | Amber Lantern | Amber | 16 | 4 | 1423 | 16 | 0.72 | 10 | 81.3 | yes | closest to band |
+| 468 | Amber Willow | Amber | 20 | 4 | 3018 | 20 | 0.58 | 10 | 81.3 | yes |  |
+| 469 | Amber Granite | Amber | 23 | 3 | 811 | 23 | 0.67 | 10 | 84.9 | yes |  |
+| 470 | Amber Silver | Amber | 22 | 4 | 5693 | 22 | 0.70 | 11 | 86.5 | yes |  |
+| 471 | Amber Meadow | Amber | 19 | 4 | 3136 | 19 | 0.70 | 12 | 87.5 | yes | closest to band |
+| 472 | Amber Beacon | Amber | 23 | 4 | 16746 | 23 | 0.45 | 15 | 89.1 | yes |  |
+| 473 | Amber Orchard | Amber | 19 | 4 | 5297 | 19 | 0.64 | 15 | 91.4 | yes |  |
+| 474 | Amber Tower | Amber | 22 | 4 | 30508 | 22 | 0.67 | 14 | 91.5 | yes |  |
+| 475 | Amber Bridge | Amber | 23 | 3 | 29290 | 23 | 0.65 | 13 | 93.9 | yes |  |
+| 476 | Amber Canal | Amber | 23 | 4 | 6884 | 23 | 0.57 | 13 | 96.5 | yes |  |
+| 477 | Amber Forest | Amber | 23 | 3 | 555 | 23 | 0.66 | 13 | 98.9 | yes |  |
+| 478 | Amber Sunset | Amber | 22 | 4 | 10348 | 22 | 0.66 | 19 | 100.0 | yes |  |
+| 479 | Amber Crystal | Amber | 23 | 3 | 23003 | 23 | 0.65 | 13 | 100.0 | yes |  |
+| 480 | Amber Copper | Amber | 22 | 4 | 2112 | 22 | 0.77 | 13 | 100.0 | yes |  |
+| 481 | Ivory Harbour | Ivory | 20 | 4 | 4473 | 20 | 0.47 | 3 | 53.4 | yes |  |
+| 482 | Ivory Garden | Ivory | 21 | 4 | 4973 | 21 | 0.40 | 7 | 61.6 | yes |  |
+| 483 | Ivory Market | Ivory | 21 | 4 | 6525 | 21 | 0.50 | 9 | 68.5 | yes |  |
+| 484 | Ivory Castle | Ivory | 22 | 4 | 5495 | 22 | 0.53 | 8 | 71.0 | yes |  |
+| 485 | Ivory River | Ivory | 24 | 4 | 17070 | 24 | 0.45 | 9 | 74.8 | yes |  |
+| 486 | Ivory Summit | Ivory | 27 | 4 | 30922 | 27 | 0.41 | 11 | 79.2 | yes |  |
+| 487 | Ivory Lantern | Ivory | 24 | 4 | 3373 | 24 | 0.42 | 9 | 80.0 | yes |  |
+| 488 | Ivory Willow | Ivory | 27 | 4 | 59262 | 27 | 0.32 | 13 | 81.2 | yes |  |
+| 489 | Ivory Granite | Ivory | 24 | 4 | 12270 | 24 | 0.34 | 13 | 81.3 | yes |  |
+| 490 | Ivory Silver | Ivory | 21 | 4 | 326 | 21 | 0.55 | 10 | 82.2 | yes |  |
+| 491 | Ivory Meadow | Ivory | 27 | 4 | 24012 | 27 | 0.33 | 12 | 84.5 | yes |  |
+| 492 | Ivory Beacon | Ivory | 23 | 4 | 6810 | 23 | 0.44 | 13 | 85.2 | yes |  |
+| 493 | Ivory Orchard | Ivory | 26 | 4 | 20138 | 26 | 0.60 | 8 | 88.7 | yes |  |
+| 494 | Ivory Tower | Ivory | 27 | 4 | 58814 | 27 | 0.41 | 13 | 92.4 | yes |  |
+| 495 | Ivory Bridge | Ivory | 27 | 4 | 8612 | 27 | 0.40 | 12 | 95.1 | yes |  |
+| 496 | Ivory Canal | Ivory | 26 | 4 | 60968 | 26 | 0.52 | 16 | 97.8 | yes |  |
+| 497 | Ivory Forest | Ivory | 25 | 4 | 11405 | 25 | 0.47 | 17 | 98.0 | yes |  |
+| 498 | Ivory Sunset | Ivory | 28 | 4 | 36065 | 28 | 0.47 | 17 | 99.2 | yes |  |
+| 499 | Ivory Crystal | Ivory | 28 | 4 | 11389 | 28 | 0.64 | 16 | 100.0 | yes |  |
+| 500 | Ivory Copper | Ivory | 27 | 4 | 14884 | 27 | 0.53 | 15 | 100.0 | yes |  |
 
-400 levels, 0 failed.
+500 levels, 0 failed.

@@ -1,0 +1,29 @@
+{
+  "id": 427,
+  "name": "Emerald Lantern",
+  "group": "Emerald",
+  "stages": [
+    [
+      "RRRY",
+      "BGYR",
+      "BGBR",
+      "GRRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 21,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 17,
+  "difficulty": 65.9
+}

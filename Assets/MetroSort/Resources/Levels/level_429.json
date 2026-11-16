@@ -1,0 +1,28 @@
+{
+  "id": 429,
+  "name": "Emerald Granite",
+  "group": "Emerald",
+  "stages": [
+    [
+      "GGRRYB",
+      "BRRBG",
+      "YBBYR",
+      "GRBGG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 24,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 72.4
+}

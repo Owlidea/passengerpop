@@ -1,0 +1,53 @@
+{
+  "id": 498,
+  "name": "Ivory Sunset",
+  "group": "Ivory",
+  "stages": [
+    [
+      "yGBGg",
+      "GYRBB",
+      "YRBPR",
+      "RPyRY",
+      "YRGR",
+      "PGBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 28,
+  "difficulty": 99.2,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "B"
+  ]
+}

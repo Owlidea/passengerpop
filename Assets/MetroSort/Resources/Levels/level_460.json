@@ -1,0 +1,34 @@
+{
+  "id": 460,
+  "name": "Sapphire Copper",
+  "group": "Sapphire",
+  "stages": [
+    [
+      "RGBYB",
+      "BRGGR",
+      "GRBYB",
+      "BYRY",
+      "GYGY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 23,
+  "difficulty": 90.8
+}

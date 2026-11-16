@@ -1,0 +1,30 @@
+{
+  "id": 422,
+  "name": "Emerald Garden",
+  "group": "Emerald",
+  "stages": [
+    [
+      "RGYR",
+      "RGBB",
+      "GRB",
+      "RYY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 18,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 14,
+  "difficulty": 58.9
+}

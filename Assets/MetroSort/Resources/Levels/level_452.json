@@ -1,0 +1,33 @@
+{
+  "id": 452,
+  "name": "Sapphire Beacon",
+  "group": "Sapphire",
+  "stages": [
+    [
+      "PGRRY",
+      "GGBBR",
+      "BBGRY",
+      "BYBRP",
+      "RGGP"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 79.5
+}

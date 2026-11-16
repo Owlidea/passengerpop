@@ -1,0 +1,43 @@
+{
+  "id": 445,
+  "name": "Sapphire River",
+  "group": "Sapphire",
+  "stages": [
+    [
+      "GGGBGR",
+      "RBBGR",
+      "YBBRR",
+      "GBRYY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 68.6,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "B"
+  ]
+}

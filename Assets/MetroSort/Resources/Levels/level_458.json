@@ -1,0 +1,39 @@
+{
+  "id": 458,
+  "name": "Sapphire Sunset",
+  "group": "Sapphire",
+  "stages": [
+    [
+      "GYRRB",
+      "PBYBB",
+      "GBRPG",
+      "RRGYP",
+      "GGRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 1
+    },
+    {
+      "cap": 3,
+      "lockColor": "R",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 86.8
+}

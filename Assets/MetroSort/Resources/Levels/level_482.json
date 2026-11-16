@@ -1,0 +1,40 @@
+{
+  "id": 482,
+  "name": "Ivory Garden",
+  "group": "Ivory",
+  "stages": [
+    [
+      "BYBYRR",
+      "BYGGB",
+      "BRGGR",
+      "RGRBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 61.6,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

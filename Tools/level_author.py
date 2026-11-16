@@ -498,11 +498,12 @@ def build_capital_specs():
     return specs
 
 
-NETWORK_GROUPS = ["Coastal", "Desert", "Alpine", "Tropic", "Royal", "Lakeside", "Canyon", "Island", "Aurora", "Golden"]
+NETWORK_GROUPS = ["Coastal", "Desert", "Alpine", "Tropic", "Royal", "Lakeside", "Canyon", "Island", "Aurora", "Golden",
+                  "Crimson", "Emerald", "Sapphire", "Amber", "Ivory"]
 
 
 def build_network_specs():
-    """Levels 201-400: ten more lines, each built around its own mix of mechanics. Every line starts gentler
+    """Levels 201-500: fifteen more lines, each built around its own mix of mechanics. Every line starts gentler
     than the previous one ended and tightens over its four rounds."""
     places = ["Harbour", "Garden", "Market", "Castle", "River", "Summit", "Lantern", "Willow", "Granite", "Silver",
               "Meadow", "Beacon", "Orchard", "Tower", "Bridge", "Canal", "Forest", "Sunset", "Crystal", "Copper"]
@@ -618,6 +619,46 @@ def build_network_specs():
         lambda r, c, q: dict(counts=[7, 5] + c[2:], platforms=P(2, long_p("R"), express("B")), vip=2),
         lambda r, c, q: dict(platforms=P(3, lock("*", 2)), visible=2, vip=2),
         lambda r, c, q: dict(platforms=P(3, temp(3)), stages=2, gate=[1], gate_color=["B"]),
+    ])
+    # Crimson: VIP crowds - many passengers who refuse to be first on a platform.
+    line("Crimson", medium, [
+        lambda r, c, q: dict(platforms=P(3), vip=4 + r),
+        lambda r, c, q: dict(counts=[5] + c[1:], platforms=P(2, express("R")), vip=3 + r),
+        lambda r, c, q: dict(platforms=P(3), vip=3 + r, gate=[1], gate_color=["R"]),
+        lambda r, c, q: dict(platforms=P(3), vip=4 + r, stages=2),
+        lambda r, c, q: dict(platforms=P(2, lock("*", 1)), vip=3 + r, visible=2),
+    ])
+    # Emerald: the bench again, now next to locks, long and express platforms and hidden queues.
+    line("Emerald", small, [
+        lambda r, c, q: dict(queues=4, platforms=P(1, lock("*", 1)), bench=1, move_slack=4),
+        lambda r, c, q: dict(queues=4, counts=[7] + c[1:], platforms=P(1, long_p("R")), bench=1, move_slack=4),
+        lambda r, c, q: dict(queues=4, counts=[5] + c[1:], platforms=P(1, express("R")), bench=1, move_slack=4),
+        lambda r, c, q: dict(queues=4, platforms=P(2), bench=1, move_slack=3, visible=1),
+        lambda r, c, q: dict(queues=4, platforms=P(2), bench=1, move_slack=3, stages=2),
+    ])
+    # Sapphire: deep mystery with a second mechanic.
+    line("Sapphire", medium, [
+        lambda r, c, q: dict(platforms=P(2, temp(3)), visible=1),
+        lambda r, c, q: dict(counts=[5] + c[1:], platforms=P(2, express("R")), visible=1),
+        lambda r, c, q: dict(counts=[7] + c[1:], platforms=P(2, long_p("R")), visible=1),
+        lambda r, c, q: dict(platforms=P(3), visible=1, gate=[1], gate_color=["B"]),
+        lambda r, c, q: dict(platforms=P(2, lock("*", 1), lock("R", 1)), visible=1),
+    ])
+    # Amber: express platforms with everything else.
+    line("Amber", medium, [
+        lambda r, c, q: dict(counts=[5, 5] + c[2:], platforms=P(2, express("R"), express("B")), gate=[1]),
+        lambda r, c, q: dict(counts=[5] + c[1:], platforms=P(1, express("R"), temp(3))),
+        lambda r, c, q: dict(counts=[5] + c[1:], platforms=P(2, express("R"), lock("B", 1))),
+        lambda r, c, q: dict(counts=[5] + c[1:], platforms=P(2, express("R")), stages=2, vip=2),
+        lambda r, c, q: dict(counts=[5, 5] + c[2:], platforms=P(2, express("R"), express("B")), gate=[1, 1], gate_color=["R", "B"]),
+    ])
+    # Ivory: five and six lines, three ideas at once.
+    line("Ivory", large, [
+        lambda r, c, q: dict(platforms=P(4), visible=1, gate=[1]),
+        lambda r, c, q: dict(counts=[7] + c[1:], platforms=P(3, long_p("R")), vip=3, gate=[1], gate_color=["B"]),
+        lambda r, c, q: dict(platforms=P(3, temp(3)), stages=2, visible=2),
+        lambda r, c, q: dict(counts=[5] + c[1:], platforms=P(3, express("R")), vip=3, visible=2),
+        lambda r, c, q: dict(platforms=P(3, lock("*", 2)), gate=[1, 2], gate_color=["R", ""], vip=2),
     ])
     return specs
 

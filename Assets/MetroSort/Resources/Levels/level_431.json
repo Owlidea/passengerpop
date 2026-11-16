@@ -1,0 +1,28 @@
+{
+  "id": 431,
+  "name": "Emerald Meadow",
+  "group": "Emerald",
+  "stages": [
+    [
+      "BRGBY",
+      "BBYBR",
+      "YGRG",
+      "RRBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 22,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 74.5
+}

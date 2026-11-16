@@ -1,0 +1,30 @@
+{
+  "id": 432,
+  "name": "Emerald Beacon",
+  "group": "Emerald",
+  "stages": [
+    [
+      "RGBRR",
+      "YBRY",
+      "GBYR",
+      "BBBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 22,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 76.7
+}

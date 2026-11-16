@@ -1,0 +1,32 @@
+{
+  "id": 447,
+  "name": "Sapphire Lantern",
+  "group": "Sapphire",
+  "stages": [
+    [
+      "YGRGYB",
+      "YRRGR",
+      "BGRBG",
+      "BBBGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 69.2
+}

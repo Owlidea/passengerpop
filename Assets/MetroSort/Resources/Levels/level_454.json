@@ -1,0 +1,33 @@
+{
+  "id": 454,
+  "name": "Sapphire Tower",
+  "group": "Sapphire",
+  "stages": [
+    [
+      "BBBPG",
+      "BPRGY",
+      "GBRRY",
+      "RRGYR",
+      "BGPGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 25,
+  "difficulty": 82.5
+}

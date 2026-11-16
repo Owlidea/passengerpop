@@ -69,8 +69,13 @@ One JSON file per level in `Assets/MetroSort/Resources/Levels/level_NNN.json`. N
 | 341-360 | Island | Only two ordinary platforms plus one helper: bench, express, temporary, long or locked platform |
 | 361-380 | Aurora | Gates everywhere: up to three, colour-keyed pairs, with VIPs, a temporary platform or a second wave |
 | 381-400 | Golden | Five and six lines with hidden queues (`visible` 1-2), gates, long plus express, locks and second waves |
+| 401-420 | Crimson | VIP crowds (4-7 VIPs) with express, colour gates, second waves, locks and mystery |
+| 421-440 | Emerald | Bench with a move limit next to a locked, long or express platform, deep mystery or a second wave |
+| 441-460 | Sapphire | Deep mystery (`visible` 1) with temporary, express, long or locked platforms and colour gates |
+| 461-480 | Amber | Express platforms (one or two reserved lines) with gates, temporary and locked platforms, waves and VIPs |
+| 481-500 | Ivory | Five and six lines, three mechanics at once |
 
-Lines 201-400 each start gentler than the previous line ended (score about 50) and tighten over four rounds
+Lines 201-500 each start gentler than the previous line ended (score about 50) and tighten over four rounds
 (dead-end band rising from 0.20 to 0.35 at the low end), so the difficulty curve is a sawtooth rather than a
 single climb.
 

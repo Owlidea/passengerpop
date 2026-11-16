@@ -1,0 +1,30 @@
+{
+  "id": 436,
+  "name": "Emerald Canal",
+  "group": "Emerald",
+  "stages": [
+    [
+      "GBRYRB",
+      "BRBRY",
+      "GBYGG",
+      "RGRBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 26,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 22,
+  "difficulty": 83.2
+}

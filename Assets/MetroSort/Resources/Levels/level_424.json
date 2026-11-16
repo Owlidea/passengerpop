@@ -1,0 +1,28 @@
+{
+  "id": 424,
+  "name": "Emerald Castle",
+  "group": "Emerald",
+  "stages": [
+    [
+      "RBGY",
+      "RRGB",
+      "RGYB",
+      "YRR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 19,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 16,
+  "difficulty": 65.2
+}

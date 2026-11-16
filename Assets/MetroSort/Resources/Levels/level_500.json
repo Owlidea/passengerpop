@@ -1,0 +1,45 @@
+{
+  "id": 500,
+  "name": "Ivory Copper",
+  "group": "Ivory",
+  "stages": [
+    [
+      "YBG",
+      "BP",
+      "PO",
+      "GR",
+      "OR",
+      "BR"
+    ],
+    [
+      "YOG",
+      "GYR",
+      "GB",
+      "BB",
+      "RP",
+      "GR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 100.0
+}

@@ -1,0 +1,44 @@
+{
+  "id": 494,
+  "name": "Ivory Tower",
+  "group": "Ivory",
+  "stages": [
+    [
+      "GBOOR",
+      "YRRGR",
+      "BPPGO",
+      "YRBR",
+      "YPGB",
+      "BBGG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 92.4,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ]
+}

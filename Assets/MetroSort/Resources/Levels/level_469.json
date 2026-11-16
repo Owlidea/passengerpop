@@ -1,0 +1,41 @@
+{
+  "id": 469,
+  "name": "Amber Granite",
+  "group": "Amber",
+  "stages": [
+    [
+      "BGB",
+      "yY",
+      "YY",
+      "BR",
+      "RR"
+    ],
+    [
+      "BYG",
+      "GBR",
+      "YB",
+      "GG",
+      "Rg"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 23,
+  "difficulty": 84.9
+}

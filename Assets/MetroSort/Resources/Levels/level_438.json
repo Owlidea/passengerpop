@@ -1,0 +1,29 @@
+{
+  "id": 438,
+  "name": "Emerald Sunset",
+  "group": "Emerald",
+  "stages": [
+    [
+      "GRRBB",
+      "BRYRR",
+      "GBBYG",
+      "BRYR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 25,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 92.8
+}

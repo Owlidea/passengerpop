@@ -1,0 +1,45 @@
+{
+  "id": 486,
+  "name": "Ivory Summit",
+  "group": "Ivory",
+  "stages": [
+    [
+      "PRB",
+      "BY",
+      "BG",
+      "RG",
+      "YR",
+      "YG"
+    ],
+    [
+      "GRB",
+      "PYP",
+      "GR",
+      "BR",
+      "YG",
+      "YB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 79.2
+}

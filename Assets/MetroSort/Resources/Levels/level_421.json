@@ -1,0 +1,34 @@
+{
+  "id": 421,
+  "name": "Emerald Harbour",
+  "group": "Emerald",
+  "stages": [
+    [
+      "RR",
+      "BR",
+      "YB",
+      "Y"
+    ],
+    [
+      "GG",
+      "BY",
+      "RG",
+      "RR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 18,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 15,
+  "difficulty": 55.9
+}

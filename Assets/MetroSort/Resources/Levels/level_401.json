@@ -1,0 +1,37 @@
+{
+  "id": 401,
+  "name": "Crimson Harbour",
+  "group": "Crimson",
+  "stages": [
+    [
+      "BGB",
+      "RR",
+      "GR",
+      "GB"
+    ],
+    [
+      "ybR",
+      "BY",
+      "ry",
+      "BR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 49.8
+}

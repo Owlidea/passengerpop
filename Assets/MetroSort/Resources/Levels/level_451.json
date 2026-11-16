@@ -1,0 +1,32 @@
+{
+  "id": 451,
+  "name": "Sapphire Meadow",
+  "group": "Sapphire",
+  "stages": [
+    [
+      "RYGRR",
+      "GBYRR",
+      "RBYBB",
+      "BRBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 77.8
+}

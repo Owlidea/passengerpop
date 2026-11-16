@@ -1,0 +1,34 @@
+{
+  "id": 428,
+  "name": "Emerald Willow",
+  "group": "Emerald",
+  "stages": [
+    [
+      "YYG",
+      "RGG",
+      "BR",
+      "RR"
+    ],
+    [
+      "GGB",
+      "BGY",
+      "BBR",
+      "RB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 25,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 22,
+  "difficulty": 67.1
+}

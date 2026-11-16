@@ -1,0 +1,32 @@
+{
+  "id": 446,
+  "name": "Sapphire Summit",
+  "group": "Sapphire",
+  "stages": [
+    [
+      "YGGRRR",
+      "BBYBBG",
+      "BGRGR",
+      "RRBGY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 22,
+  "difficulty": 68.9
+}

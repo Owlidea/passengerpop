@@ -20,7 +20,8 @@ namespace MetroSort.Game
         {
             "Central Line", "Old Town Line", "Garden Line", "Palace Line", "Harbour Line", "Misty Line", "Night Line", "Grand Line", "Polar Line", "Capital Line",
             "Coastal Line", "Desert Line", "Alpine Line", "Tropic Line", "Royal Line",
-            "Lakeside Line", "Canyon Line", "Island Line", "Aurora Line", "Golden Line"
+            "Lakeside Line", "Canyon Line", "Island Line", "Aurora Line", "Golden Line",
+            "Crimson Line", "Emerald Line", "Sapphire Line", "Amber Line", "Ivory Line"
         };
 
         public static readonly StationTheme[] Themes =
@@ -44,7 +45,12 @@ namespace MetroSort.Game
             Make(new Color(0.62f, 0.28f, 0.20f), new Color(0.90f, 0.76f, 0.64f), new Color(0.74f, 0.88f, 0.96f)), // red rock and sky
             Make(new Color(0.96f, 0.56f, 0.40f), new Color(0.95f, 0.93f, 0.84f), new Color(0.62f, 0.90f, 0.86f)), // coral, shell and lagoon
             Make(new Color(0.16f, 0.30f, 0.42f), new Color(0.62f, 0.70f, 0.78f), new Color(0.62f, 0.96f, 0.78f)), // night teal and aurora green
-            Make(new Color(0.70f, 0.52f, 0.12f), new Color(0.96f, 0.92f, 0.78f), new Color(1.00f, 0.80f, 0.74f))  // old gold and rose
+            Make(new Color(0.70f, 0.52f, 0.12f), new Color(0.96f, 0.92f, 0.78f), new Color(1.00f, 0.80f, 0.74f)), // old gold and rose
+            Make(new Color(0.72f, 0.12f, 0.18f), new Color(0.94f, 0.88f, 0.86f), new Color(0.80f, 0.90f, 0.98f)), // crimson and pale blue
+            Make(new Color(0.08f, 0.52f, 0.36f), new Color(0.86f, 0.92f, 0.86f), new Color(0.99f, 0.90f, 0.66f)), // emerald and cream
+            Make(new Color(0.12f, 0.24f, 0.68f), new Color(0.84f, 0.88f, 0.96f), new Color(0.74f, 0.94f, 0.96f)), // sapphire and ice
+            Make(new Color(0.86f, 0.52f, 0.08f), new Color(0.96f, 0.90f, 0.76f), new Color(0.82f, 0.88f, 0.70f)), // amber and sage
+            Make(new Color(0.42f, 0.38f, 0.34f), new Color(0.97f, 0.95f, 0.90f), new Color(0.90f, 0.80f, 0.96f))  // ivory, charcoal and lilac
         };
 
         public static int IndexFor(int levelId)

@@ -1,0 +1,30 @@
+{
+  "id": 423,
+  "name": "Emerald Market",
+  "group": "Emerald",
+  "stages": [
+    [
+      "YBRR",
+      "GRGB",
+      "BYRR",
+      "YGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 20,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 16,
+  "difficulty": 62.9
+}

@@ -1,0 +1,33 @@
+{
+  "id": 410,
+  "name": "Crimson Silver",
+  "group": "Crimson",
+  "stages": [
+    [
+      "YGYBB",
+      "GBrbr",
+      "BBGRG",
+      "GyRGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 20,
+  "difficulty": 64.4
+}

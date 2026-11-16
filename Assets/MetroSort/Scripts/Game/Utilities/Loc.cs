@@ -102,6 +102,8 @@ namespace MetroSort.Game
             { "name:Parkway", "Bulvarı" }, { "name:Terminal", "Terminali" }, { "name:Foggy", "Sisli" }, { "name:Midnight", "Geceyarısı" }, { "name:Grand", "Büyük" }, { "name:Polar", "Kutup" }, { "name:Capital", "Başkent" },
             { "name:Lakeside", "Göl" }, { "name:Canyon", "Kanyon" }, { "name:Island", "Ada" }, { "name:Aurora", "Aurora" }, { "name:Golden", "Altın" },
             { "Lakeside Line", "Göl Hattı" }, { "Canyon Line", "Kanyon Hattı" }, { "Island Line", "Ada Hattı" }, { "Aurora Line", "Aurora Hattı" }, { "Golden Line", "Altın Hat" },
+            { "name:Crimson", "Kızıl" }, { "name:Emerald", "Zümrüt" }, { "name:Sapphire", "Safir" }, { "name:Amber", "Kehribar" }, { "name:Ivory", "Fildişi" },
+            { "Crimson Line", "Kızıl Hat" }, { "Emerald Line", "Zümrüt Hattı" }, { "Sapphire Line", "Safir Hattı" }, { "Amber Line", "Kehribar Hattı" }, { "Ivory Line", "Fildişi Hattı" },
             { "name:Coastal", "Sahil" }, { "name:Desert", "Çöl" }, { "name:Alpine", "Alp" }, { "name:Tropic", "Tropik" }, { "name:Royal", "Kraliyet" },
             { "Coastal Line", "Sahil Hattı" }, { "Desert Line", "Çöl Hattı" }, { "Alpine Line", "Alp Hattı" }, { "Tropic Line", "Tropik Hat" }, { "Royal Line", "Kraliyet Hattı" }, { "Capital Line", "Başkent Hattı" }, { "Polar Line", "Kutup Hattı" },
             { "{0} {1} train", "{0} {1} tren" }, { "{0} {1} trains", "{0} {1} tren" },

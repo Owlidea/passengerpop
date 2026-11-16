@@ -1,0 +1,38 @@
+{
+  "id": 496,
+  "name": "Ivory Canal",
+  "group": "Ivory",
+  "stages": [
+    [
+      "gYBPR",
+      "yGGYB",
+      "RRYP",
+      "RPGY",
+      "GrGB",
+      "YBBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 26,
+  "difficulty": 97.8
+}

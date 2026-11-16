@@ -1,0 +1,38 @@
+{
+  "id": 455,
+  "name": "Sapphire Bridge",
+  "group": "Sapphire",
+  "stages": [
+    [
+      "YRBRGG",
+      "BGRYB",
+      "BGRYR",
+      "RBBGG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 1
+    },
+    {
+      "cap": 3,
+      "lockColor": "R",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 85.4
+}

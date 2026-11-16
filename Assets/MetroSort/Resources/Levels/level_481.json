@@ -1,0 +1,36 @@
+{
+  "id": 481,
+  "name": "Ivory Harbour",
+  "group": "Ivory",
+  "stages": [
+    [
+      "GBBGr",
+      "bRBBG",
+      "YGRYG",
+      "GyBRR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 20,
+  "difficulty": 53.4
+}

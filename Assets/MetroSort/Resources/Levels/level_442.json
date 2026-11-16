@@ -1,0 +1,43 @@
+{
+  "id": 442,
+  "name": "Sapphire Garden",
+  "group": "Sapphire",
+  "stages": [
+    [
+      "GRBBG",
+      "YRYRR",
+      "GRBB",
+      "RBBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 56.7,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "B"
+  ]
+}

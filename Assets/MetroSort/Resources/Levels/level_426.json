@@ -1,0 +1,30 @@
+{
+  "id": 426,
+  "name": "Emerald Summit",
+  "group": "Emerald",
+  "stages": [
+    [
+      "GRRGY",
+      "BYRRR",
+      "BYBR",
+      "BGBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 22,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 65.6
+}

@@ -1,0 +1,37 @@
+{
+  "id": 409,
+  "name": "Crimson Granite",
+  "group": "Crimson",
+  "stages": [
+    [
+      "GRb",
+      "rBG",
+      "RR",
+      "YB"
+    ],
+    [
+      "RBy",
+      "gYG",
+      "bGR",
+      "BG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 64.3
+}

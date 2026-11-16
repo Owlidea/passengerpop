@@ -1,0 +1,46 @@
+{
+  "id": 448,
+  "name": "Sapphire Willow",
+  "group": "Sapphire",
+  "stages": [
+    [
+      "YBGRB",
+      "GBGRB",
+      "BGYRB",
+      "RYRYG",
+      "YRGY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 70.3,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "B"
+  ]
+}
