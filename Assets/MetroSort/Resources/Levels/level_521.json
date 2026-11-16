@@ -1,0 +1,28 @@
+{
+  "id": 521,
+  "name": "Southern Harbour",
+  "group": "Southern",
+  "stages": [
+    [
+      "BGBR",
+      "YYRR",
+      "YGRR",
+      "BRG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 18,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 15,
+  "difficulty": 45.6
+}

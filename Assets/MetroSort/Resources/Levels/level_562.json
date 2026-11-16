@@ -1,0 +1,45 @@
+{
+  "id": 562,
+  "name": "Western Garden",
+  "group": "Western",
+  "stages": [
+    [
+      "RRBRG",
+      "YGBYB",
+      "YRBR",
+      "BGBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "R",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 67.9,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

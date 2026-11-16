@@ -433,7 +433,7 @@ no longer be won.
 | 425 | Emerald River | Emerald | 18 | 2 | 333 | 19 | 0.32 | 6 | 65.5 | yes |  |
 | 426 | Emerald Summit | Emerald | 18 | 2 | 1314 | 18 | 0.32 | 4 | 65.6 | yes |  |
 | 427 | Emerald Lantern | Emerald | 16 | 2 | 1020 | 17 | 0.41 | 5 | 65.9 | yes |  |
-| 428 | Emerald Willow | Emerald | 21 | 2 | 446 | 22 | 0.32 | 6 | 67.1 | yes | closest to band |
+| 428 | Emerald Willow | Emerald | 21 | 2 | 446 | 22 | 0.32 | 6 | 67.1 | yes |  |
 | 429 | Emerald Granite | Emerald | 21 | 2 | 3195 | 21 | 0.38 | 6 | 72.4 | yes |  |
 | 430 | Emerald Silver | Emerald | 18 | 2 | 1345 | 19 | 0.39 | 7 | 73.9 | yes |  |
 | 431 | Emerald Meadow | Emerald | 18 | 2 | 1409 | 19 | 0.36 | 8 | 74.5 | yes |  |
@@ -448,7 +448,7 @@ no longer be won.
 | 440 | Emerald Copper | Emerald | 19 | 2 | 666 | 21 | 0.67 | 13 | 100.0 | yes |  |
 | 441 | Sapphire Harbour | Sapphire | 18 | 3 | 6187 | 18 | 0.25 | 5 | 52.3 | yes |  |
 | 442 | Sapphire Garden | Sapphire | 18 | 3 | 356 | 18 | 0.35 | 5 | 56.7 | yes |  |
-| 443 | Sapphire Market | Sapphire | 24 | 3 | 64642 | 24 | 0.24 | 6 | 56.9 | yes | closest to band |
+| 443 | Sapphire Market | Sapphire | 24 | 3 | 64642 | 24 | 0.24 | 6 | 56.9 | yes |  |
 | 444 | Sapphire Castle | Sapphire | 17 | 3 | 1306 | 17 | 0.44 | 8 | 68.6 | yes |  |
 | 445 | Sapphire River | Sapphire | 21 | 3 | 668 | 21 | 0.28 | 10 | 68.6 | yes |  |
 | 446 | Sapphire Summit | Sapphire | 22 | 3 | 2200 | 22 | 0.38 | 8 | 68.9 | yes |  |
@@ -471,12 +471,12 @@ no longer be won.
 | 463 | Amber Market | Amber | 17 | 3 | 3992 | 17 | 0.35 | 10 | 69.3 | yes |  |
 | 464 | Amber Castle | Amber | 17 | 4 | 2170 | 17 | 0.58 | 6 | 70.2 | yes |  |
 | 465 | Amber River | Amber | 20 | 3 | 5245 | 20 | 0.54 | 9 | 77.5 | yes |  |
-| 466 | Amber Summit | Amber | 16 | 4 | 2311 | 16 | 0.65 | 11 | 79.6 | yes | closest to band |
-| 467 | Amber Lantern | Amber | 16 | 4 | 1423 | 16 | 0.72 | 10 | 81.3 | yes | closest to band |
+| 466 | Amber Summit | Amber | 16 | 4 | 2311 | 16 | 0.65 | 11 | 79.6 | yes |  |
+| 467 | Amber Lantern | Amber | 16 | 4 | 1423 | 16 | 0.72 | 10 | 81.3 | yes |  |
 | 468 | Amber Willow | Amber | 20 | 4 | 3018 | 20 | 0.58 | 10 | 81.3 | yes |  |
 | 469 | Amber Granite | Amber | 23 | 3 | 811 | 23 | 0.67 | 10 | 84.9 | yes |  |
 | 470 | Amber Silver | Amber | 22 | 4 | 5693 | 22 | 0.70 | 11 | 86.5 | yes |  |
-| 471 | Amber Meadow | Amber | 19 | 4 | 3136 | 19 | 0.70 | 12 | 87.5 | yes | closest to band |
+| 471 | Amber Meadow | Amber | 19 | 4 | 3136 | 19 | 0.70 | 12 | 87.5 | yes |  |
 | 472 | Amber Beacon | Amber | 23 | 4 | 16746 | 23 | 0.45 | 15 | 89.1 | yes |  |
 | 473 | Amber Orchard | Amber | 19 | 4 | 5297 | 19 | 0.64 | 15 | 91.4 | yes |  |
 | 474 | Amber Tower | Amber | 22 | 4 | 30508 | 22 | 0.67 | 14 | 91.5 | yes |  |
@@ -506,5 +506,105 @@ no longer be won.
 | 498 | Ivory Sunset | Ivory | 28 | 4 | 36065 | 28 | 0.47 | 17 | 99.2 | yes |  |
 | 499 | Ivory Crystal | Ivory | 28 | 4 | 11389 | 28 | 0.64 | 16 | 100.0 | yes |  |
 | 500 | Ivory Copper | Ivory | 27 | 4 | 14884 | 27 | 0.53 | 15 | 100.0 | yes |  |
+| 501 | Northern Harbour | Northern | 20 | 4 | 10131 | 20 | 0.53 | 8 | 68.8 | yes |  |
+| 502 | Northern Garden | Northern | 19 | 4 | 35957 | 19 | 0.54 | 8 | 69.1 | yes |  |
+| 503 | Northern Market | Northern | 19 | 3 | 970 | 19 | 0.44 | 8 | 69.3 | yes |  |
+| 504 | Northern Castle | Northern | 26 | 4 | 90695 | 26 | 0.48 | 8 | 70.2 | yes |  |
+| 505 | Northern River | Northern | 18 | 4 | 1530 | 18 | 0.63 | 8 | 71.1 | yes | closest to band |
+| 506 | Northern Summit | Northern | 22 | 3 | 693 | 22 | 0.54 | 7 | 73.9 | yes |  |
+| 507 | Northern Lantern | Northern | 22 | 4 | 64457 | 22 | 0.44 | 11 | 74.2 | yes |  |
+| 508 | Northern Willow | Northern | 23 | 4 | 21745 | 23 | 0.61 | 9 | 77.4 | yes |  |
+| 509 | Northern Granite | Northern | 20 | 4 | 11830 | 20 | 0.56 | 11 | 77.7 | yes |  |
+| 510 | Northern Silver | Northern | 25 | 3 | 5988 | 25 | 0.50 | 10 | 79.5 | yes |  |
+| 511 | Northern Meadow | Northern | 21 | 4 | 2291 | 21 | 0.66 | 12 | 83.4 | yes |  |
+| 512 | Northern Beacon | Northern | 26 | 4 | 98765 | 26 | 0.47 | 14 | 84.5 | yes |  |
+| 513 | Northern Orchard | Northern | 26 | 4 | 17776 | 26 | 0.55 | 10 | 85.3 | yes |  |
+| 514 | Northern Tower | Northern | 25 | 4 | 134906 | 25 | 0.59 | 10 | 85.5 | yes |  |
+| 515 | Northern Bridge | Northern | 25 | 3 | 2876 | 25 | 0.45 | 11 | 86.8 | yes |  |
+| 516 | Northern Canal | Northern | 23 | 4 | 20565 | 23 | 0.55 | 15 | 89.5 | yes |  |
+| 517 | Northern Forest | Northern | 26 | 4 | 52649 | 26 | 0.52 | 13 | 91.7 | yes |  |
+| 518 | Northern Sunset | Northern | 24 | 4 | 5190 | 24 | 0.70 | 14 | 92.0 | yes |  |
+| 519 | Northern Crystal | Northern | 22 | 4 | 132379 | 22 | 0.65 | 17 | 96.9 | yes | closest to band |
+| 520 | Northern Copper | Northern | 24 | 4 | 3940 | 24 | 0.77 | 16 | 100.0 | yes |  |
+| 521 | Southern Harbour | Southern | 15 | 2 | 2468 | 15 | 0.14 | 2 | 45.6 | yes |  |
+| 522 | Southern Garden | Southern | 15 | 2 | 2854 | 15 | 0.14 | 2 | 47.3 | yes |  |
+| 523 | Southern Market | Southern | 18 | 2 | 4665 | 19 | 0.18 | 2 | 50.8 | yes |  |
+| 524 | Southern Castle | Southern | 18 | 2 | 4339 | 18 | 0.21 | 1 | 51.0 | yes |  |
+| 525 | Southern River | Southern | 21 | 2 | 6648 | 21 | 0.16 | 1 | 51.1 | yes | closest to band |
+| 526 | Southern Summit | Southern | 15 | 2 | 1392 | 16 | 0.17 | 3 | 51.6 | yes |  |
+| 527 | Southern Lantern | Southern | 18 | 2 | 12871 | 19 | 0.25 | 1 | 51.9 | yes |  |
+| 528 | Southern Willow | Southern | 18 | 2 | 22020 | 18 | 0.20 | 3 | 54.1 | yes | closest to band |
+| 529 | Southern Granite | Southern | 15 | 2 | 6898 | 15 | 0.22 | 4 | 55.0 | yes |  |
+| 530 | Southern Silver | Southern | 18 | 2 | 4002 | 19 | 0.18 | 3 | 55.0 | yes |  |
+| 531 | Southern Meadow | Southern | 18 | 2 | 3864 | 18 | 0.15 | 4 | 55.5 | yes |  |
+| 532 | Southern Beacon | Southern | 18 | 2 | 2749 | 20 | 0.19 | 4 | 57.8 | yes |  |
+| 533 | Southern Orchard | Southern | 18 | 2 | 4466 | 18 | 0.20 | 4 | 58.1 | yes |  |
+| 534 | Southern Tower | Southern | 21 | 2 | 6025 | 22 | 0.20 | 3 | 58.1 | yes | closest to band |
+| 535 | Southern Bridge | Southern | 21 | 2 | 8604 | 21 | 0.17 | 4 | 58.7 | yes | closest to band |
+| 536 | Southern Canal | Southern | 16 | 2 | 3065 | 17 | 0.24 | 5 | 59.4 | yes |  |
+| 537 | Southern Forest | Southern | 19 | 2 | 5493 | 20 | 0.35 | 3 | 61.9 | yes |  |
+| 538 | Southern Sunset | Southern | 21 | 2 | 40620 | 21 | 0.21 | 5 | 62.0 | yes | closest to band |
+| 539 | Southern Crystal | Southern | 19 | 2 | 6257 | 20 | 0.33 | 5 | 66.1 | yes |  |
+| 540 | Southern Copper | Southern | 22 | 2 | 10522 | 23 | 0.35 | 6 | 71.9 | yes |  |
+| 541 | Eastern Harbour | Eastern | 21 | 3 | 145 | 21 | 0.34 | 4 | 52.5 | yes |  |
+| 542 | Eastern Garden | Eastern | 27 | 3 | 447 | 27 | 0.31 | 6 | 59.6 | yes |  |
+| 543 | Eastern Market | Eastern | 24 | 3 | 355 | 24 | 0.32 | 7 | 60.6 | yes |  |
+| 544 | Eastern Castle | Eastern | 22 | 3 | 350 | 22 | 0.45 | 5 | 62.1 | yes |  |
+| 545 | Eastern River | Eastern | 21 | 3 | 1408 | 21 | 0.43 | 7 | 64.7 | yes |  |
+| 546 | Eastern Summit | Eastern | 24 | 3 | 351 | 24 | 0.29 | 10 | 66.7 | yes |  |
+| 547 | Eastern Lantern | Eastern | 27 | 3 | 2542 | 27 | 0.35 | 8 | 67.2 | yes |  |
+| 548 | Eastern Willow | Eastern | 24 | 3 | 1622 | 24 | 0.35 | 10 | 69.6 | yes |  |
+| 549 | Eastern Granite | Eastern | 24 | 3 | 205 | 24 | 0.37 | 8 | 70.6 | yes |  |
+| 550 | Eastern Silver | Eastern | 27 | 3 | 246 | 27 | 0.30 | 9 | 72.2 | yes |  |
+| 551 | Eastern Meadow | Eastern | 21 | 3 | 191 | 21 | 0.39 | 11 | 73.1 | yes |  |
+| 552 | Eastern Beacon | Eastern | 21 | 3 | 154 | 21 | 0.36 | 10 | 73.8 | yes |  |
+| 553 | Eastern Orchard | Eastern | 30 | 3 | 339 | 30 | 0.40 | 10 | 76.0 | yes |  |
+| 554 | Eastern Tower | Eastern | 27 | 3 | 373 | 27 | 0.39 | 12 | 78.7 | yes |  |
+| 555 | Eastern Bridge | Eastern | 25 | 3 | 1027 | 25 | 0.54 | 11 | 83.8 | yes |  |
+| 556 | Eastern Canal | Eastern | 30 | 3 | 2856 | 30 | 0.37 | 14 | 84.2 | yes |  |
+| 557 | Eastern Forest | Eastern | 30 | 3 | 373 | 30 | 0.39 | 15 | 88.1 | yes |  |
+| 558 | Eastern Sunset | Eastern | 30 | 3 | 444 | 30 | 0.46 | 12 | 88.5 | yes |  |
+| 559 | Eastern Crystal | Eastern | 31 | 3 | 3254 | 31 | 0.65 | 14 | 98.6 | yes |  |
+| 560 | Eastern Copper | Eastern | 28 | 3 | 893 | 28 | 0.46 | 20 | 100.0 | yes |  |
+| 561 | Western Harbour | Western | 18 | 3 | 139 | 18 | 0.35 | 7 | 67.2 | yes |  |
+| 562 | Western Garden | Western | 18 | 3 | 586 | 18 | 0.32 | 8 | 67.9 | yes |  |
+| 563 | Western Market | Western | 18 | 3 | 101 | 18 | 0.39 | 7 | 69.2 | yes |  |
+| 564 | Western Castle | Western | 21 | 3 | 63 | 21 | 0.35 | 7 | 69.4 | yes |  |
+| 565 | Western River | Western | 21 | 3 | 278 | 21 | 0.32 | 8 | 70.5 | yes |  |
+| 566 | Western Summit | Western | 21 | 3 | 298 | 21 | 0.34 | 8 | 71.4 | yes |  |
+| 567 | Western Lantern | Western | 24 | 4 | 10260 | 24 | 0.39 | 7 | 71.6 | yes |  |
+| 568 | Western Willow | Western | 24 | 3 | 1182 | 24 | 0.32 | 9 | 73.3 | yes |  |
+| 569 | Western Granite | Western | 21 | 3 | 135 | 21 | 0.38 | 8 | 73.6 | yes |  |
+| 570 | Western Silver | Western | 21 | 4 | 1837 | 21 | 0.42 | 8 | 75.2 | yes |  |
+| 571 | Western Meadow | Western | 18 | 4 | 742 | 18 | 0.50 | 9 | 79.1 | yes |  |
+| 572 | Western Beacon | Western | 24 | 3 | 1480 | 24 | 0.33 | 12 | 81.4 | yes |  |
+| 573 | Western Orchard | Western | 18 | 3 | 355 | 18 | 0.52 | 11 | 85.3 | yes |  |
+| 574 | Western Tower | Western | 24 | 3 | 1262 | 24 | 0.43 | 9 | 85.4 | yes |  |
+| 575 | Western Bridge | Western | 24 | 3 | 265 | 24 | 0.42 | 12 | 85.5 | yes |  |
+| 576 | Western Canal | Western | 24 | 3 | 601 | 24 | 0.43 | 9 | 85.5 | yes |  |
+| 577 | Western Forest | Western | 24 | 4 | 3513 | 24 | 0.50 | 9 | 89.0 | yes |  |
+| 578 | Western Sunset | Western | 24 | 3 | 727 | 24 | 0.47 | 13 | 90.3 | yes |  |
+| 579 | Western Crystal | Western | 24 | 3 | 1161 | 24 | 0.41 | 15 | 99.4 | yes |  |
+| 580 | Western Copper | Western | 24 | 3 | 565 | 24 | 0.66 | 14 | 100.0 | yes |  |
+| 581 | Uptown Harbour | Uptown | 22 | 4 | 54681 | 22 | 0.46 | 5 | 59.9 | yes |  |
+| 582 | Uptown Garden | Uptown | 21 | 4 | 8076 | 21 | 0.54 | 7 | 68.4 | yes |  |
+| 583 | Uptown Market | Uptown | 25 | 4 | 3477 | 25 | 0.58 | 9 | 75.2 | yes |  |
+| 584 | Uptown Castle | Uptown | 25 | 4 | 24063 | 25 | 0.42 | 10 | 77.7 | yes |  |
+| 585 | Uptown River | Uptown | 25 | 4 | 113164 | 25 | 0.43 | 11 | 80.9 | yes |  |
+| 586 | Uptown Summit | Uptown | 22 | 4 | 3407 | 22 | 0.54 | 12 | 81.3 | yes |  |
+| 587 | Uptown Lantern | Uptown | 29 | 4 | 98153 | 29 | 0.41 | 8 | 81.3 | yes |  |
+| 588 | Uptown Willow | Uptown | 25 | 4 | 130902 | 25 | 0.45 | 11 | 81.6 | yes | closest to band |
+| 589 | Uptown Granite | Uptown | 29 | 4 | 120250 | 29 | 0.57 | 8 | 81.9 | yes |  |
+| 590 | Uptown Silver | Uptown | 23 | 4 | 16939 | 23 | 0.52 | 13 | 82.9 | yes |  |
+| 591 | Uptown Meadow | Uptown | 28 | 4 | 27098 | 28 | 0.47 | 8 | 83.6 | yes |  |
+| 592 | Uptown Beacon | Uptown | 28 | 4 | 8272 | 28 | 0.53 | 11 | 84.9 | yes |  |
+| 593 | Uptown Orchard | Uptown | 31 | 4 | 14369 | 31 | 0.46 | 13 | 87.9 | yes |  |
+| 594 | Uptown Tower | Uptown | 28 | 4 | 118012 | 28 | 0.45 | 12 | 93.0 | yes |  |
+| 595 | Uptown Bridge | Uptown | 28 | 4 | 28743 | 28 | 0.41 | 17 | 96.6 | yes |  |
+| 596 | Uptown Canal | Uptown | 26 | 4 | 27083 | 26 | 0.56 | 16 | 100.0 | yes |  |
+| 597 | Uptown Forest | Uptown | 24 | 4 | 29898 | 24 | 0.55 | 19 | 100.0 | yes |  |
+| 598 | Uptown Sunset | Uptown | 27 | 4 | 106841 | 27 | 0.69 | 14 | 100.0 | yes |  |
+| 599 | Uptown Crystal | Uptown | 31 | 4 | 37976 | 31 | 0.69 | 14 | 100.0 | yes |  |
+| 600 | Uptown Copper | Uptown | 27 | 4 | 12271 | 27 | 0.75 | 14 | 100.0 | yes |  |
 
-500 levels, 0 failed.
+600 levels, 0 failed.

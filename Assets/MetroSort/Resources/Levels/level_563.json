@@ -1,0 +1,45 @@
+{
+  "id": 563,
+  "name": "Western Market",
+  "group": "Western",
+  "stages": [
+    [
+      "RYRGY",
+      "RRYBB",
+      "BBRR",
+      "GBBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 69.2,
+  "gates": [
+    0,
+    0,
+    0,
+    2
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

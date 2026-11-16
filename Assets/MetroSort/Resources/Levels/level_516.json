@@ -1,0 +1,36 @@
+{
+  "id": 516,
+  "name": "Northern Canal",
+  "group": "Northern",
+  "stages": [
+    [
+      "GGBBRG",
+      "YRGBBG",
+      "YRRYRB",
+      "RGBRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    },
+    {
+      "cap": 4,
+      "color": "B"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 23,
+  "difficulty": 89.5
+}

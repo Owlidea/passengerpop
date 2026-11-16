@@ -1,0 +1,29 @@
+{
+  "id": 528,
+  "name": "Southern Willow",
+  "group": "Southern",
+  "stages": [
+    [
+      "BRRYB",
+      "BRBRG",
+      "RBBY",
+      "GYGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 21,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 54.1
+}

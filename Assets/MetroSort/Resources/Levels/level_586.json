@@ -1,0 +1,47 @@
+{
+  "id": 586,
+  "name": "Uptown Summit",
+  "group": "Uptown",
+  "stages": [
+    [
+      "YBGRRB",
+      "GBGRYB",
+      "GRGBG",
+      "RRBRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 22,
+  "difficulty": 81.3,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "B"
+  ]
+}

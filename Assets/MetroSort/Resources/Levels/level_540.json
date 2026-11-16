@@ -1,0 +1,29 @@
+{
+  "id": 540,
+  "name": "Southern Copper",
+  "group": "Southern",
+  "stages": [
+    [
+      "YGGBGB",
+      "GYRRGB",
+      "RYRGB",
+      "RRRBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 26,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 23,
+  "difficulty": 71.9
+}

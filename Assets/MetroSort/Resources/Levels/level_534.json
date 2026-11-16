@@ -1,0 +1,34 @@
+{
+  "id": 534,
+  "name": "Southern Tower",
+  "group": "Southern",
+  "stages": [
+    [
+      "RGGYBR",
+      "BBGYR",
+      "RYRGB",
+      "GBRBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 24,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 22,
+  "difficulty": 58.1,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

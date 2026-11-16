@@ -1,0 +1,38 @@
+{
+  "id": 560,
+  "name": "Eastern Copper",
+  "group": "Eastern",
+  "stages": [
+    [
+      "GGYG",
+      "bRYB",
+      "YBG",
+      "RRG"
+    ],
+    [
+      "YbRR",
+      "BYRR",
+      "GRR",
+      "YRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 28,
+  "difficulty": 100.0
+}

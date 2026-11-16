@@ -14,7 +14,7 @@ Checked on macOS with **Unity 6.6 (6000.6.9f1)**, URP, and the .NET SDK 10.
 | EditMode tests in Unity | **Run: 53 passed, 0 failed** |
 | PlayMode tests in Unity (boots the real game, plays levels 1-5, undo, restart, save) | **Run: 5 passed, 0 failed** |
 | Same engine tests under plain .NET (`dotnet test Tools/CoreTests`) | **Run: 53 passed, 0 failed** |
-| All 500 levels proven winnable by the C# solver and by the Python mirror | **Run: 500 checked, 0 failed** |
+| All 600 levels proven winnable by the C# solver and by the Python mirror | **Run: 600 checked, 0 failed** |
 | Project setup script (scene, URP assets, material, player settings) | **Run in batch mode: completed** |
 | Rendering under URP | **Checked from captured frames** in `Docs/screenshots/` (menu, level 16, level 34) |
 | Android | **Built**: `Builds/Android/MetroSort.aab` and a test `MetroSort.apk` (about 31 MB each, IL2CPP, ARM64, debug-signed). The APK was **installed and played on an Android 16 (API 36) emulator**: menu, level start, taps, train arrival and boarding work |
@@ -46,12 +46,12 @@ the game detects the active pipeline and picks a matching shader.
 - **Puzzle engine** in pure C# with no Unity dependency: state, move validation, match resolution, undo
   snapshots, win/lose detection, BFS solver, full state-graph analysis, level validator, difficulty scorer,
   procedural generator, shuffle and hint services.
-- **500 data-driven levels** (JSON, one file each): 10 introduction, 20 basic strategy, 30 intermediate
+- **600 data-driven levels** (JSON, one file each): 10 introduction, 20 basic strategy, 30 intermediate
   (one special mechanic each) 40 advanced (combined mechanics, long platforms, 5-6 colours)
   20 expert (mystery queues), 20 master (mystery queues plus a second mechanic) 20 grand (gated queues), 20 polar
-  (colour-keyed gates) 20 capital (five and six lines, mixed mechanics) and fifteen further lines of 20
+  (colour-keyed gates) 20 capital (five and six lines, mixed mechanics) and twenty further lines of 20
   (coastal, desert, alpine, tropic, royal, lakeside, canyon, island, aurora, golden, crimson, emerald, sapphire,
-  amber, ivory), grouped into twenty-five themed
+  amber, ivory, northern, southern, eastern, western, uptown), grouped into thirty themed
   chapters of twenty.
 - **Special mechanics** behind level data flags: locked platforms, temporary platforms, VIP passengers,
   reserved express platforms, waiting bench with move limits, multi-stage stations.
@@ -85,7 +85,7 @@ Assets/MetroSort/
   Scripts/Game/      Unity layer (asmdef MetroSort.Game)
     Core/ Station/ Passengers/ Platforms/ Animation/ Input/ UI/ Tutorial/ Audio/ Data/ Utilities/
   Editor/            project setup, build entry points, level tools
-  Resources/Levels/  level_001.json ... level_500.json
+  Resources/Levels/  level_001.json ... level_600.json
   Tests/EditMode/    engine and service tests
   Tests/PlayMode/    integration tests
 Tools/

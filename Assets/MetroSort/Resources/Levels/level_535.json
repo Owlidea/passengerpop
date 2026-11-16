@@ -1,0 +1,28 @@
+{
+  "id": 535,
+  "name": "Southern Bridge",
+  "group": "Southern",
+  "stages": [
+    [
+      "BYGBGB",
+      "RBGRY",
+      "YRGBG",
+      "BRRGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 23,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 58.7
+}

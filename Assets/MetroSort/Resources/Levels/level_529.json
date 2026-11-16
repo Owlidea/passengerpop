@@ -1,0 +1,29 @@
+{
+  "id": 529,
+  "name": "Southern Granite",
+  "group": "Southern",
+  "stages": [
+    [
+      "RRRY",
+      "GGBR",
+      "BRBG",
+      "YRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 18,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 15,
+  "difficulty": 55.0
+}

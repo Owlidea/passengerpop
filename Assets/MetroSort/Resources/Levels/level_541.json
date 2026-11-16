@@ -1,0 +1,55 @@
+{
+  "id": 541,
+  "name": "Eastern Harbour",
+  "group": "Eastern",
+  "stages": [
+    [
+      "GG",
+      "BR",
+      "RR",
+      "Y"
+    ],
+    [
+      "BB",
+      "RY",
+      "GG",
+      "G"
+    ],
+    [
+      "BR",
+      "GR",
+      "YB",
+      "B"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 52.5,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

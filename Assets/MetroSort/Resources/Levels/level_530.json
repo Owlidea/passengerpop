@@ -1,0 +1,28 @@
+{
+  "id": 530,
+  "name": "Southern Silver",
+  "group": "Southern",
+  "stages": [
+    [
+      "YGRBG",
+      "RGBRY",
+      "BYBR",
+      "BRBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 21,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 55.0
+}

@@ -1,0 +1,28 @@
+{
+  "id": 524,
+  "name": "Southern Castle",
+  "group": "Southern",
+  "stages": [
+    [
+      "BBRGY",
+      "GYBGR",
+      "BRRR",
+      "YBRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 20,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 51.0
+}

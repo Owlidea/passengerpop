@@ -1,0 +1,34 @@
+{
+  "id": 526,
+  "name": "Southern Summit",
+  "group": "Southern",
+  "stages": [
+    [
+      "RYYG",
+      "BYRB",
+      "BRGR",
+      "RGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 18,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 16,
+  "difficulty": 51.6,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

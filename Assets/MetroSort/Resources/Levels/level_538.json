@@ -1,0 +1,29 @@
+{
+  "id": 538,
+  "name": "Southern Sunset",
+  "group": "Southern",
+  "stages": [
+    [
+      "YYGBGR",
+      "GRRRG",
+      "BRBGB",
+      "BGBRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 24,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 62.0
+}

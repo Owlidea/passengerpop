@@ -1,0 +1,45 @@
+{
+  "id": 564,
+  "name": "Western Castle",
+  "group": "Western",
+  "stages": [
+    [
+      "GGRYRR",
+      "RYBBR",
+      "BGRGG",
+      "BYGBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 69.4,
+  "gates": [
+    0,
+    0,
+    0,
+    2
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": 523,
+  "name": "Southern Market",
+  "group": "Southern",
+  "stages": [
+    [
+      "RGBYR",
+      "RRYRB",
+      "BBBG",
+      "GRBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 22,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 50.8
+}

@@ -1,0 +1,50 @@
+{
+  "id": 584,
+  "name": "Uptown Castle",
+  "group": "Uptown",
+  "stages": [
+    [
+      "GPBGP",
+      "BBBBR",
+      "YYYGG",
+      "RGBRR",
+      "RGRPR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 25,
+  "difficulty": 77.7,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "B"
+  ]
+}

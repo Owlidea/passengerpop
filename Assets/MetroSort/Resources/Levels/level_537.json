@@ -1,0 +1,29 @@
+{
+  "id": 537,
+  "name": "Southern Forest",
+  "group": "Southern",
+  "stages": [
+    [
+      "GBRRY",
+      "GRRYR",
+      "BBRBB",
+      "YRGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 23,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 20,
+  "difficulty": 61.9
+}

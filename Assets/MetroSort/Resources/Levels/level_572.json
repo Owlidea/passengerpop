@@ -1,0 +1,48 @@
+{
+  "id": 572,
+  "name": "Western Beacon",
+  "group": "Western",
+  "stages": [
+    [
+      "GYYGR",
+      "BGRYB",
+      "YYYRB",
+      "BBGGB",
+      "RRRG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 81.4,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

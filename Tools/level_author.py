@@ -499,11 +499,12 @@ def build_capital_specs():
 
 
 NETWORK_GROUPS = ["Coastal", "Desert", "Alpine", "Tropic", "Royal", "Lakeside", "Canyon", "Island", "Aurora", "Golden",
-                  "Crimson", "Emerald", "Sapphire", "Amber", "Ivory"]
+                  "Crimson", "Emerald", "Sapphire", "Amber", "Ivory",
+                  "Northern", "Southern", "Eastern", "Western", "Uptown"]
 
 
 def build_network_specs():
-    """Levels 201-500: fifteen more lines, each built around its own mix of mechanics. Every line starts gentler
+    """Levels 201-600: twenty more lines, each built around its own mix of mechanics. Every line starts gentler
     than the previous one ended and tightens over its four rounds."""
     places = ["Harbour", "Garden", "Market", "Castle", "River", "Summit", "Lantern", "Willow", "Granite", "Silver",
               "Meadow", "Beacon", "Orchard", "Tower", "Bridge", "Canal", "Forest", "Sunset", "Crystal", "Copper"]
@@ -659,6 +660,48 @@ def build_network_specs():
         lambda r, c, q: dict(platforms=P(3, temp(3)), stages=2, visible=2),
         lambda r, c, q: dict(counts=[5] + c[1:], platforms=P(3, express("R")), vip=3, visible=2),
         lambda r, c, q: dict(platforms=P(3, lock("*", 2)), gate=[1, 2], gate_color=["R", ""], vip=2),
+    ])
+    # An open long platform (four of ANY line) was tried here and dropped: only lines with 4, 7 or 10 passengers
+    # can ever use it, which is a hidden rule, and 73-97% of reachable states were dead ends.
+    # Northern: two long platforms, each reserved for its own line.
+    line("Northern", medium, [
+        lambda r, c, q: dict(counts=[7, 7] + c[2:], platforms=P(2, long_p("R"), long_p("B"))),
+        lambda r, c, q: dict(counts=[7] + c[1:], platforms=P(2, long_p("R")), gate=[1], gate_color=["R"]),
+        lambda r, c, q: dict(counts=[7, 7] + c[2:], platforms=P(2, long_p("R"), long_p("B")), visible=2),
+        lambda r, c, q: dict(counts=[7] + c[1:], platforms=P(2, long_p("R"), temp(3))),
+        lambda r, c, q: dict(counts=[7, 5] + c[2:], platforms=P(2, long_p("R"), express("B")), stages=2),
+    ])
+    # Southern: a roomier bench (two seats) with a tight move limit.
+    line("Southern", small, [
+        lambda r, c, q: dict(queues=4, platforms=P(2), bench=2, move_slack=3 - r // 2, dead=(0.10 + 0.04 * r, 0.50 + 0.05 * r)),
+        lambda r, c, q: dict(queues=4, platforms=P(1, temp(2 + r // 2)), bench=2, move_slack=3),
+        lambda r, c, q: dict(queues=4, platforms=P(2), bench=2, move_slack=2, gate=[1], dead=(0.10 + 0.04 * r, 0.50 + 0.05 * r)),
+        lambda r, c, q: dict(queues=4, counts=[7] + c[1:], platforms=P(1, long_p("R")), bench=2, move_slack=3),
+        lambda r, c, q: dict(queues=4, platforms=P(2), bench=2, move_slack=2, visible=2, dead=(0.10 + 0.04 * r, 0.50 + 0.05 * r)),
+    ])
+    # Eastern: three waves with something in the way.
+    line("Eastern", [[6, 6, 6, 3], [6, 6, 6, 6], [9, 6, 6, 6], [9, 9, 6, 6]], [
+        lambda r, c, q: dict(queues=4, platforms=P(2, lock("*", 2)), stages=3),
+        lambda r, c, q: dict(queues=4, platforms=P(3), stages=3, gate=[1], gate_color=["R"]),
+        lambda r, c, q: dict(queues=4, platforms=P(2, temp(3 + r // 2)), stages=3),
+        lambda r, c, q: dict(queues=4, platforms=P(3), stages=3, visible=1),
+        lambda r, c, q: dict(queues=4, counts=[c[0] + 1] + c[1:], platforms=P(2, long_p("R")), stages=2, vip=2),
+    ])
+    # Western: colour locks against colour gates - the order of trains matters twice.
+    line("Western", medium, [
+        lambda r, c, q: dict(platforms=P(2, lock("R", 1)), gate=[1], gate_color=["R"]),
+        lambda r, c, q: dict(platforms=P(2, lock("B", 1)), gate=[1], gate_color=["R"]),
+        lambda r, c, q: dict(platforms=P(2, lock("R", 1), lock("B", 1)), gate=[1]),
+        lambda r, c, q: dict(platforms=P(2, lock("G", 1)), gate=[1, 1], gate_color=["R", "B"]),
+        lambda r, c, q: dict(platforms=P(2, lock("B", 2)), gate=[2], gate_color=["R"], visible=2),
+    ])
+    # Uptown: five and six lines around long platforms.
+    line("Uptown", large, [
+        lambda r, c, q: dict(counts=[7, 7] + c[2:], platforms=P(2, long_p("R"), long_p("B"))),
+        lambda r, c, q: dict(counts=[7] + c[1:], platforms=P(3, long_p("R")), gate=[1], gate_color=["B"], visible=2),
+        lambda r, c, q: dict(counts=[7] + c[1:], platforms=P(2, long_p("R"), temp(3)), vip=2),
+        lambda r, c, q: dict(counts=[10] + c[1:], platforms=P(3, long_p("R")), stages=2),
+        lambda r, c, q: dict(counts=[7, 5] + c[2:], platforms=P(2, long_p("R"), express("B")), gate=[1]),
     ])
     return specs
 

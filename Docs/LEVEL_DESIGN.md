@@ -74,8 +74,13 @@ One JSON file per level in `Assets/MetroSort/Resources/Levels/level_NNN.json`. N
 | 441-460 | Sapphire | Deep mystery (`visible` 1) with temporary, express, long or locked platforms and colour gates |
 | 461-480 | Amber | Express platforms (one or two reserved lines) with gates, temporary and locked platforms, waves and VIPs |
 | 481-500 | Ivory | Five and six lines, three mechanics at once |
+| 501-520 | Northern | Two reserved long platforms, long with colour gates, temporary or express platforms and second waves |
+| 521-540 | Southern | A two-seat bench with a tight move limit; the gentlest line of the later game (scores 46-72) |
+| 541-560 | Eastern | Three waves behind locks, colour gates, temporary platforms or deep mystery |
+| 561-580 | Western | Colour locks against colour gates: the order of trains matters twice |
+| 581-600 | Uptown | Five and six lines around reserved long platforms |
 
-Lines 201-500 each start gentler than the previous line ended (score about 50) and tighten over four rounds
+Lines 201-600 each start gentler than the previous line ended (score about 50) and tighten over four rounds
 (dead-end band rising from 0.20 to 0.35 at the low end), so the difficulty curve is a sawtooth rather than a
 single climb.
 
@@ -148,3 +153,10 @@ practice than the raw number suggests - for example 3 colours on 3 platforms can
 
 Large levels should always be generated and validated offline like this; the game never solves a whole level
 on the render thread.
+
+### Rejected: open long platform
+
+A long platform that accepts four passengers of *any* line was generated for lines 501-520 and 581-600 and
+dropped. Only a line with 4, 7 or 10 passengers can ever fill it, so in practice it is a reserved platform whose
+reservation the player cannot see; 73-97% of reachable states were dead ends. This is the same failure as the
+open express platform tried early in development (76-94% dead ends), and the same fix: long and express platforms always name their line.

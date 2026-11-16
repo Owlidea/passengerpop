@@ -1,0 +1,28 @@
+{
+  "id": 533,
+  "name": "Southern Orchard",
+  "group": "Southern",
+  "stages": [
+    [
+      "RRYBG",
+      "BGBRY",
+      "BRRR",
+      "YBBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 20,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 58.1
+}

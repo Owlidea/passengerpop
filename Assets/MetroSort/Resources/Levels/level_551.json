@@ -1,0 +1,43 @@
+{
+  "id": 551,
+  "name": "Eastern Meadow",
+  "group": "Eastern",
+  "stages": [
+    [
+      "GR",
+      "BG",
+      "BR",
+      "B"
+    ],
+    [
+      "BG",
+      "RB",
+      "YG",
+      "Y"
+    ],
+    [
+      "GR",
+      "GY",
+      "RB",
+      "R"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 73.1
+}

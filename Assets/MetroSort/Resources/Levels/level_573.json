@@ -1,0 +1,45 @@
+{
+  "id": 573,
+  "name": "Western Orchard",
+  "group": "Western",
+  "stages": [
+    [
+      "BYGRB",
+      "BRRYB",
+      "BRBR",
+      "RGYG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 85.3,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

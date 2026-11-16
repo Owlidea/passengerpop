@@ -1,0 +1,44 @@
+{
+  "id": 570,
+  "name": "Western Silver",
+  "group": "Western",
+  "stages": [
+    [
+      "YRGBRG",
+      "RRBGY",
+      "RGBBG",
+      "YBBRG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "R",
+      "lockTrains": 1
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 75.2,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

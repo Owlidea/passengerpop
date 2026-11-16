@@ -1,0 +1,28 @@
+{
+  "id": 522,
+  "name": "Southern Garden",
+  "group": "Southern",
+  "stages": [
+    [
+      "RRGB",
+      "RBRR",
+      "YBYY",
+      "GRG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 17,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 15,
+  "difficulty": 47.3
+}

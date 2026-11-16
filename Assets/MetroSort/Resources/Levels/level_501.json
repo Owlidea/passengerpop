@@ -1,0 +1,36 @@
+{
+  "id": 501,
+  "name": "Northern Harbour",
+  "group": "Northern",
+  "stages": [
+    [
+      "BRBBR",
+      "RBGYR",
+      "YBBBR",
+      "RRYGG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    },
+    {
+      "cap": 4,
+      "color": "B"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 20,
+  "difficulty": 68.8
+}

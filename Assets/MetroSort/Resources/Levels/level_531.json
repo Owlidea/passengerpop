@@ -1,0 +1,34 @@
+{
+  "id": 531,
+  "name": "Southern Meadow",
+  "group": "Southern",
+  "stages": [
+    [
+      "RYRRB",
+      "RGGYB",
+      "BBBG",
+      "YRBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 20,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 55.5,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

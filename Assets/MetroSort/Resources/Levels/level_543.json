@@ -1,0 +1,55 @@
+{
+  "id": 543,
+  "name": "Eastern Market",
+  "group": "Eastern",
+  "stages": [
+    [
+      "RR",
+      "YG",
+      "YR",
+      "YG"
+    ],
+    [
+      "YR",
+      "GY",
+      "BB",
+      "YB"
+    ],
+    [
+      "GB",
+      "GG",
+      "RB",
+      "BR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 60.6,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

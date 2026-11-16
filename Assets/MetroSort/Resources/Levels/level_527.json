@@ -1,0 +1,29 @@
+{
+  "id": 527,
+  "name": "Southern Lantern",
+  "group": "Southern",
+  "stages": [
+    [
+      "RBRYB",
+      "YGBYR",
+      "RRGB",
+      "RBGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 22,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 51.9
+}

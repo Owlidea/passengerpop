@@ -1,0 +1,43 @@
+{
+  "id": 554,
+  "name": "Eastern Tower",
+  "group": "Eastern",
+  "stages": [
+    [
+      "GYR",
+      "GG",
+      "GG",
+      "RR"
+    ],
+    [
+      "RYB",
+      "RY",
+      "BB",
+      "YY"
+    ],
+    [
+      "YGB",
+      "BR",
+      "RB",
+      "RR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 78.7
+}

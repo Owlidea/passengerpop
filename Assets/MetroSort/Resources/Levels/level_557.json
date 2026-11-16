@@ -1,0 +1,43 @@
+{
+  "id": 557,
+  "name": "Eastern Forest",
+  "group": "Eastern",
+  "stages": [
+    [
+      "RBR",
+      "GRY",
+      "BY",
+      "GG"
+    ],
+    [
+      "GRB",
+      "RBG",
+      "BR",
+      "RB"
+    ],
+    [
+      "RBG",
+      "YBY",
+      "RY",
+      "BY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 30,
+  "difficulty": 88.1
+}
