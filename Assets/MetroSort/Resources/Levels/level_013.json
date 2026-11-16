@@ -1,0 +1,29 @@
+{
+  "id": 13,
+  "name": "Double Red",
+  "group": "Basic",
+  "stages": [
+    [
+      "YGBY",
+      "RYBR",
+      "GRGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 12,
+  "difficulty": 53.1
+}

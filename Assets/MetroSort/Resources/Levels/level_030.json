@@ -1,0 +1,30 @@
+{
+  "id": 30,
+  "name": "Dispatcher's Exam",
+  "group": "Basic",
+  "stages": [
+    [
+      "RYBGRYBG",
+      "BBYYRGRB",
+      "RGBBBRY",
+      "RYGBRGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 30,
+  "difficulty": 83.1
+}

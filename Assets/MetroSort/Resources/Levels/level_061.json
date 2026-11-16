@@ -1,0 +1,32 @@
+{
+  "id": 61,
+  "name": "Castle Crossing",
+  "group": "Advanced",
+  "stages": [
+    [
+      "GYGRB",
+      "RBRBG",
+      "BGRB",
+      "GBRR",
+      "YGRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "long",
+  "par": 22,
+  "difficulty": 64.4
+}

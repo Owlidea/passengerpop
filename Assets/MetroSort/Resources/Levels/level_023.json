@@ -1,0 +1,30 @@
+{
+  "id": 23,
+  "name": "Signal Delay",
+  "group": "Basic",
+  "stages": [
+    [
+      "GGYBRY",
+      "YRBRBG",
+      "RBYYYG",
+      "RBBGGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 72.5
+}

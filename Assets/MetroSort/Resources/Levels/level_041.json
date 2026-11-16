@@ -1,0 +1,32 @@
+{
+  "id": 41,
+  "name": "Castle Crossing",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "BYRYG",
+      "YBGRR",
+      "BBBGG",
+      "BRRGG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 20,
+  "difficulty": 63.5
+}

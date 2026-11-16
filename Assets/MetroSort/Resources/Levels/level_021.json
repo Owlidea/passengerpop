@@ -1,0 +1,30 @@
+{
+  "id": 21,
+  "name": "Two Track Squeeze",
+  "group": "Basic",
+  "stages": [
+    [
+      "BYGRRRB",
+      "BYGBRGY",
+      "RRGRBYY",
+      "RGRYBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 67.7
+}

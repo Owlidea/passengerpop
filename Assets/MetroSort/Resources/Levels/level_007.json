@@ -1,0 +1,30 @@
+{
+  "id": 7,
+  "name": "Wide Concourse",
+  "group": "Intro",
+  "stages": [
+    [
+      "BRGRB",
+      "BGGGB",
+      "RRRG",
+      "BBRG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 44.8
+}

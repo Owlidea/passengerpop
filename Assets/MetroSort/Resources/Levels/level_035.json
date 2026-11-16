@@ -1,0 +1,27 @@
+{
+  "id": 35,
+  "name": "Waiting Bench",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "GBRY",
+      "YRGR",
+      "BGRR",
+      "YBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 18,
+  "extraPlatforms": 1,
+  "tutorial": "bench",
+  "par": 16,
+  "difficulty": 64.3
+}

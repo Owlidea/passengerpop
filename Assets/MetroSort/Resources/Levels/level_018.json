@@ -1,0 +1,26 @@
+{
+  "id": 18,
+  "name": "Morning Peak",
+  "group": "Basic",
+  "stages": [
+    [
+      "GYYG",
+      "BRYR",
+      "RBBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 12,
+  "difficulty": 60.7
+}

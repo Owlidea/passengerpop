@@ -1,0 +1,31 @@
+{
+  "id": 26,
+  "name": "Evening Peak",
+  "group": "Basic",
+  "stages": [
+    [
+      "GGRBYYR",
+      "RBRBGRG",
+      "RBGRGYB",
+      "BRGBBY",
+      "GYGRBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 33,
+  "difficulty": 73.3
+}

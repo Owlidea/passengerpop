@@ -1,0 +1,41 @@
+{
+  "id": 75,
+  "name": "Sunset Gate",
+  "group": "Advanced",
+  "stages": [
+    [
+      "RBG",
+      "YG",
+      "RG",
+      "RY",
+      "BB",
+      "GR"
+    ],
+    [
+      "BBY",
+      "GYR",
+      "RG",
+      "YY",
+      "RR",
+      "RB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 70.0
+}

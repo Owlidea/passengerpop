@@ -1,0 +1,27 @@
+{
+  "id": 71,
+  "name": "Tower Parkway",
+  "group": "Advanced",
+  "stages": [
+    [
+      "YBRBG",
+      "YBGBR",
+      "gbRY",
+      "BRRR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 21,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 68.1
+}

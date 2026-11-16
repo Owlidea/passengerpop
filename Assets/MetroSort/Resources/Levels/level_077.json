@@ -1,0 +1,38 @@
+{
+  "id": 77,
+  "name": "Copper Junction",
+  "group": "Advanced",
+  "stages": [
+    [
+      "YYYG",
+      "RRRR",
+      "BYB",
+      "GYR",
+      "GYB",
+      "GGG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 20,
+  "difficulty": 71.2
+}

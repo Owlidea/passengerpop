@@ -1,0 +1,27 @@
+{
+  "id": 27,
+  "name": "Full Timetable",
+  "group": "Basic",
+  "stages": [
+    [
+      "RYYGR",
+      "RRGRB",
+      "BBBR",
+      "BGBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 77.4
+}

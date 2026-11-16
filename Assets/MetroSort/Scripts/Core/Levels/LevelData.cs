@@ -1,0 +1,169 @@
+using System;
+using System.Collections.Generic;
+using MetroSort.Puzzle;
+using MetroSort.Utilities;
+
+namespace MetroSort.Levels
+{
+    public sealed class PlatformConfig
+    {
+        /// <summary>Passengers needed to call a train. 3 is standard, 2 is an Express platform, 4 a long platform.</summary>
+        public int Capacity = 3;
+        public bool Express;
+        /// <summary>ColorCodes.None = not locked. ColorCodes.Any = any train counts.</summary>
+        public int LockColor = ColorCodes.None;
+        public int LockTrains;
+        /// <summary>0 = permanent. Otherwise the platform closes after this many departures.</summary>
+        public int Uses;
+        /// <summary>ColorCodes.None = accepts any line. Otherwise only passengers of this colour may wait here.</summary>
+        public int ReservedColor = ColorCodes.None;
+
+        public bool IsLocked { get { return LockTrains > 0; } }
+
+        public PlatformConfig Clone()
+        {
+            return (PlatformConfig)MemberwiseClone();
+        }
+    }
+
+    /// <summary>
+    /// Serializable definition of one level. Queues are strings of colour letters, front passenger first.
+    /// Lower-case letters are VIP passengers. See LEVEL_DESIGN.md for the schema.
+    /// </summary>
+    public sealed class LevelData
+    {
+        public int Id;
+        public string Name = "";
+        public string Group = "";
+        public List<string[]> Stages = new List<string[]>();
+        public List<PlatformConfig> Platforms = new List<PlatformConfig>();
+        public int Bench;
+        public int MoveLimit;
+        /// <summary>How many Extra Platform boosters this level accepts.</summary>
+        public int ExtraPlatforms = 1;
+        public string Tutorial = "";
+        /// <summary>Minimum number of moves found by the solver; used for star rating.</summary>
+        public int Par;
+        public float Difficulty;
+
+        public int TotalPassengers
+        {
+            get
+            {
+                int n = 0;
+                foreach (string[] stage in Stages)
+                    foreach (string q in stage) n += q.Length;
+                return n;
+            }
+        }
+
+        public int[] ColorCounts()
+        {
+            var counts = new int[ColorCodes.Count];
+            foreach (string[] stage in Stages)
+                foreach (string q in stage)
+                    foreach (char c in q)
+                    {
+                        int color; bool vip;
+                        if (ColorCodes.TryParse(c, out color, out vip)) counts[color]++;
+                    }
+            return counts;
+        }
+
+        public int DistinctColors
+        {
+            get
+            {
+                int n = 0;
+                foreach (int c in ColorCounts()) if (c > 0) n++;
+                return n;
+            }
+        }
+
+        public static LevelData FromJson(string json)
+        {
+            var root = JsonRead.AsDict(MiniJson.Parse(json));
+            if (root == null) throw new FormatException("Level JSON root must be an object");
+            var level = new LevelData
+            {
+                Id = JsonRead.Int(root, "id", 0),
+                Name = JsonRead.Str(root, "name", ""),
+                Group = JsonRead.Str(root, "group", ""),
+                Bench = JsonRead.Int(root, "bench", 0),
+                MoveLimit = JsonRead.Int(root, "moveLimit", 0),
+                ExtraPlatforms = JsonRead.Int(root, "extraPlatforms", 1),
+                Tutorial = JsonRead.Str(root, "tutorial", ""),
+                Par = JsonRead.Int(root, "par", 0),
+                Difficulty = JsonRead.Float(root, "difficulty", 0f)
+            };
+            foreach (object stageObj in JsonRead.List(root, "stages"))
+            {
+                var stageList = stageObj as List<object>;
+                if (stageList == null) throw new FormatException("Each stage must be an array of queue strings");
+                var queues = new string[stageList.Count];
+                for (int i = 0; i < queues.Length; i++) queues[i] = stageList[i] as string ?? "";
+                level.Stages.Add(queues);
+            }
+            foreach (object platObj in JsonRead.List(root, "platforms"))
+            {
+                var pd = JsonRead.AsDict(platObj);
+                var cfg = new PlatformConfig
+                {
+                    Capacity = JsonRead.Int(pd, "cap", 3),
+                    Express = JsonRead.Bool(pd, "express", false),
+                    LockTrains = JsonRead.Int(pd, "lockTrains", 0),
+                    Uses = JsonRead.Int(pd, "uses", 0)
+                };
+                string reserved = JsonRead.Str(pd, "color", "");
+                if (reserved.Length == 1)
+                {
+                    int rc; bool rv;
+                    if (ColorCodes.TryParse(reserved[0], out rc, out rv)) cfg.ReservedColor = rc;
+                }
+                string lockColor = JsonRead.Str(pd, "lockColor", "");
+                if (cfg.LockTrains > 0)
+                {
+                    int color; bool vip;
+                    if (lockColor.Length == 1 && ColorCodes.TryParse(lockColor[0], out color, out vip)) cfg.LockColor = color;
+                    else cfg.LockColor = ColorCodes.Any;
+                }
+                level.Platforms.Add(cfg);
+            }
+            return level;
+        }
+
+        public string ToJson()
+        {
+            var root = new Dictionary<string, object>();
+            root["id"] = Id;
+            root["name"] = Name;
+            root["group"] = Group;
+            var stages = new List<object>();
+            foreach (string[] stage in Stages) stages.Add(new List<object>(stage));
+            root["stages"] = stages;
+            var plats = new List<object>();
+            foreach (PlatformConfig p in Platforms)
+            {
+                var pd = new Dictionary<string, object>();
+                pd["cap"] = p.Capacity;
+                if (p.Express) pd["express"] = true;
+                if (p.LockTrains > 0)
+                {
+                    pd["lockColor"] = p.LockColor >= 0 ? ColorCodes.Letters[p.LockColor].ToString() : "*";
+                    pd["lockTrains"] = p.LockTrains;
+                }
+                if (p.Uses > 0) pd["uses"] = p.Uses;
+                if (p.ReservedColor >= 0) pd["color"] = ColorCodes.Letters[p.ReservedColor].ToString();
+                plats.Add(pd);
+            }
+            root["platforms"] = plats;
+            root["bench"] = Bench;
+            root["moveLimit"] = MoveLimit;
+            root["extraPlatforms"] = ExtraPlatforms;
+            root["tutorial"] = Tutorial;
+            root["par"] = Par;
+            root["difficulty"] = Difficulty;
+            return MiniJson.Serialize(root);
+        }
+    }
+}

@@ -1,0 +1,39 @@
+{
+  "id": 76,
+  "name": "Crystal Gate",
+  "group": "Advanced",
+  "stages": [
+    [
+      "GBR",
+      "RYB",
+      "GY",
+      "BR",
+      "GR"
+    ],
+    [
+      "GRY",
+      "RYB",
+      "GY",
+      "BB",
+      "GY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 70.4
+}

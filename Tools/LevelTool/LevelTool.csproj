@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Command-line level validator / generator built on the shipping engine source.
+    Commands: "validate" and "generate". Exact command lines are in Docs/LEVEL_DESIGN.md.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <RollForward>Major</RollForward>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Assets\MetroSort\Scripts\Core\**\*.cs" LinkBase="Core" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+</Project>

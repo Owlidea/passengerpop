@@ -1,0 +1,33 @@
+{
+  "id": 100,
+  "name": "Market Terminal",
+  "group": "Advanced",
+  "stages": [
+    [
+      "PRYGB",
+      "PRRRY",
+      "YGBGY",
+      "GBPRB",
+      "RRGB",
+      "YBGY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 28,
+  "difficulty": 100.0
+}

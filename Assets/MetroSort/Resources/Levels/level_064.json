@@ -1,0 +1,27 @@
+{
+  "id": 64,
+  "name": "Lantern Loop",
+  "group": "Advanced",
+  "stages": [
+    [
+      "BYRRG",
+      "bRGBY",
+      "RGYB",
+      "RBrB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 20,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 60.5
+}

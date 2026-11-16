@@ -1,0 +1,23 @@
+# Unity
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+*.csproj.user
+/*.csproj
+/*.sln
+.vs/
+.idea/
+.DS_Store
+# dotnet tools
+Tools/**/bin/
+Tools/**/obj/
+Tools/*.log
+Tools/__pycache__/
+
+# Android build scratch
+/.utmp/

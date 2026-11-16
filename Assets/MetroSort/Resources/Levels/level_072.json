@@ -1,0 +1,33 @@
+{
+  "id": 72,
+  "name": "Bridge Parkway",
+  "group": "Advanced",
+  "stages": [
+    [
+      "BGGBY",
+      "GBRG",
+      "GRRY",
+      "RRBY",
+      "BBYY",
+      "GRRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 25,
+  "difficulty": 68.3
+}

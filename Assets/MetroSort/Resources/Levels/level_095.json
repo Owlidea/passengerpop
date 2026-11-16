@@ -1,0 +1,39 @@
+{
+  "id": 95,
+  "name": "Sunset Gate",
+  "group": "Advanced",
+  "stages": [
+    [
+      "BYBYY",
+      "BRPGR",
+      "YPBR",
+      "GYYR",
+      "RGBG",
+      "GGPB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    },
+    {
+      "cap": 3,
+      "lockColor": "G",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 26,
+  "difficulty": 89.1
+}

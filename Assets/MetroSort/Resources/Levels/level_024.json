@@ -1,0 +1,31 @@
+{
+  "id": 24,
+  "name": "Twin Surge",
+  "group": "Basic",
+  "stages": [
+    [
+      "BBGRRYB",
+      "BRBGRRG",
+      "YBGGYRG",
+      "GBYRBG",
+      "RGBYRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 33,
+  "difficulty": 72.7
+}

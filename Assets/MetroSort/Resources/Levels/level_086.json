@@ -1,0 +1,35 @@
+{
+  "id": 86,
+  "name": "Granite Depot",
+  "group": "Advanced",
+  "stages": [
+    [
+      "RPRYR",
+      "BGYRY",
+      "RRPGB",
+      "GBRYB",
+      "YGGGR",
+      "YPBRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 30,
+  "difficulty": 81.2
+}

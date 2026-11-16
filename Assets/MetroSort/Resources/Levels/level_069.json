@@ -1,0 +1,40 @@
+{
+  "id": 69,
+  "name": "Beacon Halt",
+  "group": "Advanced",
+  "stages": [
+    [
+      "BR",
+      "BG",
+      "GB",
+      "GY",
+      "RR"
+    ],
+    [
+      "RGB",
+      "GB",
+      "GB",
+      "RR",
+      "YY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 63.5
+}

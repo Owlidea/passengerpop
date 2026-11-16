@@ -1,0 +1,26 @@
+{
+  "id": 10,
+  "name": "Graduation Run",
+  "group": "Intro",
+  "stages": [
+    [
+      "RBRGGB",
+      "RBGRRG",
+      "GGBBRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 52.0
+}

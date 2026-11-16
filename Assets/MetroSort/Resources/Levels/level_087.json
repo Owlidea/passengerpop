@@ -1,0 +1,42 @@
+{
+  "id": 87,
+  "name": "Silver Interchange",
+  "group": "Advanced",
+  "stages": [
+    [
+      "RBR",
+      "BG",
+      "YG",
+      "YY",
+      "GR",
+      "RR"
+    ],
+    [
+      "GBY",
+      "RBB",
+      "RY",
+      "GR",
+      "GR",
+      "YB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 81.3
+}

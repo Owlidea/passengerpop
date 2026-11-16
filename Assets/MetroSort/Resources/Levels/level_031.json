@@ -1,0 +1,32 @@
+{
+  "id": 31,
+  "name": "Locked Platform",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "YRYGB",
+      "BYGBR",
+      "RGRB",
+      "BBRR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "locked",
+  "par": 18,
+  "difficulty": 66.7
+}

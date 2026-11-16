@@ -1,0 +1,39 @@
+{
+  "id": 78,
+  "name": "Harbour Junction",
+  "group": "Advanced",
+  "stages": [
+    [
+      "BRP",
+      "BYB",
+      "GB",
+      "YY",
+      "GG"
+    ],
+    [
+      "BPR",
+      "GRG",
+      "RP",
+      "BG",
+      "RR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 73.1
+}

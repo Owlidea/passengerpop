@@ -1,0 +1,41 @@
+{
+  "id": 88,
+  "name": "Meadow Interchange",
+  "group": "Advanced",
+  "stages": [
+    [
+      "YPG",
+      "GB",
+      "RY",
+      "GY",
+      "RG",
+      "BB"
+    ],
+    [
+      "PYY",
+      "GYB",
+      "RB",
+      "BR",
+      "RR",
+      "PG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 81.6
+}

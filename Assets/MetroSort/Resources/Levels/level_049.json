@@ -1,0 +1,36 @@
+{
+  "id": 49,
+  "name": "Beacon Halt",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "BPG",
+      "PBY",
+      "RP",
+      "BR"
+    ],
+    [
+      "RGR",
+      "BYB",
+      "GRB",
+      "YR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 72.1
+}

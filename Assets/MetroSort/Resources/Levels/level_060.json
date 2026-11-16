@@ -1,0 +1,32 @@
+{
+  "id": 60,
+  "name": "Market Terminal",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "GGBRGY",
+      "BYRRB",
+      "RRYRB",
+      "BGGBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 89.1
+}

@@ -1,0 +1,34 @@
+{
+  "id": 68,
+  "name": "Meadow Interchange",
+  "group": "Advanced",
+  "stages": [
+    [
+      "RGbBB",
+      "BRyRY",
+      "YRYGR",
+      "GGbr",
+      "GRbg",
+      "YRYR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 62.6
+}

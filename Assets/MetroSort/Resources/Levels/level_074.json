@@ -1,0 +1,32 @@
+{
+  "id": 74,
+  "name": "Forest Central",
+  "group": "Advanced",
+  "stages": [
+    [
+      "BRYRG",
+      "YYRYG",
+      "YRGRR",
+      "BGGRY",
+      "BBBGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 25,
+  "difficulty": 69.2
+}

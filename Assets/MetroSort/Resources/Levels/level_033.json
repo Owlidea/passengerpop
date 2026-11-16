@@ -1,0 +1,30 @@
+{
+  "id": 33,
+  "name": "VIP Passengers",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "RRRBB",
+      "rbRRB",
+      "BBGY",
+      "YYGg"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "vip",
+  "par": 18,
+  "difficulty": 66.4
+}

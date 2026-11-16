@@ -1,0 +1,31 @@
+{
+  "id": 25,
+  "name": "Bottleneck",
+  "group": "Basic",
+  "stages": [
+    [
+      "BGBRGY",
+      "RBYRGB",
+      "BBGGR",
+      "RRRYG",
+      "YYRRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 73.0
+}

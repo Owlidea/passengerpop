@@ -1,0 +1,26 @@
+{
+  "id": 1,
+  "name": "First Platform",
+  "group": "Intro",
+  "stages": [
+    [
+      "RB",
+      "RB",
+      "RB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "select_move",
+  "par": 6,
+  "difficulty": 29.1
+}

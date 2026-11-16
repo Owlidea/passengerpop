@@ -1,0 +1,38 @@
+{
+  "id": 83,
+  "name": "Summit Loop",
+  "group": "Advanced",
+  "stages": [
+    [
+      "BRYYR",
+      "YBRGR",
+      "GGGYG",
+      "BYYB",
+      "RBBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    },
+    {
+      "cap": 3,
+      "lockColor": "G",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 23,
+  "difficulty": 77.2
+}

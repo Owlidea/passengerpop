@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11545d0f4e6f4491cbae82d7701ca39c, type: 3}
+  m_Name: EconomyConfig
+  m_EditorClassIdentifier: MetroSort.Game::MetroSort.Game.EconomyConfigAsset
+  startingCoins: 150
+  startingBoosters: 05000000030000000100000001000000i
+  boosterCosts: 0f0000001e0000005000000032000000i
+  coinsPerLevel: 20
+  coinsPerStar: 5
+  replayCoins: 5
+  dailyReward: 60
+  rewardedAdCoins: 40
+  interstitialFreeUntilLevel: 10
+  interstitialEveryNLevels: 3

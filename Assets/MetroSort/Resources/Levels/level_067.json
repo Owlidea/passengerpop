@@ -1,0 +1,27 @@
+{
+  "id": 67,
+  "name": "Silver Interchange",
+  "group": "Advanced",
+  "stages": [
+    [
+      "rBGGYB",
+      "RBGRG",
+      "YRBRG",
+      "bBRYG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 23,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 62.5
+}

@@ -1,0 +1,30 @@
+{
+  "id": 58,
+  "name": "Harbour Junction",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "ryyRGR",
+      "bGpBY",
+      "RbBGB",
+      "PRPRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 85.5
+}

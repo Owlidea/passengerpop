@@ -1,0 +1,27 @@
+{
+  "id": 55,
+  "name": "Sunset Gate",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "RGYR",
+      "RYBG",
+      "BGBY",
+      "RRR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 19,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 16,
+  "difficulty": 80.7
+}

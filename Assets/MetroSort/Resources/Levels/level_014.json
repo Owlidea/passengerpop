@@ -1,0 +1,32 @@
+{
+  "id": 14,
+  "name": "Crosstown",
+  "group": "Basic",
+  "stages": [
+    [
+      "YYYB",
+      "RYGR",
+      "RBRB",
+      "RGGG",
+      "BBYY",
+      "GRBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 53.5
+}

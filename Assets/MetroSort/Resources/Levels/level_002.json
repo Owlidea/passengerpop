@@ -1,0 +1,29 @@
+{
+  "id": 2,
+  "name": "Three of a Kind",
+  "group": "Intro",
+  "stages": [
+    [
+      "GBR",
+      "BRG",
+      "GBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "match_three",
+  "par": 9,
+  "difficulty": 50.5
+}

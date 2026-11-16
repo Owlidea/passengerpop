@@ -1,0 +1,27 @@
+{
+  "id": 42,
+  "name": "River Crossing",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "BRBBB",
+      "RGBGY",
+      "YBGR",
+      "RRRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 21,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 64.3
+}

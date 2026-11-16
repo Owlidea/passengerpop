@@ -1,0 +1,35 @@
+{
+  "id": 96,
+  "name": "Crystal Gate",
+  "group": "Advanced",
+  "stages": [
+    [
+      "YOGGY",
+      "RBRRB",
+      "RBOBP",
+      "YGYGG",
+      "YYPOB",
+      "PBRGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 30,
+  "difficulty": 89.5
+}

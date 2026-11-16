@@ -1,0 +1,32 @@
+{
+  "id": 51,
+  "name": "Tower Parkway",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "PBRYGR",
+      "RPYGB",
+      "BRBPB",
+      "BRYGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 75.3
+}

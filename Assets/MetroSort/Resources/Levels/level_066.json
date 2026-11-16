@@ -1,0 +1,27 @@
+{
+  "id": 66,
+  "name": "Granite Depot",
+  "group": "Advanced",
+  "stages": [
+    [
+      "rBRBYR",
+      "GbGRG",
+      "RGGBY",
+      "RYBBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 23,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 61.2
+}

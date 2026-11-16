@@ -1,0 +1,30 @@
+{
+  "id": 3,
+  "name": "Next in Line",
+  "group": "Intro",
+  "stages": [
+    [
+      "RG",
+      "GB",
+      "BR",
+      "RGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "queue_advance",
+  "par": 9,
+  "difficulty": 39.9
+}

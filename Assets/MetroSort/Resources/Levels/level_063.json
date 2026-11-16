@@ -1,0 +1,39 @@
+{
+  "id": 63,
+  "name": "Summit Loop",
+  "group": "Advanced",
+  "stages": [
+    [
+      "RY",
+      "YG",
+      "BR",
+      "BG",
+      "GR"
+    ],
+    [
+      "GBR",
+      "RY",
+      "BR",
+      "GG",
+      "BB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 60.3
+}

@@ -1,0 +1,26 @@
+{
+  "id": 4,
+  "name": "Two Platforms",
+  "group": "Intro",
+  "stages": [
+    [
+      "RGG",
+      "BGR",
+      "BBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "capacity",
+  "par": 9,
+  "difficulty": 40.2
+}

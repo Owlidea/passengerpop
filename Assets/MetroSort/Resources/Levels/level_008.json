@@ -1,0 +1,26 @@
+{
+  "id": 8,
+  "name": "Deep Queues",
+  "group": "Intro",
+  "stages": [
+    [
+      "GRGGB",
+      "RBBRR",
+      "BBRRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 15,
+  "difficulty": 46.8
+}

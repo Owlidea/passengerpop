@@ -1,0 +1,30 @@
+{
+  "id": 15,
+  "name": "Five Lanes",
+  "group": "Basic",
+  "stages": [
+    [
+      "GBRBR",
+      "RRBYY",
+      "BGBR",
+      "RYGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 55.2
+}

@@ -1,0 +1,32 @@
+{
+  "id": 34,
+  "name": "Express Line",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "BRBBR",
+      "BBGY",
+      "RBRY",
+      "GYGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "express",
+  "par": 17,
+  "difficulty": 78.3
+}

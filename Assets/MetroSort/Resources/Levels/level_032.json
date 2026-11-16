@@ -1,0 +1,31 @@
+{
+  "id": 32,
+  "name": "Temporary Platform",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "GRRB",
+      "YGRG",
+      "RYRB",
+      "RBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "temporary",
+  "par": 15,
+  "difficulty": 49.7
+}

@@ -1,0 +1,34 @@
+{
+  "id": 70,
+  "name": "Orchard Halt",
+  "group": "Advanced",
+  "stages": [
+    [
+      "YGGRR",
+      "RYGGB",
+      "YBYRG",
+      "YBGRY",
+      "BBBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 66.1
+}

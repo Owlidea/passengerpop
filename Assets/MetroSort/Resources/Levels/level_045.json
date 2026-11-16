@@ -1,0 +1,27 @@
+{
+  "id": 45,
+  "name": "Willow Depot",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "RRBG",
+      "BRYR",
+      "YRRG",
+      "GYB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 19,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 16,
+  "difficulty": 66.1
+}

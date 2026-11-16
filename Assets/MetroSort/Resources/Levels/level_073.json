@@ -1,0 +1,40 @@
+{
+  "id": 73,
+  "name": "Canal Central",
+  "group": "Advanced",
+  "stages": [
+    [
+      "YRB",
+      "RYB",
+      "RY",
+      "YB",
+      "GB"
+    ],
+    [
+      "GBG",
+      "RBG",
+      "GY",
+      "GY",
+      "RR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 68.6
+}

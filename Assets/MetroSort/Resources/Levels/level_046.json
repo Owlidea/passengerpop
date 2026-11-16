@@ -1,0 +1,32 @@
+{
+  "id": 46,
+  "name": "Granite Depot",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "BYGBR",
+      "YRYBR",
+      "BRRG",
+      "BGRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 67.1
+}

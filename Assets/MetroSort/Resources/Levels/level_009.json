@@ -1,0 +1,27 @@
+{
+  "id": 9,
+  "name": "Tight Transfer",
+  "group": "Intro",
+  "stages": [
+    [
+      "BGBGG",
+      "BBGGR",
+      "RRBR",
+      "RBRG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 47.7
+}

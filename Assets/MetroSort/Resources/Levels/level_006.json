@@ -1,0 +1,27 @@
+{
+  "id": 6,
+  "name": "Rush Hour Warm-up",
+  "group": "Intro",
+  "stages": [
+    [
+      "BRGR",
+      "BRGR",
+      "BBGR",
+      "RBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 15,
+  "difficulty": 44.8
+}

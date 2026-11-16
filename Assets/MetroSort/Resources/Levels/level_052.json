@@ -1,0 +1,27 @@
+{
+  "id": 52,
+  "name": "Bridge Parkway",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "RBBGR",
+      "GYRGB",
+      "RBBR",
+      "YBRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 21,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 77.7
+}

@@ -1,0 +1,31 @@
+{
+  "id": 50,
+  "name": "Orchard Halt",
+  "group": "Intermediate",
+  "stages": [
+    [
+      "ByGYY",
+      "GRBBG",
+      "YrGbR",
+      "YRgrG",
+      "YBRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 74.8
+}
