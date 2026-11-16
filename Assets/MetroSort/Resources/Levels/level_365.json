@@ -1,0 +1,43 @@
+{
+  "id": 365,
+  "name": "Aurora River",
+  "group": "Aurora",
+  "stages": [
+    [
+      "RRRGBR",
+      "BGRBG",
+      "GRGBY",
+      "BYGYB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 64.3,
+  "gates": [
+    0,
+    0,
+    1,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "R",
+    "B"
+  ]
+}

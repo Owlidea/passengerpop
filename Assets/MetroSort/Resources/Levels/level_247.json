@@ -1,0 +1,39 @@
+{
+  "id": 247,
+  "name": "Alpine Lantern",
+  "group": "Alpine",
+  "stages": [
+    [
+      "BBYGG",
+      "BYBYG",
+      "RYRR",
+      "GBGY",
+      "YGRR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "B"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 22,
+  "difficulty": 81.1
+}

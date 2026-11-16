@@ -1,0 +1,46 @@
+{
+  "id": 300,
+  "name": "Royal Copper",
+  "group": "Royal",
+  "stages": [
+    [
+      "PBR",
+      "GR",
+      "OB",
+      "OP",
+      "GO",
+      "RG"
+    ],
+    [
+      "GRR",
+      "BGP",
+      "BY",
+      "GY",
+      "BR",
+      "BY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 100.0
+}

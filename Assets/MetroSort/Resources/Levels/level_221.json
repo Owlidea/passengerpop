@@ -1,0 +1,37 @@
+{
+  "id": 221,
+  "name": "Desert Harbour",
+  "group": "Desert",
+  "stages": [
+    [
+      "GRYY",
+      "GYBR",
+      "YGYB",
+      "BYR",
+      "GGG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 51.3
+}

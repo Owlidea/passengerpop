@@ -60,6 +60,7 @@ def place(level, state, char, queues, bench):
         if vip and count == 0:
             continue
         new_plats = list(plats)
+        after = queues  # must stay local to this platform choice: a train here changes the gates only here
         if count + 1 == cap:
             if uses > 0:
                 uses -= 1
@@ -72,11 +73,11 @@ def place(level, state, char, queues, bench):
                     rem = o[3] - 1
                     new_plats[j] = (o[0], o[1], o[2] if rem > 0 else "", rem, o[4], o[5], o[6])
             # A departed train brings every closed turnstile one step closer to opening.
-            queues = [(q[2:] if q[0] == "1" else str(int(q[0]) - 1) + q[1:]) if q and q[0].isdigit() and q[1] in ("*", col) else q
-                      for q in queues]
+            after = [(q[2:] if q[0] == "1" else str(int(q[0]) - 1) + q[1:]) if q and q[0].isdigit() and q[1] in ("*", col) else q
+                     for q in queues]
         else:
             new_plats[i] = (cap, uses, "", 0, col, count + 1, fixed)
-        yield finish(level, stage, queues, bench, new_plats)
+        yield finish(level, stage, after, bench, new_plats)
 
 
 def finish(level, stage, queues, bench, plats):
@@ -465,11 +466,169 @@ def build_polar_specs():
     return specs
 
 
+def build_capital_specs():
+    """Levels 181-200: five and six lines, several mechanics mixed, tight bands."""
+    places = ["Harbour", "Garden", "Market", "Castle", "River", "Summit", "Lantern", "Willow", "Granite", "Silver",
+              "Meadow", "Beacon", "Orchard", "Tower", "Bridge", "Canal", "Forest", "Sunset", "Crystal", "Copper"]
+    lock = lambda color, trains: {"cap": 3, "lockColor": color, "lockTrains": trains}
+    temp = lambda uses: {"cap": 3, "uses": uses}
+    express = lambda color: {"cap": 2, "express": True, "color": color}
+    long_p = lambda color: {"cap": 4, "color": color}
+    specs = []
+
+    def add(gate_list, color_list, **kw):
+        kw["name"] = "Capital " + places[len(specs) % len(places)]
+        kw["group"] = "Capital"
+        pad = kw["queues"] - len(gate_list)
+        kw["gates"] = [0] * pad + list(gate_list)
+        kw["gate_colors"] = [""] * pad + list(color_list)
+        kw.setdefault("dead", (0.35, 0.80))
+        kw.setdefault("attempts", 30)
+        specs.append(kw)
+
+    sizes = [[6, 6, 6, 3, 3], [6, 6, 6, 6, 3], [6, 6, 6, 3, 3, 3], [6, 6, 6, 6, 3, 3]]
+    for r in range(4):
+        counts = sizes[r]
+        queues = 5 if sum(counts) <= 24 else 6
+        add([1, 2], ["R", ""], counts=counts, queues=queues, platforms=P(4), visible=2)
+        add([2], ["B"], counts=counts, queues=queues, platforms=P(2, lock("*", 1), temp(3)), vip=2)
+        add([1], [""], counts=[5] + counts[1:], queues=queues, platforms=P(3, express("R")), visible=2)
+        add([1], ["R"], counts=counts, queues=queues, stages=2, platforms=P(3))
+        add([1, 1], ["B", "G"], counts=[7] + counts[1:], queues=queues, platforms=P(3, long_p("R")))
+    return specs
+
+
+NETWORK_GROUPS = ["Coastal", "Desert", "Alpine", "Tropic", "Royal", "Lakeside", "Canyon", "Island", "Aurora", "Golden"]
+
+
+def build_network_specs():
+    """Levels 201-400: ten more lines, each built around its own mix of mechanics. Every line starts gentler
+    than the previous one ended and tightens over its four rounds."""
+    places = ["Harbour", "Garden", "Market", "Castle", "River", "Summit", "Lantern", "Willow", "Granite", "Silver",
+              "Meadow", "Beacon", "Orchard", "Tower", "Bridge", "Canal", "Forest", "Sunset", "Crystal", "Copper"]
+    lock = lambda color, trains: {"cap": 3, "lockColor": color, "lockTrains": trains}
+    temp = lambda uses: {"cap": 3, "uses": uses}
+    express = lambda color: {"cap": 2, "express": True, "color": color}
+    long_p = lambda color: {"cap": 4, "color": color}
+    specs = []
+
+    def line(group, sizes, recipes):
+        start = len(specs)
+        for r in range(4):
+            for recipe in recipes:
+                counts = list(sizes[r])
+                queues = 4 if sum(counts) <= 21 else (5 if sum(counts) <= 24 else 6)
+                kw = recipe(r, counts, queues)
+                kw.setdefault("counts", counts)
+                kw.setdefault("queues", queues)
+                gate_list = kw.pop("gate", [])
+                color_list = kw.pop("gate_color", [""] * len(gate_list))
+                if gate_list:
+                    pad = kw["queues"] - len(gate_list)
+                    kw["gates"] = [0] * pad + list(gate_list)
+                    if any(color_list):
+                        kw["gate_colors"] = [""] * pad + list(color_list)
+                kw["name"] = group + " " + places[(len(specs) - start) % len(places)]
+                kw["group"] = group
+                lo = 0.20 + 0.05 * r
+                kw.setdefault("dead", (lo, lo + 0.42))
+                kw.setdefault("attempts", 60 if sum(kw["counts"]) <= 21 else 30)
+                specs.append(kw)
+
+    small = [[6, 3, 3, 3], [6, 6, 3, 3], [6, 6, 3, 3], [6, 6, 6, 3]]
+    medium = [[6, 6, 3, 3], [6, 6, 6, 3], [6, 6, 6, 6], [6, 6, 6, 3, 3]]
+    large = [[6, 6, 6, 3], [6, 6, 6, 3, 3], [6, 6, 6, 6, 3], [6, 6, 6, 3, 3, 3]]
+
+    # Coastal: the waiting bench and a move limit, combined with one other idea.
+    line("Coastal", small, [
+        lambda r, c, q: dict(queues=4, platforms=P(2), bench=1, move_slack=3 - r // 2),
+        lambda r, c, q: dict(queues=4, platforms=P(2), bench=1, move_slack=3, visible=2),
+        lambda r, c, q: dict(queues=4, platforms=P(2), bench=1, move_slack=3, gate=[1]),
+        lambda r, c, q: dict(queues=4, platforms=P(1, temp(2 + r // 2)), bench=1, move_slack=3),
+        lambda r, c, q: dict(queues=4, platforms=P(2), bench=2, move_slack=2, vip=1 + r // 2),
+    ])
+    # Desert: platforms that run out, behind colour gates and second waves.
+    line("Desert", medium, [
+        lambda r, c, q: dict(platforms=P(2, temp(2 + r // 2), temp(2))),
+        lambda r, c, q: dict(platforms=P(2, temp(3)), gate=[1], gate_color=["R"]),
+        lambda r, c, q: dict(platforms=P(2, temp(2 + r // 2)), stages=2),
+        lambda r, c, q: dict(platforms=P(2, temp(2), lock("*", 1)), vip=2),
+        lambda r, c, q: dict(platforms=P(2, temp(3)), gate=[1, 2], visible=2),
+    ])
+    # Alpine: long and express platforms side by side.
+    line("Alpine", medium, [
+        lambda r, c, q: dict(counts=[7] + c[1:], platforms=P(2, long_p("R"))),
+        lambda r, c, q: dict(counts=[7, 5] + c[2:], platforms=P(2, long_p("R"), express("B"))),
+        lambda r, c, q: dict(counts=[5] + c[1:], platforms=P(2, express("R")), gate=[1], gate_color=["B"]),
+        lambda r, c, q: dict(counts=[7] + c[1:], platforms=P(2, long_p("R")), vip=2 + r // 2),
+        lambda r, c, q: dict(counts=[5, 5] + c[2:], platforms=P(2, express("R"), express("B")), visible=2),
+    ])
+    # Tropic: deep mystery - only the front passenger of each queue shows a line.
+    line("Tropic", medium, [
+        lambda r, c, q: dict(platforms=P(3), visible=1, dead=(0.10 + 0.05 * r, 0.50 + 0.05 * r)),
+        lambda r, c, q: dict(platforms=P(2, lock("*", 1)), visible=1),
+        lambda r, c, q: dict(platforms=P(3), visible=1, gate=[1 + r // 2]),
+        lambda r, c, q: dict(platforms=P(3), visible=1, vip=2 + r // 2),
+        lambda r, c, q: dict(platforms=P(3), visible=1, stages=2),
+    ])
+    # Royal: five and six lines with a different pairing every level.
+    line("Royal", large, [
+        lambda r, c, q: dict(platforms=P(4), gate=[1], gate_color=["R"], vip=2),
+        lambda r, c, q: dict(platforms=P(3, temp(3)), visible=2),
+        lambda r, c, q: dict(counts=[7] + c[1:], platforms=P(3, long_p("R")), gate=[2]),
+        lambda r, c, q: dict(platforms=P(3, lock("B", 1)), stages=2),
+        lambda r, c, q: dict(counts=[5] + c[1:], platforms=P(3, express("R")), gate=[1, 1], gate_color=["B", ""]),
+    ])
+    # Lakeside: stations that fill up again - two and three waves.
+    line("Lakeside", [[6, 6, 6, 3], [6, 6, 6, 6], [9, 6, 6, 6], [9, 9, 6, 6]], [
+        lambda r, c, q: dict(queues=4, platforms=P(3), stages=3),
+        lambda r, c, q: dict(queues=4, platforms=P(3), stages=2, gate=[1]),
+        lambda r, c, q: dict(queues=4, platforms=P(2, temp(3 + r // 2)), stages=2),
+        lambda r, c, q: dict(queues=4, counts=[c[0] - 1] + c[1:], platforms=P(2, express("R")), stages=2),
+        lambda r, c, q: dict(queues=4, platforms=P(3), stages=3, visible=2, vip=1 + r // 2),
+    ])
+    # Canyon: locked platforms - two at once, colour locks, and locks behind other ideas.
+    line("Canyon", medium, [
+        lambda r, c, q: dict(platforms=P(2, lock("*", 1), lock("*", 2))),
+        lambda r, c, q: dict(platforms=P(2, lock("R", 1)), gate=[1], gate_color=["B"]),
+        lambda r, c, q: dict(counts=[7] + c[1:], platforms=P(2, lock("B", 1), long_p("R"))),
+        lambda r, c, q: dict(platforms=P(2, lock("*", 2)), visible=1),
+        lambda r, c, q: dict(platforms=P(2, lock("G", 1), temp(2)), vip=2),
+    ])
+    # Island: only two ordinary platforms, plus one unusual helper.
+    line("Island", small, [
+        lambda r, c, q: dict(queues=4, platforms=P(2), bench=1, move_slack=4 - r // 2),
+        lambda r, c, q: dict(queues=4, counts=[5] + c[1:], platforms=P(2, express("R"))),
+        lambda r, c, q: dict(queues=4, platforms=P(2, temp(1 + r // 2))),
+        lambda r, c, q: dict(queues=4, counts=[7] + c[1:], platforms=P(2, long_p("R"))),
+        lambda r, c, q: dict(queues=4, platforms=P(2, lock("*", 1 + r // 2)), visible=2),
+    ])
+    # Aurora: turnstiles everywhere.
+    line("Aurora", medium, [
+        lambda r, c, q: dict(platforms=P(3), gate=[1, 2, 3][:2 + r // 2]),
+        lambda r, c, q: dict(platforms=P(3), gate=[1, 1], gate_color=["R", "B"], visible=2),
+        lambda r, c, q: dict(platforms=P(3), gate=[2], gate_color=["R"], vip=2 + r // 2),
+        lambda r, c, q: dict(platforms=P(2, temp(3)), gate=[1, 2], gate_color=["", "B"]),
+        lambda r, c, q: dict(platforms=P(3), gate=[1 + r // 2], stages=2),
+    ])
+    # Golden: five and six lines with hidden queues.
+    line("Golden", large, [
+        lambda r, c, q: dict(platforms=P(4), visible=1),
+        lambda r, c, q: dict(platforms=P(4), visible=2, gate=[1, 2], gate_color=["", "R"]),
+        lambda r, c, q: dict(counts=[7, 5] + c[2:], platforms=P(2, long_p("R"), express("B")), vip=2),
+        lambda r, c, q: dict(platforms=P(3, lock("*", 2)), visible=2, vip=2),
+        lambda r, c, q: dict(platforms=P(3, temp(3)), stages=2, gate=[1], gate_color=["B"]),
+    ])
+    return specs
+
+
 SPECS.extend(build_extra_specs())
 SPECS.extend(build_expert_specs())
 SPECS.extend(build_master_specs())
 SPECS.extend(build_grand_specs())
 SPECS.extend(build_polar_specs())
+SPECS.extend(build_capital_specs())
+SPECS.extend(build_network_specs())
 
 
 def draft_one(job):
@@ -529,7 +688,7 @@ def main():
 
     # Curate each generated group: order by measured difficulty so the curve rises, keeping planned names in place.
     # Levels kept from disk are never moved.
-    for group in ("Basic", "Intermediate", "Advanced", "Expert", "Master", "Grand", "Polar"):
+    for group in ("Basic", "Intermediate", "Advanced", "Expert", "Master", "Grand", "Polar", "Capital") + tuple(NETWORK_GROUPS):
         idx = [i for i, e in enumerate(entries) if e["spec"]["group"] == group and not e.get("kept") and not e["spec"].get("tutorial")]
         ordered = sorted((entries[i] for i in idx), key=lambda e: e["difficulty"])
         names = [entries[i]["spec"]["name"] for i in idx]

@@ -1,0 +1,28 @@
+{
+  "id": 215,
+  "name": "Coastal Bridge",
+  "group": "Coastal",
+  "stages": [
+    [
+      "BBRGBY",
+      "BGBRG",
+      "GRYRB",
+      "GYGRR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 24,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 69.8
+}

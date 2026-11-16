@@ -1,0 +1,28 @@
+{
+  "id": 207,
+  "name": "Coastal Lantern",
+  "group": "Coastal",
+  "stages": [
+    [
+      "BGRGB",
+      "YRRYG",
+      "RRBB",
+      "BYBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 20,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 57.6
+}

@@ -481,15 +481,18 @@ namespace MetroSort.Tests
             Assert.AreEqual(BoardState.Create(level).CanonicalKey(), BoardState.Create(copy).CanonicalKey());
         }
 
-        [Test]
-        public void ShippedLevels_AllValidate_AndAreOrdered()
+        // Split into blocks of 100 so that no single case outgrows the test runner's time limit under Unity's Mono.
+        [TestCase(1), TestCase(101), TestCase(201), TestCase(301), TestCase(401), TestCase(501), TestCase(601), TestCase(701)]
+        [Timeout(900000)]
+        public void ShippedLevels_AllValidate_AndAreOrdered(int firstId)
         {
             string dir = TestLevels.FindLevelsDirectory();
             Assert.IsNotNull(dir, "level directory not found");
             string[] files = Directory.GetFiles(dir, "level_*.json");
             System.Array.Sort(files, string.CompareOrdinal);
             Assert.GreaterOrEqual(files.Length, 30);
-            for (int i = 0; i < files.Length; i++)
+            Assert.LessOrEqual(files.Length, 800, "add a TestCase block for levels above 800");
+            for (int i = firstId - 1; i < files.Length && i < firstId + 99; i++)
             {
                 LevelData level = LevelData.FromJson(File.ReadAllText(files[i]));
                 Assert.AreEqual(i + 1, level.Id, files[i]);

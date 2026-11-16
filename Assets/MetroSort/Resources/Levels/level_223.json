@@ -1,0 +1,38 @@
+{
+  "id": 223,
+  "name": "Desert Market",
+  "group": "Desert",
+  "stages": [
+    [
+      "BRGRGG",
+      "YYBRB",
+      "BYBGR",
+      "RGBRG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 53.3,
+  "gates": [
+    0,
+    0,
+    1,
+    2
+  ]
+}

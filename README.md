@@ -11,10 +11,10 @@ Checked on macOS with **Unity 6.6 (6000.6.9f1)**, URP, and the .NET SDK 10.
 | Item | Status |
 |------|--------|
 | Whole project compiles in Unity (Core, Game, Editor, tests) | **Run: no errors, no warnings in project code** |
-| EditMode tests in Unity | **Run: 46 passed, 0 failed** |
+| EditMode tests in Unity | **Run: 53 passed, 0 failed** |
 | PlayMode tests in Unity (boots the real game, plays levels 1-5, undo, restart, save) | **Run: 5 passed, 0 failed** |
-| Same engine tests under plain .NET (`dotnet test Tools/CoreTests`) | **Run: 46 passed, 0 failed** |
-| All 180 levels proven winnable by the C# solver and by the Python mirror | **Run: 180 checked, 0 failed** |
+| Same engine tests under plain .NET (`dotnet test Tools/CoreTests`) | **Run: 53 passed, 0 failed** |
+| All 400 levels proven winnable by the C# solver and by the Python mirror | **Run: 400 checked, 0 failed** |
 | Project setup script (scene, URP assets, material, player settings) | **Run in batch mode: completed** |
 | Rendering under URP | **Checked from captured frames** in `Docs/screenshots/` (menu, level 16, level 34) |
 | Android | **Built**: `Builds/Android/MetroSort.aab` and a test `MetroSort.apk` (about 31 MB each, IL2CPP, ARM64, debug-signed). The APK was **installed and played on an Android 16 (API 36) emulator**: menu, level start, taps, train arrival and boarding work |
@@ -46,10 +46,11 @@ the game detects the active pipeline and picks a matching shader.
 - **Puzzle engine** in pure C# with no Unity dependency: state, move validation, match resolution, undo
   snapshots, win/lose detection, BFS solver, full state-graph analysis, level validator, difficulty scorer,
   procedural generator, shuffle and hint services.
-- **180 data-driven levels** (JSON, one file each): 10 introduction, 20 basic strategy, 30 intermediate
+- **400 data-driven levels** (JSON, one file each): 10 introduction, 20 basic strategy, 30 intermediate
   (one special mechanic each) 40 advanced (combined mechanics, long platforms, 5-6 colours)
-  20 expert (mystery queues), 20 master (mystery queues plus a second mechanic) 20 grand (gated queues) and 20 polar
-  (colour-keyed gates), grouped into nine themed
+  20 expert (mystery queues), 20 master (mystery queues plus a second mechanic) 20 grand (gated queues), 20 polar
+  (colour-keyed gates) 20 capital (five and six lines, mixed mechanics) and ten further lines of 20
+  (coastal, desert, alpine, tropic, royal, lakeside, canyon, island, aurora, golden), grouped into twenty themed
   chapters of twenty.
 - **Special mechanics** behind level data flags: locked platforms, temporary platforms, VIP passengers,
   reserved express platforms, waiting bench with move limits, multi-stage stations.
@@ -59,7 +60,7 @@ the game detects the active pipeline and picks a matching shader.
   gift, achievements, shop, settings, versioned local save with backup recovery.
 - **Monetisation architecture**: `IAdsService`, `IPurchaseService`, `IReceiptValidator`, `IAnalyticsService`
   with mock/no-op implementations; no SDK is required to play.
-- **Tests**: 31 engine tests and 15 service tests (EditMode, also runnable with plain `dotnet test`), 5 PlayMode
+- **Tests**: 31 engine tests (the shipped-level check runs as eight blocks of 100, so runners report 53 cases) and 15 service tests (EditMode, also runnable with plain `dotnet test`), 5 PlayMode
   integration tests.
 
 ## Documentation
@@ -83,7 +84,7 @@ Assets/MetroSort/
   Scripts/Game/      Unity layer (asmdef MetroSort.Game)
     Core/ Station/ Passengers/ Platforms/ Animation/ Input/ UI/ Tutorial/ Audio/ Data/ Utilities/
   Editor/            project setup, build entry points, level tools
-  Resources/Levels/  level_001.json ... level_180.json
+  Resources/Levels/  level_001.json ... level_400.json
   Tests/EditMode/    engine and service tests
   Tests/PlayMode/    integration tests
 Tools/

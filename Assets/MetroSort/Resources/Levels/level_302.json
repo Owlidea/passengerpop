@@ -1,0 +1,43 @@
+{
+  "id": 302,
+  "name": "Lakeside Garden",
+  "group": "Lakeside",
+  "stages": [
+    [
+      "YB",
+      "RY",
+      "GB",
+      "YB"
+    ],
+    [
+      "BG",
+      "Gr",
+      "RY",
+      "GG"
+    ],
+    [
+      "BY",
+      "YB",
+      "RR",
+      "GR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 61.3
+}

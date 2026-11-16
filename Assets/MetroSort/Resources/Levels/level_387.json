@@ -1,0 +1,38 @@
+{
+  "id": 387,
+  "name": "Golden Lantern",
+  "group": "Golden",
+  "stages": [
+    [
+      "OPbBO",
+      "RGYGB",
+      "gPBRG",
+      "RYBR",
+      "BPRY",
+      "GORG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 74.0
+}

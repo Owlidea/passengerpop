@@ -1,0 +1,43 @@
+{
+  "id": 309,
+  "name": "Lakeside Granite",
+  "group": "Lakeside",
+  "stages": [
+    [
+      "GB",
+      "YR",
+      "BB",
+      "R"
+    ],
+    [
+      "GY",
+      "YR",
+      "GB",
+      "R"
+    ],
+    [
+      "GB",
+      "BG",
+      "RG",
+      "R"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 71.8
+}

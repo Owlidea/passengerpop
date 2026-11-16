@@ -1,0 +1,36 @@
+{
+  "id": 388,
+  "name": "Golden Willow",
+  "group": "Golden",
+  "stages": [
+    [
+      "rYGrRB",
+      "GYBGR",
+      "YRBGG",
+      "BBBGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 74.4
+}

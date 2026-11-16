@@ -1,0 +1,43 @@
+{
+  "id": 312,
+  "name": "Lakeside Beacon",
+  "group": "Lakeside",
+  "stages": [
+    [
+      "GR",
+      "YY",
+      "BR",
+      "RG"
+    ],
+    [
+      "YB",
+      "GB",
+      "BG",
+      "RB"
+    ],
+    [
+      "YR",
+      "YR",
+      "YG",
+      "BG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 73.3
+}

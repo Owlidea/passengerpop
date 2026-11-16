@@ -1,0 +1,33 @@
+{
+  "id": 352,
+  "name": "Island Beacon",
+  "group": "Island",
+  "stages": [
+    [
+      "GYYRR",
+      "GRRRY",
+      "GBRB",
+      "BBBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 69.7
+}

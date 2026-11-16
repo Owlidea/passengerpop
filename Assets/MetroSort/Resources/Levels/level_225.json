@@ -1,0 +1,38 @@
+{
+  "id": 225,
+  "name": "Desert River",
+  "group": "Desert",
+  "stages": [
+    [
+      "RBRBY",
+      "BRRYR",
+      "GYGG",
+      "BRBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 56.2,
+  "gates": [
+    0,
+    0,
+    1,
+    2
+  ]
+}

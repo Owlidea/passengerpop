@@ -1,0 +1,38 @@
+{
+  "id": 304,
+  "name": "Lakeside Castle",
+  "group": "Lakeside",
+  "stages": [
+    [
+      "YGYY",
+      "BRR",
+      "YGB",
+      "GRB"
+    ],
+    [
+      "RGBR",
+      "BGRR",
+      "RYG",
+      "YRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 4
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 66.4
+}

@@ -1,0 +1,33 @@
+{
+  "id": 323,
+  "name": "Canyon Market",
+  "group": "Canyon",
+  "stages": [
+    [
+      "RYRRG",
+      "BRRYY",
+      "BBBG",
+      "BRBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 61.6
+}

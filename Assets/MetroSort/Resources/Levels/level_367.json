@@ -1,0 +1,37 @@
+{
+  "id": 367,
+  "name": "Aurora Lantern",
+  "group": "Aurora",
+  "stages": [
+    [
+      "RBGYB",
+      "YGYRR",
+      "GRRB",
+      "BRBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 67.8,
+  "gates": [
+    0,
+    0,
+    1,
+    2
+  ]
+}

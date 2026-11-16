@@ -1,0 +1,38 @@
+{
+  "id": 319,
+  "name": "Lakeside Crystal",
+  "group": "Lakeside",
+  "stages": [
+    [
+      "RGBG",
+      "RBBB",
+      "YRBG",
+      "YBR"
+    ],
+    [
+      "RBYR",
+      "GRYR",
+      "GYRB",
+      "YBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 4
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 30,
+  "difficulty": 82.3
+}

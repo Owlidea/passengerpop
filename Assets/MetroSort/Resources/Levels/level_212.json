@@ -1,0 +1,29 @@
+{
+  "id": 212,
+  "name": "Coastal Beacon",
+  "group": "Coastal",
+  "stages": [
+    [
+      "GRYY",
+      "BGRG",
+      "YRRB",
+      "RRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 19,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 16,
+  "difficulty": 64.7
+}

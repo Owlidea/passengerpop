@@ -1,0 +1,34 @@
+{
+  "id": 210,
+  "name": "Coastal Silver",
+  "group": "Coastal",
+  "stages": [
+    [
+      "RYGBR",
+      "BBBRY",
+      "GBYG",
+      "RRBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 21,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 60.2,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

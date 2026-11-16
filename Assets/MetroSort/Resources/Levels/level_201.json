@@ -1,0 +1,28 @@
+{
+  "id": 201,
+  "name": "Coastal Harbour",
+  "group": "Coastal",
+  "stages": [
+    [
+      "BGBYR",
+      "GBBRG",
+      "rYBR",
+      "BRRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 20,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 51.6
+}

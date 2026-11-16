@@ -1,0 +1,54 @@
+{
+  "id": 198,
+  "name": "Capital Sunset",
+  "group": "Capital",
+  "stages": [
+    [
+      "ORBGB",
+      "BYBYP",
+      "PYRPG",
+      "RGRGY",
+      "OBRYB",
+      "GOGY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 29,
+  "difficulty": 100.0,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ]
+}

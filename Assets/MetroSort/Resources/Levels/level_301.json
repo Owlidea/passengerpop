@@ -1,0 +1,43 @@
+{
+  "id": 301,
+  "name": "Lakeside Harbour",
+  "group": "Lakeside",
+  "stages": [
+    [
+      "RG",
+      "BG",
+      "BG",
+      "R"
+    ],
+    [
+      "RY",
+      "RB",
+      "BY",
+      "R"
+    ],
+    [
+      "BG",
+      "YG",
+      "GR",
+      "b"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 55.8
+}

@@ -1,0 +1,38 @@
+{
+  "id": 224,
+  "name": "Desert Castle",
+  "group": "Desert",
+  "stages": [
+    [
+      "BBR",
+      "GR",
+      "RR",
+      "BB"
+    ],
+    [
+      "YGG",
+      "BR",
+      "BY",
+      "RY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 53.8
+}

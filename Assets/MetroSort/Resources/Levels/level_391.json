@@ -1,0 +1,36 @@
+{
+  "id": 391,
+  "name": "Golden Meadow",
+  "group": "Golden",
+  "stages": [
+    [
+      "BRRBY",
+      "GYPGG",
+      "YPBYR",
+      "PYBR",
+      "GGGB",
+      "RRBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 81.0
+}

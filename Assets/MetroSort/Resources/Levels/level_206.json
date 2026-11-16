@@ -1,0 +1,28 @@
+{
+  "id": 206,
+  "name": "Coastal Summit",
+  "group": "Coastal",
+  "stages": [
+    [
+      "RBRGY",
+      "YYBGB",
+      "GRBR",
+      "BRRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 21,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 57.2
+}

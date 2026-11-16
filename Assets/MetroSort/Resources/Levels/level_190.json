@@ -1,0 +1,52 @@
+{
+  "id": 190,
+  "name": "Capital Silver",
+  "group": "Capital",
+  "stages": [
+    [
+      "GYRPY",
+      "BOGPG",
+      "YGROY",
+      "PGBRG",
+      "BYRBB",
+      "ORYBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 30,
+  "difficulty": 90.6,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    2
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "R",
+    ""
+  ]
+}

@@ -18,7 +18,9 @@ namespace MetroSort.Game
 
         public static readonly string[] Names =
         {
-            "Central Line", "Old Town Line", "Garden Line", "Palace Line", "Harbour Line", "Misty Line", "Night Line", "Grand Line", "Polar Line"
+            "Central Line", "Old Town Line", "Garden Line", "Palace Line", "Harbour Line", "Misty Line", "Night Line", "Grand Line", "Polar Line", "Capital Line",
+            "Coastal Line", "Desert Line", "Alpine Line", "Tropic Line", "Royal Line",
+            "Lakeside Line", "Canyon Line", "Island Line", "Aurora Line", "Golden Line"
         };
 
         public static readonly StationTheme[] Themes =
@@ -31,7 +33,18 @@ namespace MetroSort.Game
             Make(new Color(0.42f, 0.46f, 0.54f), new Color(0.72f, 0.75f, 0.80f), new Color(0.82f, 0.86f, 0.92f)), // misty grey
             Make(new Color(0.16f, 0.18f, 0.36f), new Color(0.50f, 0.53f, 0.66f), new Color(0.99f, 0.80f, 0.42f)), // night indigo and lamp amber
             Make(new Color(0.56f, 0.20f, 0.27f), new Color(0.90f, 0.86f, 0.78f), new Color(0.72f, 0.90f, 0.86f)), // burgundy, marble and mint
-            Make(new Color(0.22f, 0.62f, 0.78f), new Color(0.88f, 0.93f, 0.97f), new Color(1.00f, 0.84f, 0.70f))  // ice blue, snow and peach
+            Make(new Color(0.22f, 0.62f, 0.78f), new Color(0.88f, 0.93f, 0.97f), new Color(1.00f, 0.84f, 0.70f)), // ice blue, snow and peach
+            Make(new Color(0.78f, 0.60f, 0.18f), new Color(0.93f, 0.90f, 0.82f), new Color(0.72f, 0.80f, 0.97f)), // gold, ivory and royal blue
+            Make(new Color(0.10f, 0.60f, 0.62f), new Color(0.93f, 0.88f, 0.74f), new Color(0.66f, 0.90f, 0.92f)), // turquoise, sand and aqua
+            Make(new Color(0.80f, 0.45f, 0.20f), new Color(0.92f, 0.82f, 0.62f), new Color(0.70f, 0.86f, 0.84f)), // desert orange and oasis teal
+            Make(new Color(0.18f, 0.42f, 0.34f), new Color(0.80f, 0.82f, 0.84f), new Color(0.86f, 0.94f, 0.80f)), // pine green and stone
+            Make(new Color(0.78f, 0.24f, 0.50f), new Color(0.90f, 0.94f, 0.84f), new Color(1.00f, 0.90f, 0.55f)), // magenta, leaf and mango
+            Make(new Color(0.36f, 0.20f, 0.56f), new Color(0.90f, 0.86f, 0.92f), new Color(0.98f, 0.86f, 0.50f)), // royal purple and gold
+            Make(new Color(0.24f, 0.46f, 0.74f), new Color(0.84f, 0.90f, 0.88f), new Color(0.98f, 0.92f, 0.70f)), // lake blue, reed and sunlight
+            Make(new Color(0.62f, 0.28f, 0.20f), new Color(0.90f, 0.76f, 0.64f), new Color(0.74f, 0.88f, 0.96f)), // red rock and sky
+            Make(new Color(0.96f, 0.56f, 0.40f), new Color(0.95f, 0.93f, 0.84f), new Color(0.62f, 0.90f, 0.86f)), // coral, shell and lagoon
+            Make(new Color(0.16f, 0.30f, 0.42f), new Color(0.62f, 0.70f, 0.78f), new Color(0.62f, 0.96f, 0.78f)), // night teal and aurora green
+            Make(new Color(0.70f, 0.52f, 0.12f), new Color(0.96f, 0.92f, 0.78f), new Color(1.00f, 0.80f, 0.74f))  // old gold and rose
         };
 
         public static int IndexFor(int levelId)

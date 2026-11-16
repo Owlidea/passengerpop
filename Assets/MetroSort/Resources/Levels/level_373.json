@@ -1,0 +1,43 @@
+{
+  "id": 373,
+  "name": "Aurora Orchard",
+  "group": "Aurora",
+  "stages": [
+    [
+      "YRGRy",
+      "BRRRB",
+      "YrGB",
+      "GBBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 75.7,
+  "gates": [
+    0,
+    0,
+    0,
+    2
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": 232,
+  "name": "Desert Beacon",
+  "group": "Desert",
+  "stages": [
+    [
+      "RBYYG",
+      "RRBGR",
+      "BRRB",
+      "GBYB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 66.4
+}

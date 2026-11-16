@@ -1,0 +1,39 @@
+{
+  "id": 279,
+  "name": "Tropic Crystal",
+  "group": "Tropic",
+  "stages": [
+    [
+      "GYGPY",
+      "GYRRB",
+      "GBPBR",
+      "RRBPG",
+      "BRGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 89.8,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    2
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "id": 189,
+  "name": "Capital Granite",
+  "group": "Capital",
+  "stages": [
+    [
+      "BPBRG",
+      "BGBPY",
+      "RYGG",
+      "RRYG",
+      "BYYG",
+      "BPYR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 26,
+  "difficulty": 90.5,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ]
+}

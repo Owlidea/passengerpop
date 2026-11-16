@@ -1,0 +1,28 @@
+{
+  "id": 342,
+  "name": "Island Garden",
+  "group": "Island",
+  "stages": [
+    [
+      "GBYGB",
+      "BBRRR",
+      "YGBR",
+      "BRRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 22,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 55.4
+}

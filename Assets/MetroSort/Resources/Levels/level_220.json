@@ -1,0 +1,28 @@
+{
+  "id": 220,
+  "name": "Coastal Copper",
+  "group": "Coastal",
+  "stages": [
+    [
+      "RBYGBY",
+      "GBYRR",
+      "GRBGR",
+      "GBRBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 24,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 22,
+  "difficulty": 82.8
+}

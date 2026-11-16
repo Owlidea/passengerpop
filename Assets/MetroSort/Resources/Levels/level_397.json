@@ -1,0 +1,61 @@
+{
+  "id": 397,
+  "name": "Golden Forest",
+  "group": "Golden",
+  "stages": [
+    [
+      "GRY",
+      "BY",
+      "RB",
+      "PP",
+      "BG",
+      "GG"
+    ],
+    [
+      "BYY",
+      "YGB",
+      "PG",
+      "RR",
+      "YR",
+      "RB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 89.2,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "B"
+  ]
+}

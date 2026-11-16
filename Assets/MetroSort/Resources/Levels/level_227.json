@@ -1,0 +1,40 @@
+{
+  "id": 227,
+  "name": "Desert Lantern",
+  "group": "Desert",
+  "stages": [
+    [
+      "BYRBR",
+      "RRYGB",
+      "GYYBG",
+      "GBRGY",
+      "GRBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 61.0,
+  "gates": [
+    0,
+    0,
+    0,
+    1,
+    2
+  ]
+}

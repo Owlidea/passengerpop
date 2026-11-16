@@ -1,0 +1,29 @@
+{
+  "id": 219,
+  "name": "Coastal Crystal",
+  "group": "Coastal",
+  "stages": [
+    [
+      "BGRGRB",
+      "GRGRY",
+      "BGRYR",
+      "BBYGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 25,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 22,
+  "difficulty": 79.5
+}

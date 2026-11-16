@@ -1,0 +1,43 @@
+{
+  "id": 313,
+  "name": "Lakeside Orchard",
+  "group": "Lakeside",
+  "stages": [
+    [
+      "GGR",
+      "RY",
+      "YR",
+      "GB"
+    ],
+    [
+      "YGY",
+      "RR",
+      "GB",
+      "GB"
+    ],
+    [
+      "BBR",
+      "RR",
+      "RY",
+      "YB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 74.8
+}

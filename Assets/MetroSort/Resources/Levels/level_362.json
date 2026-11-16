@@ -1,0 +1,43 @@
+{
+  "id": 362,
+  "name": "Aurora Garden",
+  "group": "Aurora",
+  "stages": [
+    [
+      "GGBYB",
+      "YBRBR",
+      "RBBR",
+      "YRGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 62.4,
+  "gates": [
+    0,
+    0,
+    1,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "R",
+    "B"
+  ]
+}

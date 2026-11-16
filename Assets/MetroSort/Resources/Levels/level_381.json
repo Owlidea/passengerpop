@@ -1,0 +1,34 @@
+{
+  "id": 381,
+  "name": "Golden Harbour",
+  "group": "Golden",
+  "stages": [
+    [
+      "YGYRBY",
+      "GRRRB",
+      "BBGGG",
+      "GBRBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 55.2
+}

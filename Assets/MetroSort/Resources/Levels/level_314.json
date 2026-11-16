@@ -1,0 +1,43 @@
+{
+  "id": 314,
+  "name": "Lakeside Tower",
+  "group": "Lakeside",
+  "stages": [
+    [
+      "GBY",
+      "bRY",
+      "GG",
+      "yB"
+    ],
+    [
+      "RYB",
+      "RBR",
+      "RG",
+      "BG"
+    ],
+    [
+      "GYR",
+      "YBB",
+      "BR",
+      "RR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 30,
+  "difficulty": 74.9
+}

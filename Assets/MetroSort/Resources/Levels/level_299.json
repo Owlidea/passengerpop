@@ -1,0 +1,52 @@
+{
+  "id": 299,
+  "name": "Royal Crystal",
+  "group": "Royal",
+  "stages": [
+    [
+      "GYRRB",
+      "BoYGO",
+      "PBBGG",
+      "gBRY",
+      "BORP",
+      "PRGR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 98.3,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

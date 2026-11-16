@@ -1,0 +1,50 @@
+{
+  "id": 184,
+  "name": "Capital Castle",
+  "group": "Capital",
+  "stages": [
+    [
+      "PBGPG",
+      "RGBBG",
+      "RPGRR",
+      "YRBGR",
+      "RYYBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 25,
+  "difficulty": 83.2,
+  "gates": [
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "B",
+    "G"
+  ]
+}

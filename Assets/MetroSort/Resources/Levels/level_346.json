@@ -1,0 +1,32 @@
+{
+  "id": 346,
+  "name": "Island Summit",
+  "group": "Island",
+  "stages": [
+    [
+      "GYRRR",
+      "RBGRG",
+      "YBYB",
+      "RBBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 59.7
+}

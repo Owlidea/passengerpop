@@ -1,0 +1,43 @@
+{
+  "id": 310,
+  "name": "Lakeside Silver",
+  "group": "Lakeside",
+  "stages": [
+    [
+      "GRYG",
+      "BBG",
+      "BRY",
+      "YBB"
+    ],
+    [
+      "RGRG",
+      "RRRG",
+      "RRY",
+      "BYY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 71.8,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

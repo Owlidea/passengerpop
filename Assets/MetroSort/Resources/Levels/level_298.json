@@ -1,0 +1,46 @@
+{
+  "id": 298,
+  "name": "Royal Sunset",
+  "group": "Royal",
+  "stages": [
+    [
+      "YGY",
+      "PR",
+      "RG",
+      "BG",
+      "YR",
+      "PG"
+    ],
+    [
+      "RBY",
+      "BBB",
+      "GG",
+      "YY",
+      "RR",
+      "PB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "B",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 96.1
+}

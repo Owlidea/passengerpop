@@ -1,0 +1,43 @@
+{
+  "id": 318,
+  "name": "Lakeside Sunset",
+  "group": "Lakeside",
+  "stages": [
+    [
+      "RYR",
+      "BGG",
+      "BB",
+      "BR"
+    ],
+    [
+      "YRY",
+      "YRB",
+      "GG",
+      "YR"
+    ],
+    [
+      "BGY",
+      "RBR",
+      "RB",
+      "BG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 30,
+  "difficulty": 81.6
+}

@@ -58,6 +58,21 @@ One JSON file per level in `Assets/MetroSort/Resources/Levels/level_NNN.json`. N
 | 121-140 | Master | Mystery queues (`visible` 2) combined with a second mechanic: VIP, two stages behind a locked platform, bench with a move limit, long platform, express plus temporary platform |
 | 141-160 | Grand | Gated queues (`gates`): one or two closed turnstiles, alone and combined with locked platforms, temporary platforms and mystery queues |
 | 161-180 | Polar | Colour-keyed gates (`gateColors`), alone and with a second gate, mystery queues, a locked platform, or an express platform plus VIPs; tighter dead-end bands (scores up to 90) |
+| 181-200 | Capital | Five and six lines in 5-6 queues with mixed mechanics: colour and plain gates, mystery queues, locked / temporary / express / long platforms, VIPs, two stages. Scores 78-100 (the score saturates at 100 for the last six, so their order is approximate) |
+| 201-220 | Coastal | Waiting bench with a move limit, combined with mystery queues, a gate, a temporary platform or VIPs |
+| 221-240 | Desert | Temporary platforms behind colour gates, locks and second waves |
+| 241-260 | Alpine | Long and express platforms together (two reserved lines), plus colour gates, VIPs and mystery queues |
+| 261-280 | Tropic | Deep mystery (`visible` 1: only the front passenger shows a line) with locks, gates, VIPs and two stages |
+| 281-300 | Royal | Five and six lines, a different pairing of mechanics on every level |
+| 301-320 | Lakeside | Two and three waves (`stages`), with gates, temporary and express platforms, mystery and VIPs |
+| 321-340 | Canyon | Locked platforms: two at once, colour locks, locks with a long platform, deep mystery or a temporary platform |
+| 341-360 | Island | Only two ordinary platforms plus one helper: bench, express, temporary, long or locked platform |
+| 361-380 | Aurora | Gates everywhere: up to three, colour-keyed pairs, with VIPs, a temporary platform or a second wave |
+| 381-400 | Golden | Five and six lines with hidden queues (`visible` 1-2), gates, long plus express, locks and second waves |
+
+Lines 201-400 each start gentler than the previous line ended (score about 50) and tighten over four rounds
+(dead-end band rising from 0.20 to 0.35 at the low end), so the difficulty curve is a sawtooth rather than a
+single climb.
 
 Levels 37-100 come from `build_extra_specs()` in `Tools/level_author.py`. When a spec is too large to analyse
 completely or yields no winnable draft, the tool removes one train-load from the largest line and retries.

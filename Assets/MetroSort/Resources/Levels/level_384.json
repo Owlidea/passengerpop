@@ -1,0 +1,46 @@
+{
+  "id": 384,
+  "name": "Golden Castle",
+  "group": "Golden",
+  "stages": [
+    [
+      "YRYBYB",
+      "RGBRG",
+      "RRRGG",
+      "BBGGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 72.6,
+  "gates": [
+    0,
+    0,
+    1,
+    2
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

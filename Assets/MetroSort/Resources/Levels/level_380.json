@@ -1,0 +1,47 @@
+{
+  "id": 380,
+  "name": "Aurora Copper",
+  "group": "Aurora",
+  "stages": [
+    [
+      "PGBBB",
+      "PBGPB",
+      "YGRRR",
+      "RGRBY",
+      "GRYG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 97.3,
+  "gates": [
+    0,
+    0,
+    0,
+    1,
+    2
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "B"
+  ]
+}

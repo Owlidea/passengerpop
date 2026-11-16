@@ -1,0 +1,38 @@
+{
+  "id": 242,
+  "name": "Alpine Garden",
+  "group": "Alpine",
+  "stages": [
+    [
+      "RGGR",
+      "YRBB",
+      "BRGR",
+      "BYYB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "B"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 16,
+  "difficulty": 67.6
+}

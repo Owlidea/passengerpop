@@ -1,0 +1,33 @@
+{
+  "id": 271,
+  "name": "Tropic Meadow",
+  "group": "Tropic",
+  "stages": [
+    [
+      "RRRGGR",
+      "RGBYB",
+      "GBYBB",
+      "BRGYG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 67.3
+}

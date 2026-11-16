@@ -1,0 +1,52 @@
+{
+  "id": 394,
+  "name": "Golden Tower",
+  "group": "Golden",
+  "stages": [
+    [
+      "RYGGR",
+      "BPBBG",
+      "YBGRB",
+      "RPGY",
+      "RBGR",
+      "YYYP"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 85.1,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    2
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

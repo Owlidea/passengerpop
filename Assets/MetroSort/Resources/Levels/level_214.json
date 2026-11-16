@@ -1,0 +1,34 @@
+{
+  "id": 214,
+  "name": "Coastal Tower",
+  "group": "Coastal",
+  "stages": [
+    [
+      "RGRYG",
+      "YBRRB",
+      "BGBR",
+      "BYBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 22,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 68.0,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": 208,
+  "name": "Coastal Willow",
+  "group": "Coastal",
+  "stages": [
+    [
+      "YBGR",
+      "BRRR",
+      "GRYG",
+      "RBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 19,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 16,
+  "difficulty": 59.1
+}

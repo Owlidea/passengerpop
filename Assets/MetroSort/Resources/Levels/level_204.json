@@ -1,0 +1,28 @@
+{
+  "id": 204,
+  "name": "Coastal Castle",
+  "group": "Coastal",
+  "stages": [
+    [
+      "RBBRG",
+      "YbRRY",
+      "YGrB",
+      "GRBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 21,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 54.9
+}

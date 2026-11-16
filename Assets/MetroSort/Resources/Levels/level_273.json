@@ -1,0 +1,31 @@
+{
+  "id": 273,
+  "name": "Tropic Orchard",
+  "group": "Tropic",
+  "stages": [
+    [
+      "RYRBRB",
+      "GRGBB",
+      "GBYGR",
+      "RGYGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 71.8
+}

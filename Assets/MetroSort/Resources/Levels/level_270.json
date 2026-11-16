@@ -1,0 +1,39 @@
+{
+  "id": 270,
+  "name": "Tropic Silver",
+  "group": "Tropic",
+  "stages": [
+    [
+      "YBY",
+      "BRR",
+      "GR",
+      "GB",
+      "GR"
+    ],
+    [
+      "BGY",
+      "RBY",
+      "GY",
+      "RB",
+      "GY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 65.4
+}

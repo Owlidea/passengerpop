@@ -1,0 +1,46 @@
+{
+  "id": 281,
+  "name": "Royal Harbour",
+  "group": "Royal",
+  "stages": [
+    [
+      "BRGGYB",
+      "RRGBY",
+      "BYRgG",
+      "GrBBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 56.9,
+  "gates": [
+    0,
+    0,
+    0,
+    1
+  ],
+  "gateColors": [
+    "",
+    "",
+    "",
+    "R"
+  ]
+}

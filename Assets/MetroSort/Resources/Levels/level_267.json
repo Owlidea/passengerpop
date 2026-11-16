@@ -1,0 +1,31 @@
+{
+  "id": 267,
+  "name": "Tropic Lantern",
+  "group": "Tropic",
+  "stages": [
+    [
+      "RRBGB",
+      "GBGYR",
+      "BYYR",
+      "RBBR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 1,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 62.0
+}

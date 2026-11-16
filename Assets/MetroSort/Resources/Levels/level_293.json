@@ -1,0 +1,37 @@
+{
+  "id": 293,
+  "name": "Royal Orchard",
+  "group": "Royal",
+  "stages": [
+    [
+      "YGPGY",
+      "BGGBG",
+      "PBROR",
+      "BYRR",
+      "ORGB",
+      "ROBP"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 27,
+  "difficulty": 89.8
+}

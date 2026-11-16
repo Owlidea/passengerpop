@@ -1,0 +1,28 @@
+{
+  "id": 205,
+  "name": "Coastal River",
+  "group": "Coastal",
+  "stages": [
+    [
+      "RYYGRB",
+      "GrBGG",
+      "gBRBB",
+      "RRGBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 2,
+  "moveLimit": 23,
+  "visible": 0,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 56.1
+}

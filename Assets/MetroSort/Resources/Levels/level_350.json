@@ -1,0 +1,33 @@
+{
+  "id": 350,
+  "name": "Island Silver",
+  "group": "Island",
+  "stages": [
+    [
+      "RGBGBY",
+      "BYYGG",
+      "GRBGR",
+      "BBRRR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 69.1
+}
