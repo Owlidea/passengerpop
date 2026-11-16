@@ -1,0 +1,32 @@
+{
+  "id": 111,
+  "name": "Foggy Meadow",
+  "group": "Expert",
+  "stages": [
+    [
+      "YRRYG",
+      "BYRBR",
+      "GGBB",
+      "BRRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 3,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 67.0
+}

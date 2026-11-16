@@ -1,0 +1,33 @@
+{
+  "id": 118,
+  "name": "Foggy Sunset",
+  "group": "Expert",
+  "stages": [
+    [
+      "YBRYB",
+      "GRGR",
+      "GBRB",
+      "RBYB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 3,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 17,
+  "difficulty": 82.3
+}

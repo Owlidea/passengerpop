@@ -116,13 +116,16 @@ namespace MetroSort.Game
             Prims.SetGlossy(_sign, s.ReservedColor >= 0 ? Palette.Line(s.ReservedColor) : line);
             for (int i = 0; i < _pips.Length; i++) Prims.SetColor(_pips[i], i < s.Count ? line : Palette.Neutral);
 
-            if (s.Closed) Label = "CLOSED";
+            if (s.Closed) Label = Loc.T("CLOSED");
             else if (s.IsLocked)
-                Label = "LOCKED\n" + s.LockRemaining + " " + (s.LockColor >= 0 ? ColorCodes.Names[s.LockColor] : "any") + (s.LockRemaining == 1 ? " train" : " trains");
-            else if (s.UsesLeft > 0) Label = (s.Express ? "EXPRESS  " : "") + s.UsesLeft + (s.UsesLeft == 1 ? " use left" : " uses left");
-            else if (s.Express) Label = s.ReservedColor >= 0 ? "EXPRESS\n" + ColorCodes.Names[s.ReservedColor] + " only" : "EXPRESS";
-            else if (s.ReservedColor >= 0) Label = ColorCodes.Names[s.ReservedColor] + " only";
-            else if (s.IsExtra) Label = "EXTRA";
+                Label = Loc.F(s.LockRemaining == 1 ? "LOCKED\n{0} {1} train" : "LOCKED\n{0} {1} trains", s.LockRemaining,
+                    Loc.T(s.LockColor >= 0 ? ColorCodes.Names[s.LockColor] : "any"));
+            else if (s.UsesLeft > 0)
+                Label = (s.Express ? Loc.T("EXPRESS  ") : "") + Loc.F(s.UsesLeft == 1 ? "{0} use left" : "{0} uses left", s.UsesLeft);
+            else if (s.Express)
+                Label = s.ReservedColor >= 0 ? Loc.F("EXPRESS\n{0} only", Loc.T(ColorCodes.Names[s.ReservedColor])) : Loc.T("EXPRESS");
+            else if (s.ReservedColor >= 0) Label = Loc.F("{0} only", Loc.T(ColorCodes.Names[s.ReservedColor]));
+            else if (s.IsExtra) Label = Loc.T("EXTRA");
             else Label = "";
             ApplySlabColor();
         }

@@ -39,6 +39,11 @@ namespace MetroSort.Levels
         public List<PlatformConfig> Platforms = new List<PlatformConfig>();
         public int Bench;
         public int MoveLimit;
+        /// <summary>
+        /// Mystery queues: 0 shows everyone. Otherwise only the first N passengers of each queue show their line;
+        /// the rest stay grey until they move up. Presentation only - the rules and the solver are unaffected.
+        /// </summary>
+        public int Visible;
         /// <summary>How many Extra Platform boosters this level accepts.</summary>
         public int ExtraPlatforms = 1;
         public string Tutorial = "";
@@ -91,6 +96,7 @@ namespace MetroSort.Levels
                 Group = JsonRead.Str(root, "group", ""),
                 Bench = JsonRead.Int(root, "bench", 0),
                 MoveLimit = JsonRead.Int(root, "moveLimit", 0),
+                Visible = JsonRead.Int(root, "visible", 0),
                 ExtraPlatforms = JsonRead.Int(root, "extraPlatforms", 1),
                 Tutorial = JsonRead.Str(root, "tutorial", ""),
                 Par = JsonRead.Int(root, "par", 0),
@@ -159,6 +165,7 @@ namespace MetroSort.Levels
             root["platforms"] = plats;
             root["bench"] = Bench;
             root["moveLimit"] = MoveLimit;
+            if (Visible > 0) root["visible"] = Visible;
             root["extraPlatforms"] = ExtraPlatforms;
             root["tutorial"] = Tutorial;
             root["par"] = Par;

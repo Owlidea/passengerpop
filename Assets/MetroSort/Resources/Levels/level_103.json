@@ -1,0 +1,31 @@
+{
+  "id": 103,
+  "name": "Foggy Market",
+  "group": "Expert",
+  "stages": [
+    [
+      "GBGYR",
+      "BRRRR",
+      "GBBY",
+      "RBYB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 3,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 50.4
+}

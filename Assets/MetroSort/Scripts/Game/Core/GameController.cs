@@ -66,6 +66,7 @@ namespace MetroSort.Game
             _startTime = Time.time;
             ClearHint();
             _stamp++;
+            _app.Station.SetLevel(level);
             _app.Station.Rebuild(Board.State, true);
             _app.States.Set(AppState.Playing);
             _app.Tutorial.OnLevelStarted();
@@ -78,7 +79,9 @@ namespace MetroSort.Game
         {
             _app.Anim.CancelAll();
             Board = null;
-            _app.Station.Rebuild(BoardState.Create(_app.Services.Levels.Get(levelId)));
+            LevelData backdrop = _app.Services.Levels.Get(levelId);
+            _app.Station.SetLevel(backdrop);
+            _app.Station.Rebuild(BoardState.Create(backdrop));
         }
 
         public MoveError TryMove(Move move)
@@ -275,7 +278,7 @@ namespace MetroSort.Game
             else if (result == BoosterUseResult.NotAffordable)
             {
                 _app.Audio.Play(Sfx.Invalid);
-                Say("Not enough coins for " + type);
+                Say(Loc.F("Not enough coins for {0}", Loc.T(type.ToString())));
             }
             else
             {

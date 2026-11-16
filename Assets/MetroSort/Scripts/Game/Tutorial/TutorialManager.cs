@@ -38,7 +38,8 @@ namespace MetroSort.Game
             { "express", new Definition("The express leaves with just two, but only serves its own line.", 0, null) },
             { "bench", new Definition("Tap a passenger, then the bench to park them. Moves are limited!", 0, null) },
             { "stages", new Definition("A second wave arrives when the queues are empty.", 0, null) },
-            { "long", new Definition("The long platform needs four passengers and serves one line only.", 0, null) }
+            { "long", new Definition("The long platform needs four passengers and serves one line only.", 0, null) },
+            { "mystery", new Definition("Grey passengers hide their line until they move up the queue.", 0, null) }
         };
 
         private GameApp _app;
@@ -59,12 +60,12 @@ namespace MetroSort.Game
             _id = _app.Game.Level.Tutorial;
             if (string.IsNullOrEmpty(_id) || !Definitions.TryGetValue(_id, out _definition))
             {
-                _app.UI.SetTutorialText(null);
+                ShowText(null);
                 return;
             }
             bool done = _app.Services.Progression.IsTutorialDone(_id);
             _guidedLeft = done ? 0 : _definition.GuidedMoves;
-            _app.UI.SetTutorialText(_definition.Message);
+            ShowText(_definition.Message);
             if (!done) _app.Services.Analytics.Track(AnalyticsEvents.TutorialStarted, null);
             Advance(false);
         }
@@ -85,7 +86,7 @@ namespace MetroSort.Game
                 _app.Services.Progression.MarkTutorialDone(_id);
                 _app.Services.Analytics.Track(AnalyticsEvents.TutorialCompleted, null);
             }
-            _app.UI.SetTutorialText(null);
+            ShowText(null);
             _definition = null;
         }
 
@@ -94,7 +95,21 @@ namespace MetroSort.Game
             PuzzleBoard board = _app.Game.Board;
             IsGuiding = _guidedLeft > 0 && board.Status == GameStatus.Playing && PuzzleSolver.TryGetHint(board.State, out _expected, 30000);
             if (!IsGuiding && afterMove && _guidedLeft <= 0 && _definition.After != null && _definition.GuidedMoves > 0)
-                _app.UI.SetTutorialText(_definition.After);
+                ShowText(_definition.After);
+        }
+
+        private string _shownText;
+
+        private void ShowText(string text)
+        {
+            _shownText = text;
+            _app.UI.SetTutorialText(text);
+        }
+
+        /// <summary>Re-sends the current line to a freshly built UI (after a language change).</summary>
+        public void RefreshText()
+        {
+            _app.UI.SetTutorialText(_shownText);
         }
 
         public bool Allows(Move move) { return !IsGuiding || move.Equals(_expected); }

@@ -1,0 +1,33 @@
+{
+  "id": 116,
+  "name": "Foggy Canal",
+  "group": "Expert",
+  "stages": [
+    [
+      "RBGBG",
+      "BBBRB",
+      "GRGRG",
+      "YGYRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 20,
+  "difficulty": 76.6
+}

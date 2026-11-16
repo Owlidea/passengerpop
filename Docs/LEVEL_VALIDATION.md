@@ -42,7 +42,7 @@ no longer be won.
 | 34 | Express Line | Intermediate | 17 | 3 | 1025 | 17 | 0.48 | 11 | 78.3 | yes |  |
 | 35 | Waiting Bench | Intermediate | 15 | 2 | 394 | 16 | 0.33 | 5 | 64.3 | yes |  |
 | 36 | Second Wave | Intermediate | 24 | 3 | 585 | 24 | 0.34 | 8 | 65.1 | yes |  |
-| 37 | Copper Junction | Intermediate | 24 | 3 | 59985 | 24 | 0.24 | 4 | 52.0 | yes | closest to band |
+| 37 | Copper Junction | Intermediate | 24 | 3 | 59985 | 24 | 0.24 | 4 | 52.0 | yes |  |
 | 38 | Harbour Junction | Intermediate | 18 | 3 | 1015 | 18 | 0.34 | 5 | 56.1 | yes |  |
 | 39 | Garden Terminal | Intermediate | 18 | 3 | 4808 | 18 | 0.31 | 6 | 57.3 | yes |  |
 | 40 | Market Terminal | Intermediate | 21 | 3 | 9330 | 21 | 0.31 | 7 | 62.2 | yes |  |
@@ -73,16 +73,16 @@ no longer be won.
 | 65 | Willow Depot | Advanced | 18 | 2 | 1452 | 18 | 0.31 | 3 | 60.9 | yes |  |
 | 66 | Granite Depot | Advanced | 21 | 2 | 3369 | 21 | 0.32 | 2 | 61.2 | yes |  |
 | 67 | Silver Interchange | Advanced | 21 | 2 | 3149 | 21 | 0.34 | 2 | 62.5 | yes |  |
-| 68 | Meadow Interchange | Advanced | 27 | 3 | 21532 | 27 | 0.28 | 5 | 62.6 | yes | closest to band |
+| 68 | Meadow Interchange | Advanced | 27 | 3 | 21532 | 27 | 0.28 | 5 | 62.6 | yes |  |
 | 69 | Beacon Halt | Advanced | 21 | 3 | 423 | 21 | 0.34 | 6 | 63.5 | yes |  |
 | 70 | Orchard Halt | Advanced | 24 | 4 | 24733 | 24 | 0.28 | 11 | 66.1 | yes |  |
 | 71 | Tower Parkway | Advanced | 18 | 2 | 937 | 19 | 0.41 | 4 | 68.1 | yes |  |
 | 72 | Bridge Parkway | Advanced | 25 | 3 | 22412 | 25 | 0.37 | 8 | 68.3 | yes |  |
 | 73 | Canal Central | Advanced | 24 | 3 | 357 | 24 | 0.31 | 8 | 68.6 | yes |  |
 | 74 | Forest Central | Advanced | 25 | 3 | 13867 | 25 | 0.33 | 9 | 69.2 | yes |  |
-| 75 | Sunset Gate | Advanced | 27 | 3 | 15743 | 27 | 0.26 | 11 | 70.0 | yes | closest to band |
+| 75 | Sunset Gate | Advanced | 27 | 3 | 15743 | 27 | 0.26 | 11 | 70.0 | yes |  |
 | 76 | Crystal Gate | Advanced | 24 | 3 | 4113 | 24 | 0.35 | 10 | 70.4 | yes |  |
-| 77 | Copper Junction | Advanced | 20 | 4 | 113425 | 20 | 0.45 | 11 | 71.2 | yes | closest to band |
+| 77 | Copper Junction | Advanced | 20 | 4 | 113425 | 20 | 0.45 | 11 | 71.2 | yes |  |
 | 78 | Harbour Junction | Advanced | 24 | 3 | 5451 | 24 | 0.31 | 9 | 73.1 | yes |  |
 | 79 | Garden Terminal | Advanced | 20 | 4 | 12542 | 20 | 0.56 | 8 | 74.3 | yes |  |
 | 80 | Market Terminal | Advanced | 21 | 3 | 3486 | 21 | 0.51 | 7 | 75.0 | yes |  |
@@ -90,7 +90,7 @@ no longer be won.
 | 82 | River Crossing | Advanced | 24 | 3 | 4766 | 24 | 0.44 | 8 | 76.3 | yes |  |
 | 83 | Summit Loop | Advanced | 23 | 4 | 19643 | 23 | 0.41 | 11 | 77.2 | yes |  |
 | 84 | Lantern Loop | Advanced | 20 | 4 | 89650 | 20 | 0.54 | 12 | 78.3 | yes |  |
-| 85 | Willow Depot | Advanced | 23 | 4 | 158009 | 23 | 0.50 | 10 | 79.7 | yes | closest to band |
+| 85 | Willow Depot | Advanced | 23 | 4 | 158009 | 23 | 0.50 | 10 | 79.7 | yes |  |
 | 86 | Granite Depot | Advanced | 30 | 4 | 119644 | 30 | 0.29 | 13 | 81.2 | yes |  |
 | 87 | Silver Interchange | Advanced | 27 | 3 | 989 | 27 | 0.34 | 12 | 81.3 | yes |  |
 | 88 | Meadow Interchange | Advanced | 27 | 3 | 8392 | 27 | 0.31 | 12 | 81.6 | yes |  |
@@ -106,5 +106,25 @@ no longer be won.
 | 98 | Harbour Junction | Advanced | 27 | 3 | 4821 | 27 | 0.45 | 10 | 90.1 | yes |  |
 | 99 | Garden Terminal | Advanced | 24 | 3 | 1022 | 24 | 0.33 | 14 | 93.1 | yes |  |
 | 100 | Market Terminal | Advanced | 28 | 3 | 9767 | 28 | 0.57 | 19 | 100.0 | yes |  |
+| 101 | Foggy Harbour | Expert | 15 | 3 | 396 | 15 | 0.36 | 8 | 62.5 | yes |  |
+| 102 | Foggy Garden | Expert | 24 | 3 | 11881 | 24 | 0.18 | 2 | 43.8 | yes |  |
+| 103 | Foggy Market | Expert | 18 | 3 | 1293 | 18 | 0.27 | 4 | 50.4 | yes |  |
+| 104 | Foggy Castle | Expert | 15 | 3 | 2390 | 15 | 0.28 | 6 | 53.7 | yes |  |
+| 105 | Foggy River | Expert | 24 | 3 | 57722 | 24 | 0.23 | 8 | 61.7 | yes |  |
+| 106 | Foggy Summit | Expert | 15 | 3 | 578 | 15 | 0.35 | 6 | 62.2 | yes |  |
+| 107 | Foggy Lantern | Expert | 21 | 3 | 9145 | 21 | 0.33 | 7 | 63.2 | yes |  |
+| 108 | Foggy Willow | Expert | 14 | 3 | 636 | 14 | 0.45 | 7 | 63.9 | yes |  |
+| 109 | Foggy Granite | Expert | 21 | 3 | 1484 | 21 | 0.24 | 7 | 64.0 | yes |  |
+| 110 | Foggy Silver | Expert | 21 | 3 | 1446 | 21 | 0.29 | 7 | 66.5 | yes |  |
+| 111 | Foggy Meadow | Expert | 18 | 3 | 4765 | 18 | 0.30 | 10 | 67.0 | yes |  |
+| 112 | Foggy Beacon | Expert | 24 | 3 | 8936 | 24 | 0.22 | 9 | 68.7 | yes |  |
+| 113 | Foggy Orchard | Expert | 21 | 3 | 1448 | 21 | 0.29 | 11 | 71.3 | yes |  |
+| 114 | Foggy Tower | Expert | 21 | 3 | 9509 | 21 | 0.36 | 10 | 72.4 | yes |  |
+| 115 | Foggy Bridge | Expert | 21 | 3 | 1126 | 21 | 0.28 | 12 | 73.5 | yes |  |
+| 116 | Foggy Canal | Expert | 20 | 3 | 2144 | 20 | 0.53 | 9 | 76.6 | yes |  |
+| 117 | Foggy Forest | Expert | 18 | 3 | 1359 | 18 | 0.31 | 13 | 79.8 | yes |  |
+| 118 | Foggy Sunset | Expert | 17 | 3 | 857 | 17 | 0.57 | 11 | 82.3 | yes |  |
+| 119 | Foggy Crystal | Expert | 20 | 3 | 1200 | 20 | 0.60 | 11 | 85.3 | yes |  |
+| 120 | Foggy Copper | Expert | 23 | 3 | 6891 | 23 | 0.46 | 16 | 92.7 | yes |  |
 
-100 levels, 0 failed.
+120 levels, 0 failed.

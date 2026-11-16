@@ -41,10 +41,27 @@ namespace MetroSort.Game
         // ------------------------------------------------------------------ sync
 
         /// <summary>Recreates every view from the logical state. Used on level start, undo, restart and boosters.</summary>
+        /// <summary>Mystery queues: passengers at or beyond this position hide their line (0 = show everyone).</summary>
+        public int VisibleDepth { get; private set; }
+        public int ThemeIndex { get; private set; }
+        private StationTheme Theme { get { return Chapters.Themes[ThemeIndex]; } }
+
+        /// <summary>Call before Rebuild whenever the level changes.</summary>
+        public void SetLevel(MetroSort.Levels.LevelData level)
+        {
+            VisibleDepth = level.Visible;
+            ThemeIndex = Chapters.IndexFor(level.Id);
+        }
+
+        private bool IsHidden(int queueIndex)
+        {
+            return VisibleDepth > 0 && queueIndex >= VisibleDepth;
+        }
+
         public void Rebuild(BoardState state, bool intro = false)
         {
             // The layout depends on the screen shape, so a different aspect ratio rebuilds the station too.
-            string signature = Signature(state) + "/" + Mathf.RoundToInt((Cam != null ? Cam.aspect : 0.5625f) * 25f);
+            string signature = Signature(state) + "/" + Mathf.RoundToInt((Cam != null ? Cam.aspect : 0.5625f) * 25f) + "/t" + ThemeIndex;
             if (signature != _signature)
             {
                 BuildEnvironment(state);
@@ -58,6 +75,7 @@ namespace MetroSort.Game
                 for (int i = 0; i < state.Queues[q].Count; i++)
                 {
                     PassengerView view = Spawn(state.Queues[q][i], QueueSlot(q, i), i == 0);
+                    view.SetMystery(IsHidden(i), false);
                     // Level intro: passengers pop in lane by lane, front to back.
                     if (intro) view.PopIn(0.10f + q * 0.07f + i * 0.045f);
                 }
@@ -87,6 +105,7 @@ namespace MetroSort.Game
                     PassengerView v;
                     if (!_passengers.TryGetValue(state.Queues[q][i].Id, out v)) continue;
                     v.SetAccessible(i == 0);
+                    v.SetMystery(IsHidden(i), animate);
                     MoveView(v, QueueSlot(q, i), animate, i * 0.04f);
                 }
             }
@@ -116,7 +135,9 @@ namespace MetroSort.Game
                 {
                     Passenger p = state.Queues[q][i];
                     if (_passengers.ContainsKey(p.Id)) continue;
-                    Spawn(p, QueueSlot(q, i), i == 0).Bounce();
+                    PassengerView fresh = Spawn(p, QueueSlot(q, i), i == 0);
+                    fresh.SetMystery(IsHidden(i), false);
+                    fresh.Bounce();
                 }
             }
         }
@@ -338,7 +359,7 @@ namespace MetroSort.Game
                 float x = (q - (maxQueues - 1) * 0.5f) * spacing;
                 _queueFront[q] = new Vector3(x, 0f, frontZ);
                 float laneLength = (maxDepth - 1) * _queueStep + 1.0f;
-                GameObject lane = Prims.Make(PrimitiveType.Cube, _env, new Vector3(x, 0.011f, frontZ - laneLength * 0.5f + 0.5f), new Vector3(0.95f, 0.02f, laneLength), Palette.Lane, "Lane");
+                GameObject lane = Prims.Make(PrimitiveType.Cube, _env, new Vector3(x, 0.011f, frontZ - laneLength * 0.5f + 0.5f), new Vector3(0.95f, 0.02f, laneLength), Theme.Lane, "Lane");
                 Prims.NoShadow(lane);
                 GameObject spot = Prims.Make(PrimitiveType.Cylinder, _env, new Vector3(x, 0.016f, frontZ), new Vector3(0.90f, 0.012f, 0.90f), new Color(0.97f, 0.98f, 1f), "FrontSpot");
                 Prims.NoShadow(spot);
@@ -386,7 +407,7 @@ namespace MetroSort.Game
                     float cz = iz * 1.6f;
                     bool clear = cz < wallZ - 0.9f;
                     foreach (float tz in trackZs) if (Mathf.Abs(cz - tz) < TrenchHalf + 0.82f) clear = false;
-                    if (clear) Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(ix * 1.6f, 0.003f, cz), new Vector3(1.6f, 0.006f, 1.6f), Palette.FloorTile, "Tile"));
+                    if (clear) Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(ix * 1.6f, 0.003f, cz), new Vector3(1.6f, 0.006f, 1.6f), Theme.Tile, "Tile"));
                 }
             }
 
@@ -435,7 +456,7 @@ namespace MetroSort.Game
         private void BuildFloorStrip(float z0, float z1)
         {
             if (z1 <= z0) return;
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, -0.3f, (z0 + z1) * 0.5f), new Vector3(60f, 0.6f, z1 - z0), Palette.Floor, "Floor"));
+            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, -0.3f, (z0 + z1) * 0.5f), new Vector3(60f, 0.6f, z1 - z0), Theme.Floor, "Floor"));
         }
 
         /// <summary>A sunken track with rails, sleepers, safety lines along both edges and a tunnel mouth at each end.</summary>
@@ -484,19 +505,19 @@ namespace MetroSort.Game
         private void BuildBackWall(float wallZ)
         {
             float face = wallZ - 0.21f;
-            Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 1.5f, wallZ), new Vector3(60f, 3.0f, 0.4f), Palette.Wall, "Wall");
+            Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 1.5f, wallZ), new Vector3(60f, 3.0f, 0.4f), Theme.Wall, "Wall");
             // Tiled dado along the bottom of the wall, as in most metro stations.
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 0.55f, face), new Vector3(60f, 1.1f, 0.04f), new Color(0.28f, 0.55f, 0.62f), "Dado"));
+            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 0.55f, face), new Vector3(60f, 1.1f, 0.04f), Theme.Dado, "Dado"));
             Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 1.13f, face - 0.01f), new Vector3(60f, 0.07f, 0.05f), Color.white, "DadoCap"));
             for (int i = -14; i <= 14; i++)
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(i * 0.7f, 0.55f, face - 0.022f), new Vector3(0.02f, 1.1f, 0.01f), new Color(0.22f, 0.46f, 0.53f), "TileJoint"));
-            Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 3.1f, wallZ - 0.1f), new Vector3(60f, 0.3f, 0.7f), Palette.Pillar, "Cornice");
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(i * 0.7f, 0.55f, face - 0.022f), new Vector3(0.02f, 1.1f, 0.01f), Theme.Joint, "TileJoint"));
+            Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 3.1f, wallZ - 0.1f), new Vector3(60f, 0.3f, 0.7f), Theme.Pillar, "Cornice");
             for (int i = 0; i < ColorCodes.Count; i++)
                 Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 2.90f - i * 0.075f, face), new Vector3(60f, 0.055f, 0.02f), Palette.Lines[i], "LineStripe"));
             for (int i = -4; i <= 4; i++)
             {
                 if (i == 0) continue;
-                Prims.MakeRounded(_env, new Vector3(i * 2.6f, 1.5f, wallZ - 0.32f), new Vector3(0.5f, 3.0f, 0.36f), 0.12f, Palette.Pillar, "Pillar");
+                Prims.MakeRounded(_env, new Vector3(i * 2.6f, 1.5f, wallZ - 0.32f), new Vector3(0.5f, 3.0f, 0.36f), 0.12f, Theme.Pillar, "Pillar");
             }
 
             // Station name board with a roundel.

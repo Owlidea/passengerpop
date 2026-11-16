@@ -68,6 +68,7 @@ namespace MetroSort.Game
             GameSettings.AssistedMode = data.AssistedMode;
             GameSettings.ReducedMotion = data.ReducedMotion;
             GameSettings.FastTrains = data.FastTrains;
+            Loc.Init(data.Language);
             States = new GameStateManager();
 
             Camera cam = SetupCameraAndLight();
@@ -139,6 +140,33 @@ namespace MetroSort.Game
             Game.ShowBackdrop(CurrentLevelId);
             UI.SetTutorialText(null);
             UI.Refresh();
+        }
+
+        private bool _rebuildUi;
+
+        /// <summary>Switches language. The UI is rebuilt on the next frame, outside the button's own click event.</summary>
+        public void ChangeLanguage(string language)
+        {
+            Loc.Init(language);
+            _rebuildUi = true;
+        }
+
+        private void Update()
+        {
+            if (!_rebuildUi) return;
+            _rebuildUi = false;
+            bool inGame = States.Current == AppState.Paused;
+            UI.Unsubscribe();
+            DestroyImmediate(UI.gameObject);
+            UI = AddChild<UIManager>("UI");
+            UI.Init(this);
+            if (Game.Board != null)
+            {
+                Station.RefreshPlatforms(Game.Board.State);
+                Tutorial.RefreshText();
+            }
+            // The switch is made from the settings panel, so put the player back there.
+            UI.OpenSettings(inGame);
         }
 
         private void OnApplicationPause(bool paused)

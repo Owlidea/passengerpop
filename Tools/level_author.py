@@ -328,7 +328,40 @@ def build_extra_specs():
     return specs
 
 
+def build_expert_specs():
+    """Levels 101-120: mystery queues (only the first few passengers of a queue show their line)."""
+    places = ["Harbour", "Garden", "Market", "Castle", "River", "Summit", "Lantern", "Willow", "Granite", "Silver",
+              "Meadow", "Beacon", "Orchard", "Tower", "Bridge", "Canal", "Forest", "Sunset", "Crystal", "Copper"]
+    lock = lambda color, trains: {"cap": 3, "lockColor": color, "lockTrains": trains}
+    temp = lambda uses: {"cap": 3, "uses": uses}
+    express = lambda color: {"cap": 2, "express": True, "color": color}
+    specs = []
+
+    def add(**kw):
+        n = len(specs)
+        kw["name"] = "Foggy " + places[n % len(places)]
+        kw["group"] = "Expert"
+        kw.setdefault("dead", (0.20, 0.62))
+        kw.setdefault("attempts", 40 if sum(kw["counts"]) <= 21 else 14)
+        if n == 0:
+            kw["tutorial"] = "mystery"
+        specs.append(kw)
+
+    # Five rounds of four: plain, locked, temporary, express - with less and less of each queue visible.
+    sizes = [[6, 3, 3, 3], [6, 6, 3, 3], [6, 6, 6, 3], [6, 6, 6, 3], [6, 6, 6, 6]]
+    for r in range(5):
+        counts = sizes[r]
+        queues = 4 if sum(counts) <= 21 else 5
+        visible = 3 if r < 2 else 2
+        add(counts=counts, queues=queues, platforms=P(3), visible=visible, dead=(0.10, 0.45))
+        add(counts=counts, queues=queues, platforms=P(2, lock("*", 1)), visible=visible)
+        add(counts=counts, queues=queues, platforms=P(2, temp(2 + r // 2)), visible=visible)
+        add(counts=[5] + counts[1:], queues=queues, platforms=P(2, express("R")), visible=visible)
+    return specs
+
+
 SPECS.extend(build_extra_specs())
+SPECS.extend(build_expert_specs())
 
 
 def draft_one(job):
@@ -388,7 +421,7 @@ def main():
 
     # Curate each generated group: order by measured difficulty so the curve rises, keeping planned names in place.
     # Levels kept from disk are never moved.
-    for group in ("Basic", "Intermediate", "Advanced"):
+    for group in ("Basic", "Intermediate", "Advanced", "Expert"):
         idx = [i for i, e in enumerate(entries) if e["spec"]["group"] == group and not e.get("kept") and not e["spec"].get("tutorial")]
         ordered = sorted((entries[i] for i in idx), key=lambda e: e["difficulty"])
         names = [entries[i]["spec"]["name"] for i in idx]
@@ -412,6 +445,7 @@ def main():
             "platforms": level["platforms"],
             "bench": level.get("bench", 0),
             "moveLimit": level["moveLimit"],
+            "visible": spec.get("visible", 0),
             "extraPlatforms": 1,
             "tutorial": spec.get("tutorial", ""),
             "par": a["min"],

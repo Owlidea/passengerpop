@@ -1,0 +1,33 @@
+{
+  "id": 117,
+  "name": "Foggy Forest",
+  "group": "Expert",
+  "stages": [
+    [
+      "RYBBG",
+      "BYYGG",
+      "RBBR",
+      "RRRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 3,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 79.8
+}

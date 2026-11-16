@@ -26,6 +26,8 @@ namespace MetroSort.Persistence
         public bool RemoveAds;
         public List<string> ProcessedTransactions = new List<string>();
         public int LevelsSinceInterstitial;
+        /// <summary>"" = follow the device language; otherwise a language code such as "en" or "tr".</summary>
+        public string Language = "";
 
         public static SaveData CreateNew(EconomyConfig config)
         {
@@ -57,6 +59,7 @@ namespace MetroSort.Persistence
             root["removeAds"] = RemoveAds;
             root["processedTransactions"] = ToObjects(ProcessedTransactions);
             root["levelsSinceInterstitial"] = LevelsSinceInterstitial;
+            root["language"] = Language;
             return MiniJson.Serialize(root);
         }
 
@@ -93,6 +96,7 @@ namespace MetroSort.Persistence
             d.RemoveAds = JsonRead.Bool(root, "removeAds", false);
             d.ProcessedTransactions = ToStrings(JsonRead.List(root, "processedTransactions"));
             d.LevelsSinceInterstitial = JsonRead.Int(root, "levelsSinceInterstitial", 0);
+            d.Language = JsonRead.Str(root, "language", "");
             Migrate(d);
             return d;
         }

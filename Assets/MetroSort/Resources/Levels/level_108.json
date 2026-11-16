@@ -1,0 +1,33 @@
+{
+  "id": 108,
+  "name": "Foggy Willow",
+  "group": "Expert",
+  "stages": [
+    [
+      "BGYY",
+      "RRYR",
+      "BRR",
+      "GGB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 3,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 14,
+  "difficulty": 63.9
+}

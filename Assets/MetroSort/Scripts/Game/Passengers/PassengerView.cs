@@ -53,6 +53,8 @@ namespace MetroSort.Game
         private readonly System.Collections.Generic.List<GameObject> _hairParts = new System.Collections.Generic.List<GameObject>();
         private GameObject _halo;
         private bool _accessible = true;
+        private bool _mystery;
+        private GameObject _mysteryMark;
         private float _scale = 1f;
         private float _phase;
 
@@ -195,6 +197,23 @@ namespace MetroSort.Game
                 _hats[c] = hat;
             }
 
+            // Mystery look: a grey cap and a white question mark instead of the line hat.
+            _mysteryMark = new GameObject("MysteryMark");
+            _mysteryMark.transform.SetParent(head, false);
+            Transform mm = _mysteryMark.transform;
+            var grey = new Color(0.52f, 0.55f, 0.62f);
+            GameObject cap = Prims.Make(PrimitiveType.Sphere, mm, new Vector3(0f, 0.33f, 0.02f), new Vector3(0.46f, 0.34f, 0.46f), grey, "Cap");
+            InkOutline.Add(cap, 0.016f);
+            float[][] strokes =
+            {
+                new[] { -0.055f, 0.865f, 0.035f, 0.055f }, new[] { 0f, 0.895f, 0.13f, 0.035f }, new[] { 0.055f, 0.845f, 0.035f, 0.09f },
+                new[] { 0.025f, 0.795f, 0.08f, 0.035f }, new[] { 0f, 0.75f, 0.035f, 0.07f }
+            };
+            foreach (float[] st in strokes)
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, mm, new Vector3(st[0], st[1], -0.02f), new Vector3(st[2], st[3], 0.03f), Color.white, "Stroke"));
+            Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, mm, new Vector3(0f, 0.665f, -0.02f), new Vector3(0.045f, 0.045f, 0.035f), Color.white, "Dot"));
+            _mysteryMark.SetActive(false);
+
             _halo = Prims.Make(PrimitiveType.Cylinder, head, new Vector3(0f, 0.86f, 0f), new Vector3(0.42f, 0.018f, 0.42f), Palette.Gold, "VipHalo");
             Prims.SetGlossy(_halo, Palette.Gold);
             _halo.SetActive(false);
@@ -278,6 +297,8 @@ namespace MetroSort.Game
             for (int i = 0; i < _hairStyles.Length; i++) _hairStyles[i].SetActive(i == style);
 
             _accessible = true;
+            _mystery = false;
+            _mysteryMark.SetActive(false);
             _scale = 1f;
             Selected = false;
             Held = false;
@@ -304,7 +325,8 @@ namespace MetroSort.Game
         private void ApplyBodyColor()
         {
             Color c = Palette.Line(ColorIndex);
-            if (!_accessible) c = Color.Lerp(c, new Color(0.62f, 0.65f, 0.70f), 0.45f);
+            if (_mystery) c = new Color(0.60f, 0.63f, 0.69f);
+            else if (!_accessible) c = Color.Lerp(c, new Color(0.62f, 0.65f, 0.70f), 0.45f);
             foreach (GameObject part in _jacketParts) Prims.SetColor(part, c);
         }
 
@@ -314,6 +336,17 @@ namespace MetroSort.Game
             if (_accessible == accessible) return;
             _accessible = accessible;
             ApplyBodyColor();
+        }
+
+        /// <summary>A mystery passenger hides their line (grey jacket, question mark) until revealed.</summary>
+        public void SetMystery(bool mystery, bool animate)
+        {
+            if (_mystery == mystery) return;
+            _mystery = mystery;
+            _mysteryMark.SetActive(mystery);
+            for (int c = 0; c < _hats.Length; c++) _hats[c].SetActive(!mystery && c == ColorIndex);
+            ApplyBodyColor();
+            if (!mystery && animate) Bounce(); // a little pop when the line is revealed
         }
 
         public void Place(Vector3 position)

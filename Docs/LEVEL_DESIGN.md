@@ -35,6 +35,7 @@ One JSON file per level in `Assets/MetroSort/Resources/Levels/level_NNN.json`. N
 | `platforms[].uses` | Temporary platform: closes after this many departures (0 = permanent) |
 | `bench` | Waiting bench seats (0-3) |
 | `moveLimit` | 0 = unlimited |
+| `visible` | Mystery queue: how many passengers at the front of each queue show their line (0 = all) |
 | `extraPlatforms` | How many Extra Platform boosters the level accepts |
 | `tutorial` | Tutorial id, see `TutorialManager` |
 | `par` | Minimum solution length from the solver; used for stars |
@@ -50,6 +51,8 @@ One JSON file per level in `Assets/MetroSort/Resources/Levels/level_NNN.json`. N
 | 31-36 | Intermediate | One special mechanic each, with a one-line tutorial: locked, temporary, VIP, express, bench + move limit, two-stage |
 | 37-60 | Intermediate | The same six mechanics again at growing size (15-26 passengers, 4-5 colours), ordered by measured difficulty |
 | 61-100 | Advanced | Combined mechanics (lock + VIP, express + temporary, stages + lock, bench + VIP, express + lock, stages + temporary), the four-passenger long platform, 5-6 colours, up to 30 passengers |
+
+| 101-120 | Expert | Mystery queues (`visible` 3, then 2) combined with locked, temporary and express platforms |
 
 Levels 37-100 come from `build_extra_specs()` in `Tools/level_author.py`. When a spec is too large to analyse
 completely or yields no winnable draft, the tool removes one train-load from the largest line and retries.
@@ -79,7 +82,7 @@ people yet**; the difficulty score orders them but does not replace that.
 - a move limit, if any, is not below the minimum solution length
 - special mechanics do not make the level impossible (they are part of the searched rules)
 
-Results for the shipped set are in `LEVEL_VALIDATION.md`. Every one of the 100 levels is winnable. Levels marked
+Results for the shipped set are in `LEVEL_VALIDATION.md`. Every one of the 120 levels is winnable. Levels marked
 "closest to band" there landed just outside the dead-end range their spec asked for.
 
 A note on the dead-end ratio: it counts every reachable mistake, including splitting one colour across two

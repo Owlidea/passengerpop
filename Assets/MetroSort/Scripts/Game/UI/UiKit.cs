@@ -131,7 +131,7 @@ namespace MetroSort.Game
             RectTransform rt = MakeRect("Text", parent);
             var text = rt.gameObject.AddComponent<Text>();
             text.font = Font;
-            text.text = value;
+            text.text = Loc.T(value); // every label goes through the localisation table
             text.fontSize = size;
             text.color = color;
             text.alignment = anchor;

@@ -1,0 +1,31 @@
+{
+  "id": 113,
+  "name": "Foggy Orchard",
+  "group": "Expert",
+  "stages": [
+    [
+      "BYBGRR",
+      "RGGYR",
+      "GRBGB",
+      "BGBYR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 71.3
+}

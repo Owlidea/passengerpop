@@ -1,0 +1,32 @@
+{
+  "id": 102,
+  "name": "Foggy Garden",
+  "group": "Expert",
+  "stages": [
+    [
+      "BYRYB",
+      "YYYYR",
+      "RGGBG",
+      "RBGGG",
+      "BRRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 43.8
+}

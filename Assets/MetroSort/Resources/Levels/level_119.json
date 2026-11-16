@@ -1,0 +1,33 @@
+{
+  "id": 119,
+  "name": "Foggy Crystal",
+  "group": "Expert",
+  "stages": [
+    [
+      "RBYGG",
+      "YRBGB",
+      "GRYBR",
+      "GBGRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 20,
+  "difficulty": 85.3
+}

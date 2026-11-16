@@ -31,7 +31,7 @@ namespace MetroSort.Game
         private Text _menuCoins, _menuLevel, _hudCoins, _hudTitle, _hudProgress, _tutorialText, _toastText;
         private Text _winCoins, _loseTitle, _loseReason, _shopCoins;
         private Button _dailyButton, _winAdButton, _loseUndo, _losePlatform, _removeAdsButton;
-        private Button _assistToggle, _motionToggle, _fastToggle, _resumeButton, _restartButton, _quitButton, _restoreButton, _closeSettingsButton;
+        private Button _assistToggle, _motionToggle, _fastToggle, _languageToggle, _resumeButton, _restartButton, _quitButton, _restoreButton, _closeSettingsButton;
         private readonly Button[] _boosterButtons = new Button[4];
         private readonly Text[] _boosterBadges = new Text[4];
         private readonly Button[] _shopBoosterButtons = new Button[4];
@@ -42,8 +42,9 @@ namespace MetroSort.Game
         private Text _levelsPageLabel;
         private Button _levelsPrev, _levelsNext;
         private int _levelsPage;
-        private const int LevelsPerPage = 36;
-        private float _toastUntil;
+        private const int LevelsPerPage = Chapters.Size;
+        private float _toastUntil, _secretTime;
+        private int _secretTaps;
         private bool _pointerOn, _settingsInGame;
         private Vector3 _pointerWorld;
 
@@ -77,12 +78,33 @@ namespace MetroSort.Game
             s.Economy.Changed += Refresh;
             s.Boosters.Changed += Refresh;
             s.Store.Changed += Refresh;
-            s.Achievements.Unlocked += def => { app.Audio.Play(Sfx.Achievement); Toast("Achievement: " + def.Title + "  +" + def.Reward + " coins"); };
+            s.Achievements.Unlocked += OnAchievement;
             app.Game.BoardChanged += Refresh;
             app.Game.LevelWon += ShowWin;
             app.Game.LevelLost += ShowLose;
             app.Game.Message += Toast;
             OnStateChanged(app.States.Current);
+        }
+
+        private void OnAchievement(AchievementDefinition def)
+        {
+            _app.Audio.Play(Sfx.Achievement);
+            Toast(Loc.F("Achievement: {0}  +{1} coins", Loc.T(def.Title), def.Reward));
+        }
+
+        /// <summary>Detaches from game events; call before destroying this UI (for example to rebuild it in another language).</summary>
+        public void Unsubscribe()
+        {
+            GameServices s = _app.Services;
+            _app.States.Changed -= OnStateChanged;
+            s.Economy.Changed -= Refresh;
+            s.Boosters.Changed -= Refresh;
+            s.Store.Changed -= Refresh;
+            s.Achievements.Unlocked -= OnAchievement;
+            _app.Game.BoardChanged -= Refresh;
+            _app.Game.LevelWon -= ShowWin;
+            _app.Game.LevelLost -= ShowLose;
+            _app.Game.Message -= Toast;
         }
 
         private Button Btn(Transform parent, string label, Color color, Action onClick, float w, float h, int font = 46)
@@ -108,6 +130,22 @@ namespace MetroSort.Game
 
             Image plate = UiKit.MakeImage(menu, "TitlePlate", UiKit.Rounded, new Color(1f, 1f, 1f, 0.94f));
             UiKit.Place(plate.rectTransform, 0.5f, 1f, 0f, -190f, 880f, 300f);
+            // Tester shortcut: seven quick taps on the title unlock every level. Remove before a public release.
+            plate.raycastTarget = true;
+            var secret = plate.gameObject.AddComponent<Button>();
+            secret.transition = Selectable.Transition.None;
+            secret.onClick.AddListener(() =>
+            {
+                if (Time.unscaledTime - _secretTime > 1.5f) _secretTaps = 0;
+                _secretTime = Time.unscaledTime;
+                if (++_secretTaps < 7) return;
+                _secretTaps = 0;
+                _app.Services.Save.Data.HighestUnlocked = 9999;
+                _app.Services.Save.Save();
+                _app.Audio.Play(Sfx.Achievement);
+                Refresh();
+                Toast("All levels unlocked for testing");
+            });
             Text title = UiKit.MakeText(plate.transform, "METRO SORT", 108, Palette.UiInk);
             UiKit.Stretch(title.rectTransform, 20f, 90f, 20f, 20f);
             for (int i = 0; i < Palette.Lines.Length; i++)
@@ -203,6 +241,12 @@ namespace MetroSort.Game
             _assistToggle = Row(content, "", Palette.UiPrimary, () => { data.AssistedMode = !data.AssistedMode; ApplySettings(); }, 100f, 38);
             _motionToggle = Row(content, "", Palette.UiPrimary, () => { data.ReducedMotion = !data.ReducedMotion; ApplySettings(); }, 100f, 38);
             _fastToggle = Row(content, "", Palette.UiPrimary, () => { data.FastTrains = !data.FastTrains; ApplySettings(); }, 100f, 38);
+            _languageToggle = Row(content, "", Palette.UiPrimary, () =>
+            {
+                data.Language = Loc.Language == Loc.Turkish ? Loc.English : Loc.Turkish;
+                _app.Services.Save.Save();
+                _app.ChangeLanguage(data.Language);
+            }, 100f, 38);
             _resumeButton = Row(content, "Resume", Palette.UiGreen, CloseSettings, 130f, 52);
             _restartButton = Row(content, "Restart Level", Palette.UiInk, () => { _settings.SetActive(false); _app.Game.Restart(); });
             _quitButton = Row(content, "Back to Menu", Palette.UiRed, () => { _settings.SetActive(false); _app.GoToMenu(); });
@@ -236,15 +280,15 @@ namespace MetroSort.Game
                     else Toast("Not enough coins");
                 }, 100f, 38);
             }
-            Row(content, "Watch an ad: +" + s.Config.RewardedAdCoins + " coins (optional)", new Color(0.96f, 0.62f, 0.20f), WatchAdForCoins, 100f, 38);
+            Row(content, Loc.F("Watch an ad: +{0} coins (optional)", s.Config.RewardedAdCoins), new Color(0.96f, 0.62f, 0.20f), WatchAdForCoins, 100f, 38);
             foreach (StoreProduct product in StoreCatalog.Products)
             {
                 StoreProduct p = product;
-                string label = p.Consumable ? p.Title + "  +" + p.Coins + "   " + p.PriceLabel : p.Title + "   " + p.PriceLabel;
+                string label = p.Consumable ? Loc.T(p.Title) + "  +" + p.Coins + "   " + p.PriceLabel : Loc.T(p.Title) + "   " + p.PriceLabel;
                 Button b = Row(content, label, Palette.UiInk, () => s.Store.Buy(p.Id, ok =>
                 {
                     if (ok) _app.Audio.Play(Sfx.Coins);
-                    Toast(ok ? "Thank you! " + p.Title + " added" : "Purchase was not completed");
+                    Toast(ok ? Loc.F("Thank you! {0} added", Loc.T(p.Title)) : "Purchase was not completed");
                 }), 100f, 38);
                 if (!p.Consumable) _removeAdsButton = b;
             }
@@ -257,12 +301,12 @@ namespace MetroSort.Game
             _levels = UiKit.Modal(_root, "Levels", "Levels", out content);
             _levelsGrid = UiKit.MakeRect("Grid", content);
             var grid = _levelsGrid.gameObject.AddComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(118f, 118f);
+            grid.cellSize = new Vector2(140f, 140f);
             grid.spacing = new Vector2(14f, 14f);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = 6;
+            grid.constraintCount = 5;
             grid.childAlignment = TextAnchor.UpperCenter;
-            _levelsGrid.sizeDelta = new Vector2(780f, 6 * 132f);
+            _levelsGrid.sizeDelta = new Vector2(780f, 4 * 154f);
 
             // Page controls: 36 levels per page.
             RectTransform pager = UiKit.MakeRect("Pager", content);
@@ -272,7 +316,10 @@ namespace MetroSort.Game
             _levelsNext = Btn(pager, ">", Palette.UiPrimary, () => ShowLevelsPage(_levelsPage + 1), 180f, 100f, 60);
             UiKit.Place((RectTransform)_levelsNext.transform, 1f, 0.5f, 0f, 0f, 180f, 100f);
             _levelsPageLabel = UiKit.MakeText(pager, "", 40, Palette.UiInk);
-            UiKit.Place(_levelsPageLabel.rectTransform, 0.5f, 0.5f, 0f, 0f, 380f, 90f);
+            UiKit.Place(_levelsPageLabel.rectTransform, 0.5f, 0.5f, 0f, 0f, 400f, 96f);
+            _levelsPageLabel.resizeTextForBestFit = true;
+            _levelsPageLabel.resizeTextMinSize = 22;
+            _levelsPageLabel.resizeTextMaxSize = 40;
             Row(content, "Close", Palette.UiGreen, () => _levels.SetActive(false), 120f, 50);
         }
 
@@ -290,7 +337,7 @@ namespace MetroSort.Game
             _winCoins = UiKit.MakeText(content, "", 52, Palette.UiInk);
             _winCoins.rectTransform.sizeDelta = new Vector2(780f, 76f);
             Row(content, "Continue", Palette.UiGreen, OnContinue, 150f, 60);
-            _winAdButton = Row(content, "Watch an ad: +" + _app.Services.Config.RewardedAdCoins + " coins (optional)", new Color(0.96f, 0.62f, 0.20f), () =>
+            _winAdButton = Row(content, Loc.F("Watch an ad: +{0} coins (optional)", _app.Services.Config.RewardedAdCoins), new Color(0.96f, 0.62f, 0.20f), () =>
             {
                 _winAdButton.gameObject.SetActive(false);
                 WatchAdForCoins();
@@ -336,7 +383,7 @@ namespace MetroSort.Game
             _hud.SetActive(inLevel);
             _win.SetActive(state == AppState.LevelComplete);
             _lose.SetActive(state == AppState.LevelFailed);
-            if (state != AppState.Paused && _settingsInGame) _settings.SetActive(false);
+            if (state == AppState.Playing || (state != AppState.Paused && _settingsInGame)) _settings.SetActive(false);
             if (state != AppState.Menu)
             {
                 _shop.SetActive(false);
@@ -354,11 +401,11 @@ namespace MetroSort.Game
             string coins = s.Economy.Coins.ToString();
             _menuCoins.text = coins;
             _hudCoins.text = coins;
-            _shopCoins.text = "You have " + coins + " coins";
+            _shopCoins.text = Loc.F("You have {0} coins", coins);
 
             int current = _app.CurrentLevelId;
             LevelData next = s.Levels.Get(current);
-            _menuLevel.text = "Level " + next.Id + "  -  " + next.Name;
+            _menuLevel.text = Loc.F("Level {0}  -  {1}", next.Id, Loc.LevelName(next.Name));
             _dailyButton.gameObject.SetActive(s.Economy.CanClaimDaily(EconomyManager.TodayNumber(DateTime.UtcNow)));
 
             for (int i = 0; i < 4; i++)
@@ -366,20 +413,20 @@ namespace MetroSort.Game
                 var type = (BoosterType)i;
                 int count = s.Boosters.Count(type);
                 // Owned charges are shown as a count; otherwise the coin price is shown so paid use is never a surprise.
-                _boosterBadges[i].text = count > 0 ? "x" + count : s.Boosters.Cost(type) + " coins";
+                _boosterBadges[i].text = count > 0 ? "x" + count : Loc.F("{0} coins", s.Boosters.Cost(type));
                 _boosterBadges[i].color = count > 0 ? Color.white : new Color(1f, 0.92f, 0.55f);
-                UiKit.LabelOf(_shopBoosterButtons[i]).text = BoosterNames[i] + "  (you have " + count + ")   buy 1 for " + s.Boosters.Cost(type);
+                UiKit.LabelOf(_shopBoosterButtons[i]).text = Loc.F("{0}  (you have {1})   buy 1 for {2}", Loc.T(BoosterNames[i]), count, s.Boosters.Cost(type));
             }
-            UiKit.LabelOf(_removeAdsButton).text = s.Store.AdsRemoved ? "Ads removed - thank you!" : "Remove Ads   " + StoreCatalog.Find(StoreCatalog.RemoveAds).PriceLabel;
+            UiKit.LabelOf(_removeAdsButton).text = s.Store.AdsRemoved ? Loc.T("Ads removed - thank you!") : Loc.F("Remove Ads   {0}", StoreCatalog.Find(StoreCatalog.RemoveAds).PriceLabel);
             _removeAdsButton.interactable = !s.Store.AdsRemoved;
 
             GameController game = _app.Game;
             if (game.Board == null) return;
             BoardState state = game.Board.State;
-            _hudTitle.text = "Level " + game.Level.Id;
-            string progress = "Boarded " + state.Boarded + " / " + state.Total;
-            if (state.StageCount > 1) progress += "   Wave " + (state.Stage + 1) + "/" + state.StageCount;
-            if (state.MoveLimit > 0) progress += "   Moves left " + state.MovesRemaining;
+            _hudTitle.text = Loc.F("Level {0}", game.Level.Id);
+            string progress = Loc.F("Boarded {0} / {1}", state.Boarded, state.Total);
+            if (state.StageCount > 1) progress += Loc.F("   Wave {0}/{1}", state.Stage + 1, state.StageCount);
+            if (state.MoveLimit > 0) progress += Loc.F("   Moves left {0}", state.MovesRemaining);
             _hudProgress.text = progress;
 
             bool playing = _app.States.Current == AppState.Playing && !game.IsThinking;
@@ -389,8 +436,8 @@ namespace MetroSort.Game
             _boosterButtons[3].interactable = playing && !_app.Tutorial.IsGuiding;
 
             int undoCount = s.Boosters.Count(BoosterType.Undo), platformCount = s.Boosters.Count(BoosterType.ExtraPlatform);
-            UiKit.LabelOf(_loseUndo).text = "Undo last move  (" + (undoCount > 0 ? "x" + undoCount : s.Boosters.Cost(BoosterType.Undo) + " coins") + ")";
-            UiKit.LabelOf(_losePlatform).text = "Add a platform  (" + (platformCount > 0 ? "x" + platformCount : s.Boosters.Cost(BoosterType.ExtraPlatform) + " coins") + ")";
+            UiKit.LabelOf(_loseUndo).text = Loc.F("Undo last move  ({0})", undoCount > 0 ? "x" + undoCount : Loc.F("{0} coins", s.Boosters.Cost(BoosterType.Undo)));
+            UiKit.LabelOf(_losePlatform).text = Loc.F("Add a platform  ({0})", platformCount > 0 ? "x" + platformCount : Loc.F("{0} coins", s.Boosters.Cost(BoosterType.ExtraPlatform)));
             _loseUndo.gameObject.SetActive(game.Board.CanUndo);
             _losePlatform.gameObject.SetActive(game.Board.LoseReason == LoseReason.Deadlock && game.Board.CanAddExtraPlatform);
         }
@@ -401,9 +448,10 @@ namespace MetroSort.Game
             GameSettings.AssistedMode = data.AssistedMode;
             GameSettings.ReducedMotion = data.ReducedMotion;
             GameSettings.FastTrains = data.FastTrains;
-            UiKit.LabelOf(_assistToggle).text = "Assisted taps (auto-pick platform): " + (data.AssistedMode ? "ON" : "OFF");
-            UiKit.LabelOf(_motionToggle).text = "Reduced motion: " + (data.ReducedMotion ? "ON" : "OFF");
-            UiKit.LabelOf(_fastToggle).text = "Fast trains: " + (data.FastTrains ? "ON" : "OFF");
+            UiKit.LabelOf(_assistToggle).text = Loc.F("Assisted taps (auto-pick platform): {0}", Loc.T(data.AssistedMode ? "ON" : "OFF"));
+            UiKit.LabelOf(_motionToggle).text = Loc.F("Reduced motion: {0}", Loc.T(data.ReducedMotion ? "ON" : "OFF"));
+            UiKit.LabelOf(_fastToggle).text = Loc.F("Fast trains: {0}", Loc.T(data.FastTrains ? "ON" : "OFF"));
+            UiKit.LabelOf(_languageToggle).text = Loc.F("Language: {0}", Loc.Language == Loc.Turkish ? "Türkçe" : "English");
             _app.Services.Save.Save();
         }
 
@@ -419,7 +467,7 @@ namespace MetroSort.Game
             OpenSettings(true);
         }
 
-        private void OpenSettings(bool inGame)
+        public void OpenSettings(bool inGame)
         {
             _settingsInGame = inGame;
             _resumeButton.gameObject.SetActive(inGame);
@@ -466,11 +514,12 @@ namespace MetroSort.Game
                 bool unlocked = s.Progression.IsUnlocked(id);
                 int stars = s.Progression.GetStars(id);
                 Color color = !unlocked ? new Color(0.70f, 0.73f, 0.78f) : (stars > 0 ? Palette.UiGreen : Palette.UiPrimary);
-                string label = id + "\n" + (stars > 0 ? new string('*', stars) : (unlocked ? " " : "locked"));
-                Button b = Btn(_levelsGrid, label, color, () => { _levels.SetActive(false); _app.Game.StartLevel(levelId); }, 118f, 118f, 34);
+                string label = id + "\n" + (stars > 0 ? new string('*', stars) : (unlocked ? " " : Loc.T("locked")));
+                Button b = Btn(_levelsGrid, label, color, () => { _levels.SetActive(false); _app.Game.StartLevel(levelId); }, 140f, 140f, 38);
                 b.interactable = unlocked;
             }
-            _levelsPageLabel.text = "Levels " + first + " - " + last;
+            // One page per chapter (metro line).
+            _levelsPageLabel.text = Loc.F("{0}  ({1}-{2})", Loc.T(Chapters.Names[Mathf.Min(_levelsPage, Chapters.Names.Length - 1)]), first, last);
             _levelsPrev.interactable = _levelsPage > 0;
             _levelsNext.interactable = _levelsPage < pages - 1;
         }
@@ -480,7 +529,7 @@ namespace MetroSort.Game
             int granted = _app.Services.Economy.ClaimDaily(EconomyManager.TodayNumber(DateTime.UtcNow));
             if (granted <= 0) return;
             _app.Audio.Play(Sfx.Coins);
-            Toast("Daily gift: +" + granted + " coins");
+            Toast(Loc.F("Daily gift: +{0} coins", granted));
         }
 
         private void WatchAdForCoins()
@@ -488,7 +537,7 @@ namespace MetroSort.Game
             _app.Services.AdsCoordinator.RequestRewardedCoins(ok =>
             {
                 if (ok) _app.Audio.Play(Sfx.Coins);
-                Toast(ok ? "+" + _app.Services.Config.RewardedAdCoins + " coins" : "No ad available right now");
+                Toast(ok ? Loc.F("+{0} coins", _app.Services.Config.RewardedAdCoins) : "No ad available right now");
             });
         }
 
@@ -511,7 +560,7 @@ namespace MetroSort.Game
 
         private void ShowWin(LevelResult result)
         {
-            _winCoins.text = "+" + result.CoinsAwarded + " coins";
+            _winCoins.text = Loc.F("+{0} coins", result.CoinsAwarded);
             _winAdButton.gameObject.SetActive(_app.Services.AdsCoordinator.IsRewardedReady);
             StopAllCoroutines();
             StartCoroutine(PopStars(result.Stars));
@@ -539,10 +588,10 @@ namespace MetroSort.Game
 
         private void ShowLose(LoseReason reason)
         {
-            _loseTitle.text = reason == LoseReason.OutOfMoves ? "Out of Moves" : "Station Jammed";
-            _loseReason.text = reason == LoseReason.OutOfMoves
+            _loseTitle.text = Loc.T(reason == LoseReason.OutOfMoves ? "Out of Moves" : "Station Jammed");
+            _loseReason.text = Loc.T(reason == LoseReason.OutOfMoves
                 ? "The move limit ran out before everyone boarded."
-                : "No passenger can reach a platform. Undo a move or try again.";
+                : "No passenger can reach a platform. Undo a move or try again.");
             Refresh();
         }
 
@@ -552,7 +601,7 @@ namespace MetroSort.Game
         {
             bool show = !string.IsNullOrEmpty(text);
             _tutorialBanner.SetActive(show);
-            if (show) _tutorialText.text = text;
+            if (show) _tutorialText.text = Loc.T(text);
         }
 
         public void SetPointer(bool on, Vector3 world)
@@ -564,7 +613,7 @@ namespace MetroSort.Game
 
         public void Toast(string message)
         {
-            _toastText.text = message;
+            _toastText.text = Loc.T(message);
             _toastUntil = Time.unscaledTime + 2.2f;
         }
 

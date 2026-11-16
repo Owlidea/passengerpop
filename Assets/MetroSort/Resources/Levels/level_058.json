@@ -23,6 +23,7 @@
   ],
   "bench": 0,
   "moveLimit": 0,
+  "visible": 0,
   "extraPlatforms": 1,
   "tutorial": "",
   "par": 21,

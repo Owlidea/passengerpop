@@ -1,0 +1,31 @@
+{
+  "id": 101,
+  "name": "Foggy Harbour",
+  "group": "Expert",
+  "stages": [
+    [
+      "YRGB",
+      "BRRY",
+      "RGRR",
+      "GBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 3,
+  "extraPlatforms": 1,
+  "tutorial": "mystery",
+  "par": 15,
+  "difficulty": 62.5
+}

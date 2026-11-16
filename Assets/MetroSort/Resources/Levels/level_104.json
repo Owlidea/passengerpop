@@ -1,0 +1,32 @@
+{
+  "id": 104,
+  "name": "Foggy Castle",
+  "group": "Expert",
+  "stages": [
+    [
+      "RRRB",
+      "RGRG",
+      "GYYB",
+      "BRY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 3,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 15,
+  "difficulty": 53.7
+}

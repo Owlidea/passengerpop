@@ -44,29 +44,30 @@ namespace MetroSort.Tests
         public IEnumerator Capture()
         {
             GameApp app = GameApp.Create(new InMemoryFileStore());
-            GameSettings.FastTrains = false;
             app.Services.Save.Data.HighestUnlocked = 9999;
             yield return null; yield return null;
-            app.Game.StartLevel(16);
-            yield return new WaitForSeconds(1.4f);
-            yield return Shot("idle");
-            Move first; PuzzleSolver.TryGetHint(app.Game.Board.State, out first); app.Game.TryMove(first);
-            yield return Shot("walk_0");
-            yield return Shot("walk_1");
-            yield return new WaitForSeconds(0.5f);
-            for (int i = 0; i < 4; i++)
+            yield return Shot("warmup");
+            foreach (int id in new[] { 101, 25, 45, 65, 85 })
+            {
+                app.Game.StartLevel(id);
+                yield return new WaitForSeconds(1.5f);
+                yield return Shot("level" + id);
+            }
+            // Reveal check: play three moves on a mystery level.
+            app.Game.StartLevel(102);
+            yield return new WaitForSeconds(1.2f);
+            for (int i = 0; i < 3; i++)
             {
                 Move m; PuzzleSolver.TryGetHint(app.Game.Board.State, out m);
                 while (app.Game.TryMove(m) == MoveError.PlatformBusy) yield return null;
-                yield return new WaitForSeconds(0.3f);
+                yield return new WaitForSeconds(0.5f);
             }
-            yield return new WaitForSeconds(0.25f);
-            yield return Shot("cheer");
-            yield return new WaitForSeconds(2.0f);
-            yield return Shot("level16");
-            app.Game.StartLevel(34);
-            yield return new WaitForSeconds(1.4f);
-            yield return Shot("level34");
+            yield return Shot("level102_after_moves");
+            app.GoToMenu();
+            yield return null;
+            app.UI.OpenLevels();
+            yield return new WaitForSeconds(0.4f);
+            yield return Shot("levels_page");
             Object.Destroy(app.gameObject);
             yield return null;
         }

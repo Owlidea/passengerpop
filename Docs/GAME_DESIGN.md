@@ -62,6 +62,7 @@ All are plain level-data fields; a level without them is a standard level.
 | Waiting bench | `bench` | Holds any colours; costs a move in and a move out |
 | Move limit | `moveLimit` | Lose when used up before everyone has boarded |
 | Multi-stage station | several entries in `stages` | Next wave arrives when the queues are empty |
+| Mystery queue | `visible: N` | Only the first N passengers of each queue show their line; the rest are grey with a question mark until they move up. Presentation only: rules and solver are unchanged |
 
 The express rule was changed during development: an express platform that accepted any colour made 76-94% of
 reachable states unwinnable in test levels, because a group of three split 2+1 can never finish. Reserving the
@@ -143,6 +144,18 @@ Stylised toy-like 3D generated entirely in code, with dark cartoon outlines for 
 - **Image**: warm key light with three-tone ambient, 4x MSAA, and a light URP post stack (slight saturation
   and contrast lift, faint bloom and vignette). Buttons have a darker lip for depth.
 Audio is synthesised at startup: 14 sound effects and an 8-bar seamless loop, with separate persisted volumes.
+
+## Chapters
+
+Levels are grouped into chapters of twenty, each a metro line with its own station colours (wall tiles, floor,
+queue lanes): Central, Old Town, Garden, Palace, Harbour and Misty. The level select shows one chapter per page.
+Themes are cosmetic and live in `Game/Station/Chapters.cs`.
+
+## Languages
+
+English and Turkish. The game follows the device language on first launch and the player can switch in
+Settings; the choice is saved. Text lives in one table (`Game/Utilities/Loc.cs`) keyed by the English string,
+so adding a language means adding one more table. Level names are translated too (curated names whole, generated names word by word).
 
 ## Assumptions made without asking
 

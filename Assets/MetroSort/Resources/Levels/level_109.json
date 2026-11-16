@@ -1,0 +1,33 @@
+{
+  "id": 109,
+  "name": "Foggy Granite",
+  "group": "Expert",
+  "stages": [
+    [
+      "RGRYGG",
+      "BRBYR",
+      "YBBGR",
+      "GGRBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "lockColor": "*",
+      "lockTrains": 1
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 64.0
+}

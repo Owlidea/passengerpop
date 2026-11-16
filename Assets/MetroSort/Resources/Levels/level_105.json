@@ -1,0 +1,33 @@
+{
+  "id": 105,
+  "name": "Foggy River",
+  "group": "Expert",
+  "stages": [
+    [
+      "BGRGY",
+      "YYRGB",
+      "BYYRY",
+      "RGRRB",
+      "GGBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3,
+      "uses": 4
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 24,
+  "difficulty": 61.7
+}
