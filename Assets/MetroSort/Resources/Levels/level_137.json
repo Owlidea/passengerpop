@@ -1,0 +1,33 @@
+{
+  "id": 137,
+  "name": "Midnight Forest",
+  "group": "Master",
+  "stages": [
+    [
+      "YGYYG",
+      "RGGYB",
+      "RRBGR",
+      "BYBRG",
+      "BYBRR"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 4,
+      "color": "R"
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 25,
+  "difficulty": 73.4
+}

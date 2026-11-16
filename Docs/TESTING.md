@@ -10,8 +10,8 @@ Environment: macOS, Unity 6.6 (6000.6.9f1) in batch mode, URP, Input System 1.20
 | Unity EditMode tests | **43 passed, 0 failed** |
 | Unity PlayMode tests | **5 passed, 0 failed** |
 | `dotnet test Tools/CoreTests` | **43 passed, 0 failed** |
-| `dotnet run --project Tools/LevelTool -- validate` | **120 checked, 0 failed** |
-| `python3 Tools/level_author.py` (independent rules mirror) | **120 levels, 0 failed**; state counts, minimum moves and dead-end ratios match the C# solver |
+| `dotnet run --project Tools/LevelTool -- validate` | **140 checked, 0 failed** |
+| `python3 Tools/level_author.py` (independent rules mirror) | **140 levels, 0 failed**; state counts, minimum moves and dead-end ratios match the C# solver |
 | `MetroSortProjectSetup.RunSetup` via `-executeMethod` | **Completed**: bootstrap scene, URP assets, shared material, economy config created |
 | Frames rendered from the running game at 1080x1920 | **Inspected**: `Docs/screenshots/` |
 | Android App Bundle build (batch mode) | **Succeeded**: `Builds/Android/MetroSort.aab` |
@@ -106,7 +106,7 @@ restart, and progress across a relaunch.
   performance of outlines and post-processing on a phone have not been checked.
 - **No device testing**: frame rate, memory, touch feel, safe-area layout and audio latency are unmeasured.
 - **Levels are not human-playtested.** They are proven winnable and ordered by a computed score only.
-- **All 120 levels are machine-generated and solver-selected**; none has been playtested by a person, and
+- **All 140 levels are machine-generated and solver-selected**; none has been playtested by a person, and
   levels 37-100 introduce mechanics in difficulty order rather than a hand-designed teaching order.
 - **TextMeshPro, Addressables and Animator controllers are not used** (see assumptions in `GAME_DESIGN.md`).
 - **Art and audio are procedural**: meshes built in code (with outlines and post-processing), synthesised sound. No prefabs or imported

@@ -126,5 +126,25 @@ no longer be won.
 | 118 | Foggy Sunset | Expert | 17 | 3 | 857 | 17 | 0.57 | 11 | 82.3 | yes |  |
 | 119 | Foggy Crystal | Expert | 20 | 3 | 1200 | 20 | 0.60 | 11 | 85.3 | yes |  |
 | 120 | Foggy Copper | Expert | 23 | 3 | 6891 | 23 | 0.46 | 16 | 92.7 | yes |  |
+| 121 | Midnight Harbour | Master | 24 | 3 | 6938 | 24 | 0.31 | 2 | 49.8 | yes |  |
+| 122 | Midnight Garden | Master | 21 | 3 | 1589 | 21 | 0.26 | 4 | 52.2 | yes |  |
+| 123 | Midnight Market | Master | 21 | 3 | 1622 | 21 | 0.26 | 4 | 52.3 | yes |  |
+| 124 | Midnight Castle | Master | 18 | 2 | 1771 | 18 | 0.29 | 1 | 54.9 | yes |  |
+| 125 | Midnight River | Master | 18 | 3 | 775 | 18 | 0.31 | 6 | 57.3 | yes |  |
+| 126 | Midnight Summit | Master | 22 | 3 | 4231 | 22 | 0.42 | 3 | 57.9 | yes |  |
+| 127 | Midnight Lantern | Master | 21 | 2 | 2897 | 21 | 0.28 | 3 | 61.8 | yes |  |
+| 128 | Midnight Willow | Master | 18 | 3 | 274 | 18 | 0.30 | 7 | 62.3 | yes |  |
+| 129 | Midnight Granite | Master | 21 | 2 | 2868 | 21 | 0.29 | 3 | 62.6 | yes |  |
+| 130 | Midnight Silver | Master | 21 | 3 | 272 | 21 | 0.31 | 8 | 66.7 | yes |  |
+| 131 | Midnight Meadow | Master | 20 | 4 | 34974 | 20 | 0.50 | 8 | 67.7 | yes |  |
+| 132 | Midnight Beacon | Master | 19 | 3 | 2834 | 19 | 0.45 | 8 | 69.5 | yes |  |
+| 133 | Midnight Orchard | Master | 23 | 4 | 152798 | 23 | 0.42 | 10 | 70.4 | yes |  |
+| 134 | Midnight Tower | Master | 17 | 4 | 16753 | 17 | 0.54 | 9 | 70.7 | yes |  |
+| 135 | Midnight Bridge | Master | 24 | 3 | 700 | 24 | 0.34 | 9 | 72.2 | yes |  |
+| 136 | Midnight Canal | Master | 21 | 3 | 285 | 21 | 0.39 | 9 | 73.4 | yes |  |
+| 137 | Midnight Forest | Master | 25 | 3 | 15495 | 25 | 0.36 | 10 | 73.4 | yes |  |
+| 138 | Midnight Sunset | Master | 18 | 2 | 1656 | 19 | 0.27 | 10 | 76.2 | yes |  |
+| 139 | Midnight Crystal | Master | 20 | 4 | 32515 | 20 | 0.61 | 11 | 79.9 | yes |  |
+| 140 | Midnight Copper | Master | 22 | 3 | 3272 | 22 | 0.40 | 13 | 82.1 | yes |  |
 
-120 levels, 0 failed.
+140 levels, 0 failed.

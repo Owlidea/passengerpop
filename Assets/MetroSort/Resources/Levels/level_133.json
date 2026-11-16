@@ -1,0 +1,38 @@
+{
+  "id": 133,
+  "name": "Midnight Orchard",
+  "group": "Master",
+  "stages": [
+    [
+      "BGGRG",
+      "GYRGR",
+      "YRBYG",
+      "YBYB",
+      "RBBY"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
+    {
+      "cap": 2,
+      "express": true,
+      "color": "R"
+    },
+    {
+      "cap": 3,
+      "uses": 2
+    }
+  ],
+  "bench": 0,
+  "moveLimit": 0,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 23,
+  "difficulty": 70.4
+}

@@ -1,0 +1,28 @@
+{
+  "id": 138,
+  "name": "Midnight Sunset",
+  "group": "Master",
+  "stages": [
+    [
+      "YBRBY",
+      "YBRBG",
+      "RGGR",
+      "RBRB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 21,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 19,
+  "difficulty": 76.2
+}

@@ -148,7 +148,7 @@ Audio is synthesised at startup: 14 sound effects and an 8-bar seamless loop, wi
 ## Chapters
 
 Levels are grouped into chapters of twenty, each a metro line with its own station colours (wall tiles, floor,
-queue lanes): Central, Old Town, Garden, Palace, Harbour and Misty. The level select shows one chapter per page.
+queue lanes): Central, Old Town, Garden, Palace, Harbour, Misty and Night. The level select shows one chapter per page.
 Themes are cosmetic and live in `Game/Station/Chapters.cs`.
 
 ## Languages

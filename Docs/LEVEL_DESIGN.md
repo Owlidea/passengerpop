@@ -53,6 +53,7 @@ One JSON file per level in `Assets/MetroSort/Resources/Levels/level_NNN.json`. N
 | 61-100 | Advanced | Combined mechanics (lock + VIP, express + temporary, stages + lock, bench + VIP, express + lock, stages + temporary), the four-passenger long platform, 5-6 colours, up to 30 passengers |
 
 | 101-120 | Expert | Mystery queues (`visible` 3, then 2) combined with locked, temporary and express platforms |
+| 121-140 | Master | Mystery queues (`visible` 2) combined with a second mechanic: VIP, two stages behind a locked platform, bench with a move limit, long platform, express plus temporary platform |
 
 Levels 37-100 come from `build_extra_specs()` in `Tools/level_author.py`. When a spec is too large to analyse
 completely or yields no winnable draft, the tool removes one train-load from the largest line and retries.

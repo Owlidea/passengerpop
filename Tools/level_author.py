@@ -360,8 +360,39 @@ def build_expert_specs():
     return specs
 
 
+def build_master_specs():
+    """Levels 121-140: mystery queues combined with a second mechanic (VIP, stages, bench, long, express)."""
+    places = ["Harbour", "Garden", "Market", "Castle", "River", "Summit", "Lantern", "Willow", "Granite", "Silver",
+              "Meadow", "Beacon", "Orchard", "Tower", "Bridge", "Canal", "Forest", "Sunset", "Crystal", "Copper"]
+    lock = lambda color, trains: {"cap": 3, "lockColor": color, "lockTrains": trains}
+    temp = lambda uses: {"cap": 3, "uses": uses}
+    express = lambda color: {"cap": 2, "express": True, "color": color}
+    long_p = lambda color: {"cap": 4, "color": color}
+    specs = []
+
+    def add(**kw):
+        kw["name"] = "Midnight " + places[len(specs) % len(places)]
+        kw["group"] = "Master"
+        kw["visible"] = 2
+        kw.setdefault("dead", (0.25, 0.68))
+        kw.setdefault("attempts", 40 if sum(kw["counts"]) <= 21 else 14)
+        specs.append(kw)
+
+    sizes = [[6, 6, 3, 3], [6, 6, 6, 3], [6, 6, 6, 3], [6, 6, 6, 6]]
+    for r in range(4):
+        counts = sizes[r]
+        queues = 4 if sum(counts) <= 21 else 5
+        add(counts=counts, queues=queues, platforms=P(3), vip=3 + r)
+        add(counts=counts, queues=queues, stages=2, platforms=P(2, lock("*", 1)))
+        add(counts=[6, 6, 3, 3] if r < 2 else [6, 6, 6, 3], queues=4, platforms=P(2), bench=1, move_slack=2)
+        add(counts=[7] + counts[1:], queues=queues, platforms=P(2, long_p("R")))
+        add(counts=[5] + counts[1:], queues=queues, platforms=P(2, express("R"), temp(2)))
+    return specs
+
+
 SPECS.extend(build_extra_specs())
 SPECS.extend(build_expert_specs())
+SPECS.extend(build_master_specs())
 
 
 def draft_one(job):
@@ -401,7 +432,7 @@ def main():
                 data = json.load(f)
             level = {"stages": data["stages"], "platforms": data["platforms"], "bench": data.get("bench", 0), "moveLimit": data.get("moveLimit", 0)}
             a = analyze(level)
-            entries[i] = {"spec": dict(spec, name=data["name"]), "level": level, "a": a, "in_band": True, "difficulty": difficulty(level, a), "kept": True}
+            entries[i] = {"spec": dict(spec, name=data["name"], visible=data.get("visible", 0), tutorial=data.get("tutorial", "")), "level": level, "a": a, "in_band": True, "difficulty": difficulty(level, a), "kept": True}
         elif "hand" in spec:
             level = {"stages": [spec["hand"]], "platforms": spec["platforms"], "bench": spec.get("bench", 0)}
             a = analyze(level)
@@ -421,7 +452,7 @@ def main():
 
     # Curate each generated group: order by measured difficulty so the curve rises, keeping planned names in place.
     # Levels kept from disk are never moved.
-    for group in ("Basic", "Intermediate", "Advanced", "Expert"):
+    for group in ("Basic", "Intermediate", "Advanced", "Expert", "Master"):
         idx = [i for i, e in enumerate(entries) if e["spec"]["group"] == group and not e.get("kept") and not e["spec"].get("tutorial")]
         ordered = sorted((entries[i] for i in idx), key=lambda e: e["difficulty"])
         names = [entries[i]["spec"]["name"] for i in idx]

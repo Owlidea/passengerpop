@@ -1,0 +1,28 @@
+{
+  "id": 129,
+  "name": "Midnight Granite",
+  "group": "Master",
+  "stages": [
+    [
+      "YRGGRB",
+      "RBRBY",
+      "GRBGY",
+      "RGGBB"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 23,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 21,
+  "difficulty": 62.6
+}

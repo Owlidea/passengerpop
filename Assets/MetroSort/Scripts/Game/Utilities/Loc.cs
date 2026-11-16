@@ -99,10 +99,10 @@ namespace MetroSort.Game
             { "name:Central", "Merkez" }, { "name:Crossing", "Geçidi" }, { "name:Depot", "Deposu" }, { "name:Gate", "Kapısı" },
             { "name:Halt", "Durağı" }, { "name:Interchange", "Aktarması" }, { "name:Junction", "Kavşağı" }, { "name:Loop", "Ringi" },
             { "All levels unlocked for testing", "Test için tüm seviyeler açıldı" },
-            { "name:Parkway", "Bulvarı" }, { "name:Terminal", "Terminali" }, { "name:Foggy", "Sisli" },
+            { "name:Parkway", "Bulvarı" }, { "name:Terminal", "Terminali" }, { "name:Foggy", "Sisli" }, { "name:Midnight", "Geceyarısı" },
             // Chapters
             { "Central Line", "Merkez Hattı" }, { "Old Town Line", "Eski Şehir Hattı" }, { "Garden Line", "Bahçe Hattı" },
-            { "Palace Line", "Saray Hattı" }, { "Harbour Line", "Liman Hattı" }, { "Misty Line", "Sisli Hat" },
+            { "Palace Line", "Saray Hattı" }, { "Harbour Line", "Liman Hattı" }, { "Misty Line", "Sisli Hat" }, { "Night Line", "Gece Hattı" },
             { "{0}  ({1}-{2})", "{0}  ({1}-{2})" },
             { "Grey passengers hide their line until they move up the queue.", "Gri yolcuların hattı, kuyrukta öne gelene kadar gizlidir." },
 

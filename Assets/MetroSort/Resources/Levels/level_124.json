@@ -1,0 +1,28 @@
+{
+  "id": 124,
+  "name": "Midnight Castle",
+  "group": "Master",
+  "stages": [
+    [
+      "BYBRY",
+      "RYBGR",
+      "RRBG",
+      "RBBG"
+    ]
+  ],
+  "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    }
+  ],
+  "bench": 1,
+  "moveLimit": 20,
+  "visible": 2,
+  "extraPlatforms": 1,
+  "tutorial": "",
+  "par": 18,
+  "difficulty": 54.9
+}
