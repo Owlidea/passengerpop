@@ -54,7 +54,7 @@ namespace MetroSort.Game
         private readonly System.Collections.Generic.List<Slots> _slots = new System.Collections.Generic.List<Slots>();
         private readonly GameObject[] _hats = new GameObject[ColorCodes.Count];
         private readonly GameObject[] _hairStyles = new GameObject[5];
-        private GameObject _skirt, _moustache, _lashes, _eyesOpen, _eyesClosed, _halo, _mysteryMark;
+        private GameObject _glow, _skirt, _moustache, _lashes, _eyesOpen, _eyesClosed, _halo, _mysteryMark;
         private Color _skin, _hair, _lower, _legs, _mouth;
         private bool _eyesShut;
         private float _base = BaseScale;
@@ -89,6 +89,11 @@ namespace MetroSort.Game
         {
             _visual = new GameObject("Visual").transform;
             _visual.SetParent(transform, false);
+
+            // Soft glow on the floor under a picked-up passenger.
+            _glow = Prims.Make(PrimitiveType.Cylinder, transform, new Vector3(0f, 0.02f, 0f), new Vector3(1.05f, 0.008f, 1.05f), Palette.HintGlow, "SelectGlow");
+            Prims.NoShadow(_glow);
+            _glow.SetActive(false);
 
             if (_prefab == null) _prefab = Resources.Load<GameObject>(ModelPath);
             if (_prefab == null)
@@ -328,7 +333,7 @@ namespace MetroSort.Game
         }
 
         public void Bounce() { _bounce = 1f; }
-        public void Shake() { _shake = 1f; }
+        public void Shake() { _shake = 1f; Haptics.Thump(); }
         public void Celebrate() { _celebrate = 1f; }
 
         private void Update()
@@ -390,6 +395,14 @@ namespace MetroSort.Game
             float jump = calm ? 0f : Mathf.Abs(Mathf.Sin(_celebrate * Mathf.PI * 2f)) * 0.35f * _celebrate;
             float boardScale = _boarding ? Mathf.Lerp(1f, 0.40f, Ease.Smooth(_t)) : 1f;
             float s = _scale * spawnScale * boardScale * _base;
+
+            bool picked = Selected || Held;
+            if (_glow.activeSelf != picked) _glow.SetActive(picked);
+            if (picked)
+            {
+                float pulse = calm ? 1f : 1f + Mathf.Sin(time * 6f) * 0.08f;
+                _glow.transform.localScale = new Vector3(1.05f * pulse, 0.008f, 1.05f * pulse);
+            }
 
             // Body motion comes from the model's clips; this picks which one plays.
             bool cheering = _celebrate > 0.02f && !calm;

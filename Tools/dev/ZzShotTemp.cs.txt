@@ -49,7 +49,9 @@ namespace MetroSort.Tests
                 while (app.Game.TryMove(m) == MoveError.PlatformBusy) yield return null;
                 yield return new WaitForSeconds(0.3f);
             }
-            yield return new WaitForSeconds(0.25f);
+            yield return new WaitForSeconds(0.02f);
+            yield return Shot("match");
+            yield return new WaitForSeconds(0.05f);
             yield return Shot("train_a");
             yield return new WaitForSeconds(0.5f);
             yield return Shot("train_b");

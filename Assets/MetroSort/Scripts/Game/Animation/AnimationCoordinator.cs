@@ -84,6 +84,7 @@ namespace MetroSort.Game
                         {
                             if (epoch != _epoch) return;
                             _audio.Play(Sfx.Step);
+                            Haptics.Tap();
                             if (!GameSettings.ReducedMotion) Puff.Burst(_pool, target + new Vector3(0f, 0.05f, 0f), 2, 0.12f);
                             _active--;
                             CheckIdle();
@@ -119,6 +120,24 @@ namespace MetroSort.Game
             CheckIdle();
         }
 
+        /// <summary>Level complete: confetti rains across the whole station for a moment.</summary>
+        public void WinShower()
+        {
+            Haptics.Success();
+            if (!GameSettings.ReducedMotion) StartCoroutine(Shower(_epoch));
+        }
+
+        private IEnumerator Shower(int epoch)
+        {
+            for (int i = 0; i < 9 && epoch == _epoch; i++)
+            {
+                Vector3 at = new Vector3(UnityEngine.Random.Range(-4.5f, 4.5f), 5.5f, UnityEngine.Random.Range(-1f, 6f));
+                Fx.Confetti(at, Palette.Lines[i % Palette.Lines.Length], 26, 3.2f, 1.5f);
+                if (i % 3 == 0) Fx.Sparkle(at + Vector3.down * 2.5f, Palette.Gold, 10, 4f);
+                yield return new WaitForSeconds(0.16f);
+            }
+        }
+
         private void CheckIdle()
         {
             if (_active > 0 || _pendingEnd == null) return;
@@ -150,7 +169,13 @@ namespace MetroSort.Game
             _audio.Play(Sfx.Match);
             platform.Pulse();
             foreach (PassengerView v in riders) v.Celebrate();
-            if (!GameSettings.ReducedMotion) Confetti.Burst(_pool, platform.transform.position + Vector3.up * 1.2f, Palette.Line(e.Color), 22);
+            Color line = Palette.Line(e.Color);
+            Vector3 centre = platform.transform.position;
+            Fx.Confetti(centre + Vector3.up * 1.2f, line, 44);
+            Fx.Ring(centre + Vector3.up * 0.32f, line, platform.Width + 2.4f);
+            Fx.Sparkle(centre + Vector3.up * 1.0f, line, 14);
+            Haptics.Thump();
+            if (!GameSettings.ReducedMotion) _station.Shake(0.04f);
 
             // One train per track at a time: later trains wait for the line to clear instead of driving through.
             int track = Mathf.RoundToInt(platform.TrainStop.z * 10f);
@@ -258,94 +283,21 @@ namespace MetroSort.Game
         }
     }
 
-    /// <summary>Pooled confetti made of small cubes; no particle shaders required.</summary>
-    public sealed class Confetti : MonoBehaviour
+    /// <summary>Confetti bursts (see Fx). The pool argument is kept for callers and no longer used.</summary>
+    public static class Confetti
     {
-        private const string PoolKey = "confetti";
-        private Vector3 _velocity;
-        private Vector3 _spin;
-        private float _life;
-        private ObjectPoolManager _pool;
-
         public static void Burst(ObjectPoolManager pool, Vector3 origin, Color color, int count)
         {
-            for (int i = 0; i < count; i++)
-            {
-                GameObject go = pool.Get(PoolKey, Create);
-                go.transform.SetParent(pool.transform, false);
-                go.transform.position = origin;
-                Color c = i % 3 == 0 ? Color.white : (i % 3 == 1 ? color : Palette.Gold);
-                Prims.SetColor(go, c);
-                var piece = go.GetComponent<Confetti>();
-                piece._pool = pool;
-                piece._life = 0.9f + UnityEngine.Random.value * 0.4f;
-                piece._velocity = new Vector3(UnityEngine.Random.Range(-2.6f, 2.6f), UnityEngine.Random.Range(3.5f, 6.5f), UnityEngine.Random.Range(-1.6f, 1.6f));
-                piece._spin = UnityEngine.Random.onUnitSphere * 540f;
-            }
-        }
-
-        private static GameObject Create()
-        {
-            GameObject go = Prims.Make(PrimitiveType.Cube, null, Vector3.zero, new Vector3(0.14f, 0.14f, 0.03f), Color.white, "Confetti");
-            Prims.NoShadow(go);
-            go.AddComponent<Confetti>();
-            return go;
-        }
-
-        private void Update()
-        {
-            if (_pool == null) { Destroy(gameObject); return; }
-            float dt = Time.deltaTime;
-            _velocity.y -= 12f * dt;
-            transform.position += _velocity * dt;
-            transform.Rotate(_spin * dt);
-            _life -= dt;
-            if (_life <= 0f || transform.position.y < 0f) _pool.Release(PoolKey, gameObject);
+            Fx.Confetti(origin, color, count);
         }
     }
 
-    /// <summary>Pooled dust/steam puffs: small pale spheres that drift, swell and vanish.</summary>
-    public sealed class Puff : MonoBehaviour
+    /// <summary>Dust and steam puffs (see Fx). The pool argument is kept for callers and no longer used.</summary>
+    public static class Puff
     {
-        private const string PoolKey = "puff";
-        private Vector3 _velocity;
-        private float _life, _maxLife, _size;
-        private ObjectPoolManager _pool;
-
         public static void Burst(ObjectPoolManager pool, Vector3 origin, int count, float spread)
         {
-            for (int i = 0; i < count; i++)
-            {
-                GameObject go = pool.Get(PoolKey, Create);
-                go.transform.SetParent(pool.transform, false);
-                go.transform.position = origin + new Vector3(UnityEngine.Random.Range(-spread, spread), 0f, UnityEngine.Random.Range(-0.1f, 0.1f));
-                go.transform.localScale = Vector3.zero;
-                var puff = go.GetComponent<Puff>();
-                puff._pool = pool;
-                puff._maxLife = puff._life = 0.45f + UnityEngine.Random.value * 0.25f;
-                puff._size = 0.22f + UnityEngine.Random.value * 0.16f;
-                puff._velocity = new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(0.5f, 1.1f), UnityEngine.Random.Range(-0.6f, -0.1f));
-            }
-        }
-
-        private static GameObject Create()
-        {
-            GameObject go = Prims.Make(PrimitiveType.Sphere, null, Vector3.zero, Vector3.one * 0.2f, new Color(0.96f, 0.97f, 1f), "Puff");
-            Prims.NoShadow(go);
-            go.AddComponent<Puff>();
-            return go;
-        }
-
-        private void Update()
-        {
-            if (_pool == null) { Destroy(gameObject); return; }
-            float dt = Time.deltaTime;
-            _life -= dt;
-            if (_life <= 0f) { _pool.Release(PoolKey, gameObject); return; }
-            _velocity *= 1f - Mathf.Min(1f, 2.5f * dt);
-            transform.position += _velocity * dt;
-            float k = _life / _maxLife; // 1 -> 0
-            transform.localScale = Vector3.one * (_size * (0.5f + 0.5f * (1f - k)) * Mathf.Clamp01(k * 2.5f));
+            Fx.Dust(origin, count + 1, spread);
         }
     }
 }

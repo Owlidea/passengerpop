@@ -152,6 +152,7 @@ namespace MetroSort.Game
             p["stars"] = stars;
             Track(AnalyticsEvents.LevelCompleted, p);
             _app.Audio.Play(Sfx.LevelComplete);
+            _app.Anim.WinShower();
             _app.States.Set(AppState.LevelComplete);
             if (LevelWon != null) LevelWon(result);
         }

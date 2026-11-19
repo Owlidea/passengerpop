@@ -587,6 +587,8 @@ namespace MetroSort.Game
         private void ShowWin(LevelResult result)
         {
             _winCoins.text = Loc.F("+{0} coins", result.CoinsAwarded);
+            foreach (GameObject stray in _flying) if (stray != null) Destroy(stray);
+            _flying.Clear();
             _winAdButton.gameObject.SetActive(_app.Services.AdsCoordinator.IsRewardedReady);
             StopAllCoroutines();
             StartCoroutine(PopStars(result.Stars));
@@ -602,7 +604,11 @@ namespace MetroSort.Game
             if (GameSettings.ReducedMotion) yield break;
             for (int i = 0; i < 3; i++)
             {
-                if (i < earned) _app.Audio.Play(Sfx.Coins);
+                if (i < earned)
+                {
+                    _app.Audio.Play(Sfx.Coins);
+                    StartCoroutine(StarBurst(_winStars[i].rectTransform.position));
+                }
                 for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.22f)
                 {
                     _winStars[i].rectTransform.localScale = Vector3.one * Ease.OutBack(t);
@@ -610,6 +616,91 @@ namespace MetroSort.Game
                 }
                 _winStars[i].rectTransform.localScale = Vector3.one;
             }
+            yield return FlyCoins();
+        }
+
+        private readonly System.Collections.Generic.List<GameObject> _flying = new System.Collections.Generic.List<GameObject>();
+
+        private Image Floating(string icon, Vector3 position, float size)
+        {
+            Image img = UiKit.AddIcon(_root.parent, icon, size);
+            img.rectTransform.position = position;
+            _flying.Add(img.gameObject);
+            return img;
+        }
+
+        /// <summary>Little stars fly out of a win star as it lands.</summary>
+        private IEnumerator StarBurst(Vector3 centre)
+        {
+            const int count = 8;
+            float unit = _root.lossyScale.x;
+            var pieces = new Image[count];
+            var dirs = new Vector2[count];
+            for (int i = 0; i < count; i++)
+            {
+                float a = (i + 0.5f) / count * Mathf.PI * 2f;
+                dirs[i] = new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * (150f + (i % 2) * 60f) * unit;
+                pieces[i] = Floating("star", centre, 46f);
+            }
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.5f)
+            {
+                float e = Ease.OutCubic(t);
+                for (int i = 0; i < count; i++)
+                {
+                    if (pieces[i] == null) yield break;
+                    pieces[i].rectTransform.position = centre + (Vector3)(dirs[i] * e);
+                    pieces[i].rectTransform.localScale = Vector3.one * (1f - t);
+                    pieces[i].rectTransform.localRotation = Quaternion.Euler(0f, 0f, t * 180f);
+                }
+                yield return null;
+            }
+            foreach (Image piece in pieces) if (piece != null) Destroy(piece.gameObject);
+        }
+
+        /// <summary>The level reward flies from the win card up to the coin counter.</summary>
+        private IEnumerator FlyCoins()
+        {
+            const int count = 9;
+            float unit = _root.lossyScale.x;
+            Vector3 from = _winCoins.rectTransform.position;
+            RectTransform pill = (RectTransform)_hudCoins.transform.parent;
+            Vector3 to = pill.position + new Vector3(-pill.rect.width * 0.5f * unit, 0f, 0f);
+            for (int i = 0; i < count; i++) StartCoroutine(FlyCoin(from, to, i * 0.06f, unit));
+            yield return new WaitForSecondsRealtime(0.55f + count * 0.06f);
+        }
+
+        private IEnumerator FlyCoin(Vector3 from, Vector3 to, float delay, float unit)
+        {
+            Image coin = Floating("coin", from, 78f);
+            coin.rectTransform.localScale = Vector3.zero;
+            Vector3 scatter = from + new Vector3(UnityEngine.Random.Range(-170f, 170f), UnityEngine.Random.Range(-60f, 110f), 0f) * unit;
+            yield return new WaitForSecondsRealtime(delay);
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.22f)
+            {
+                if (coin == null) yield break;
+                coin.rectTransform.position = Vector3.LerpUnclamped(from, scatter, Ease.OutCubic(t));
+                coin.rectTransform.localScale = Vector3.one * Ease.OutBack(t);
+                yield return null;
+            }
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.42f)
+            {
+                if (coin == null) yield break;
+                float e = Ease.InCubic(t);
+                coin.rectTransform.position = Vector3.LerpUnclamped(scatter, to, e);
+                coin.rectTransform.localScale = Vector3.one * Mathf.Lerp(1f, 0.6f, e);
+                yield return null;
+            }
+            if (coin == null) yield break;
+            Destroy(coin.gameObject);
+            _app.Audio.Play(Sfx.Coins);
+            Haptics.Tap();
+            RectTransform pill = (RectTransform)_hudCoins.transform.parent;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.12f)
+            {
+                pill.localScale = Vector3.one * (1f + Mathf.Sin(t * Mathf.PI) * 0.12f);
+                yield return null;
+            }
+            pill.localScale = Vector3.one;
         }
 
         private void ShowLose(LoseReason reason)

@@ -41,6 +41,7 @@ namespace MetroSort.EditorTools
             Step("URP pipeline", SetupUrp);
             Step("shared material", CreateSharedMaterial);
             Step("outline material", CreateOutlineMaterial);
+            Step("particle material", CreateParticleMaterial);
             Step("economy config", CreateEconomyConfig);
             Step("bootstrap scene", CreateBootstrapScene);
             Directory.CreateDirectory(Path.GetDirectoryName(MarkerPath));
@@ -161,6 +162,17 @@ namespace MetroSort.EditorTools
         }
 
         /// <summary>Stored in Resources so the URP Unlit shader used for cartoon outlines ships in player builds.</summary>
+        /// <summary>Material for the particle effects (Fx); kept in Resources so its shader ships with builds.</summary>
+        public static void CreateParticleMaterial()
+        {
+            string path = Root + "/Resources/MetroSortParticle.mat";
+            if (AssetDatabase.LoadAssetAtPath<Material>(path) != null) return;
+            Shader shader = Shader.Find("Sprites/Default");
+            if (shader == null) return;
+            AssetDatabase.CreateAsset(new Material(shader), path);
+            AssetDatabase.SaveAssets();
+        }
+
         public static void CreateOutlineMaterial()
         {
             string path = Root + "/Resources/MetroSortOutline.mat";
