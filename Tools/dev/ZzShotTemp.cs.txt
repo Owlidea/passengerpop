@@ -1,0 +1,60 @@
+using System.Collections;
+using System.IO;
+using MetroSort.Game;
+using MetroSort.Persistence;
+using MetroSort.Puzzle;
+using UnityEngine;
+using UnityEngine.TestTools;
+
+namespace MetroSort.Tests
+{
+    // Development helper: copy into Assets/MetroSort/Tests/PlayMode as .cs, run the PlayMode tests filtered to
+    // ZzShotTemp, then convert Logs/shots/*.rgb (raw 1080x1920 RGB24, bottom-up) to PNG. Needs no extra modules.
+    public class ZzShotTemp
+    {
+        private static IEnumerator Shot(string name)
+        {
+            yield return null;
+            Camera cam = GameApp.Instance.Station.Cam;
+            int w = 1080, h = 1920;
+            var rt = new RenderTexture(w, h, 24);
+            cam.targetTexture = rt;
+            yield return null;
+            cam.Render();
+            RenderTexture.active = rt;
+            var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+            tex.Apply();
+            RenderTexture.active = null;
+            cam.targetTexture = null;
+            Directory.CreateDirectory("Logs/shots");
+            File.WriteAllBytes("Logs/shots/" + name + ".rgb", tex.GetRawTextureData());
+            Debug.Log("SHOT " + name);
+        }
+
+        [UnityTest]
+        public IEnumerator Capture()
+        {
+            GameApp app = GameApp.Create(new InMemoryFileStore());
+            GameSettings.FastTrains = false;
+            app.Services.Save.Data.HighestUnlocked = 9999;
+            yield return null; yield return null;
+            app.Game.StartLevel(16);
+            yield return new WaitForSeconds(1.6f);
+            foreach (Canvas c in Object.FindObjectsByType<Canvas>()) c.enabled = false;
+            yield return Shot("idle");
+            for (int i = 0; i < 5; i++)
+            {
+                Move m; PuzzleSolver.TryGetHint(app.Game.Board.State, out m);
+                while (app.Game.TryMove(m) == MoveError.PlatformBusy) yield return null;
+                yield return new WaitForSeconds(0.3f);
+            }
+            yield return new WaitForSeconds(0.25f);
+            yield return Shot("train_a");
+            yield return new WaitForSeconds(0.5f);
+            yield return Shot("train_b");
+            Object.Destroy(app.gameObject);
+            yield return null;
+        }
+    }
+}

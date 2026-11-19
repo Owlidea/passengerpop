@@ -20,6 +20,7 @@ namespace MetroSort.Game
     public sealed class UIManager : MonoBehaviour
     {
         private static readonly string[] BoosterNames = { "Undo", "Hint", "+Platform", "Shuffle" };
+        private static readonly string[] BoosterIcons = { "undo", "hint", "platform", "shuffle" };
         private static readonly Color[] BoosterColors =
         {
             new Color(0.22f, 0.62f, 0.95f), new Color(0.96f, 0.62f, 0.20f), new Color(0.30f, 0.78f, 0.47f), new Color(0.62f, 0.42f, 0.86f)
@@ -114,12 +115,12 @@ namespace MetroSort.Game
 
         private Text CoinPill(Transform parent, float ax, float ay, float x, float y)
         {
-            Image pill = UiKit.MakeImage(parent, "Coins", UiKit.Rounded, new Color(1f, 1f, 1f, 0.95f));
+            Image pill = UiKit.MakeImage(parent, "Coins", UiKit.Card, Color.white);
+            pill.pixelsPerUnitMultiplier = 1.5f;
             UiKit.Place(pill.rectTransform, ax, ay, x, y, 250f, 92f);
-            Image coin = UiKit.MakeImage(pill.transform, "Coin", UiKit.Circle, Palette.Gold);
-            UiKit.Place(coin.rectTransform, 0f, 0.5f, 16f, 0f, 60f, 60f);
+            UiKit.AddIcon(pill.transform, "coin", 96f, 0f, 0.5f, 34f, 2f);
             Text text = UiKit.MakeText(pill.transform, "0", 44, Palette.UiInk, TextAnchor.MiddleRight);
-            UiKit.Stretch(text.rectTransform, 84f, 0f, 24f, 0f);
+            UiKit.Stretch(text.rectTransform, 84f, 6f, 26f, 0f);
             return text;
         }
 
@@ -128,7 +129,8 @@ namespace MetroSort.Game
             RectTransform menu = UiKit.Stretch(UiKit.MakeRect("Menu", _root));
             _menu = menu.gameObject;
 
-            Image plate = UiKit.MakeImage(menu, "TitlePlate", UiKit.Rounded, new Color(1f, 1f, 1f, 0.94f));
+            Image plate = UiKit.MakeImage(menu, "TitlePlate", UiKit.ButtonSprite, Palette.UiPrimary);
+            plate.pixelsPerUnitMultiplier = 0.6f;
             UiKit.Place(plate.rectTransform, 0.5f, 1f, 0f, -190f, 880f, 300f);
             // Tester shortcut: seven quick taps on the title unlock every level. Remove before a public release.
             plate.raycastTarget = true;
@@ -146,20 +148,27 @@ namespace MetroSort.Game
                 Refresh();
                 Toast("All levels unlocked for testing");
             });
-            Text title = UiKit.MakeText(plate.transform, "METRO SORT", 108, Palette.UiInk);
-            UiKit.Stretch(title.rectTransform, 20f, 90f, 20f, 20f);
+            Text title = UiKit.MakeText(plate.transform, "METRO SORT", 116, Color.white);
+            UiKit.Stretch(title.rectTransform, 20f, 104f, 20f, 16f);
+            UiKit.Emboss(title, new Color(0.06f, 0.20f, 0.46f, 0.95f));
+            title.GetComponent<Outline>().effectDistance = new Vector2(4f, -4f);
+            Image strip = UiKit.MakeImage(plate.transform, "LineStrip", UiKit.Rounded, Color.white);
+            UiKit.Place(strip.rectTransform, 0.5f, 0f, 0f, 44f, 520f, 76f);
             for (int i = 0; i < Palette.Lines.Length; i++)
             {
                 Image dot = UiKit.MakeImage(plate.transform, "Line" + i, UiKit.Circle, Palette.Lines[i]);
-                UiKit.Place(dot.rectTransform, 0.5f, 0f, (i - 2.5f) * 76f, 62f, 46f, 46f);
+                UiKit.Place(dot.rectTransform, 0.5f, 0f, (i - 2.5f) * 76f, 82f, 46f, 46f);
                 dot.rectTransform.pivot = new Vector2(0.5f, 0.5f);
             }
 
-            Button settings = Btn(menu, "Settings", Palette.UiInk, () => OpenSettings(false), 250f, 92f, 38);
-            UiKit.Place((RectTransform)settings.transform, 0f, 1f, 30f, -40f, 250f, 92f);
+            Button settings = Btn(menu, "", Palette.UiPrimary, () => OpenSettings(false), 112f, 108f, 38);
+            settings.name = "Button_Settings";
+            UiKit.Place((RectTransform)settings.transform, 0f, 1f, 30f, -32f, 112f, 108f);
+            UiKit.AddIcon(settings.transform, "gear", 80f, 0.5f, 0.5f, 0f, 5f);
             _menuCoins = CoinPill(menu, 1f, 1f, -30f, -40f);
 
-            Image levelPill = UiKit.MakeImage(menu, "LevelPill", UiKit.Rounded, new Color(1f, 1f, 1f, 0.94f));
+            Image levelPill = UiKit.MakeImage(menu, "LevelPill", UiKit.Card, Color.white);
+            levelPill.pixelsPerUnitMultiplier = 1.5f;
             UiKit.Place(levelPill.rectTransform, 0.5f, 0f, 0f, 545f, 760f, 84f);
             _menuLevel = UiKit.MakeText(levelPill.transform, "", 40, Palette.UiInk);
             UiKit.Stretch(_menuLevel.rectTransform, 16f, 0f, 16f, 0f);
@@ -173,6 +182,13 @@ namespace MetroSort.Game
             UiKit.Place((RectTransform)shop.transform, 0.5f, 0f, 0f, 150f, 300f, 130f);
             _dailyButton = Btn(menu, "Daily Gift", new Color(0.96f, 0.62f, 0.20f), OnDaily, 300f, 130f);
             UiKit.Place((RectTransform)_dailyButton.transform, 0.5f, 0f, 330f, 150f, 300f, 130f);
+            Button[] small = { levels, shop, _dailyButton };
+            string[] smallIcons = { "levels", "shop", "gift" };
+            for (int i = 0; i < small.Length; i++)
+            {
+                UiKit.AddIcon(small[i].transform, smallIcons[i], 92f, 0f, 0.5f, 62f, 6f);
+                UiKit.Stretch(UiKit.LabelOf(small[i]).rectTransform, 112f, 16f, 14f, 6f);
+            }
         }
 
         private void BuildHud()
@@ -180,10 +196,12 @@ namespace MetroSort.Game
             RectTransform hud = UiKit.Stretch(UiKit.MakeRect("Hud", _root));
             _hud = hud.gameObject;
 
-            Image bar = UiKit.MakeImage(hud, "TopBar", UiKit.Rounded, new Color(1f, 1f, 1f, 0.94f));
+            Image bar = UiKit.MakeImage(hud, "TopBar", UiKit.Card, Color.white);
             UiKit.Place(bar.rectTransform, 0.5f, 1f, 0f, -30f, 1020f, 170f);
-            Button pause = Btn(bar.transform, "II", Palette.UiInk, OnPause, 110f, 110f, 54);
-            UiKit.Place((RectTransform)pause.transform, 0f, 0.5f, 26f, 0f, 110f, 110f);
+            Button pause = Btn(bar.transform, "", Palette.UiPrimary, OnPause, 112f, 112f, 54);
+            pause.name = "Button_Pause";
+            UiKit.Place((RectTransform)pause.transform, 0f, 0.5f, 26f, 2f, 112f, 112f);
+            UiKit.AddIcon(pause.transform, "pause", 78f, 0.5f, 0.5f, 0f, 5f);
             _hudTitle = UiKit.MakeText(bar.transform, "", 50, Palette.UiInk);
             UiKit.Place(_hudTitle.rectTransform, 0.5f, 1f, -20f, -14f, 560f, 72f);
             _hudProgress = UiKit.MakeText(bar.transform, "", 36, new Color(0.38f, 0.42f, 0.52f));
@@ -198,15 +216,17 @@ namespace MetroSort.Game
                 // Booster buttons play their own success/failure sounds, so no generic click here.
                 Button b = UiKit.MakeButton(hud, BoosterNames[i], BoosterColors[i], () => action(), 235f, 170f, 42);
                 UiKit.Place((RectTransform)b.transform, 0.5f, 0f, (i - 1.5f) * 255f, 40f, 235f, 170f);
-                UiKit.Stretch(UiKit.LabelOf(b).rectTransform, 10f, 66f, 10f, 12f);
-                Image badge = UiKit.MakeImage(b.transform, "Badge", UiKit.Rounded, new Color(0f, 0f, 0f, 0.22f));
-                UiKit.Stretch(badge.rectTransform, 22f, 14f, 22f, 106f);
+                // The icon says what the booster is; its name stays on the object for tools and tests.
+                UiKit.LabelOf(b).gameObject.SetActive(false);
+                UiKit.AddIcon(b.transform, BoosterIcons[i], 112f, 0.5f, 0.5f, 0f, 26f);
+                Image badge = UiKit.MakeImage(b.transform, "Badge", UiKit.Rounded, new Color(0f, 0f, 0f, 0.26f));
+                UiKit.Stretch(badge.rectTransform, 22f, 20f, 22f, 104f);
                 _boosterBadges[i] = UiKit.MakeText(badge.transform, "", 32, Color.white);
                 UiKit.Stretch(_boosterBadges[i].rectTransform);
                 _boosterButtons[i] = b;
             }
 
-            Image banner = UiKit.MakeImage(hud, "Tutorial", UiKit.Rounded, new Color(1f, 1f, 1f, 0.96f));
+            Image banner = UiKit.MakeImage(hud, "Tutorial", UiKit.Card, Color.white);
             UiKit.Place(banner.rectTransform, 0.5f, 0f, 0f, 232f, 990f, 116f);
             _tutorialText = UiKit.MakeText(banner.transform, "", 38, Palette.UiInk);
             UiKit.Stretch(_tutorialText.rectTransform, 26f, 8f, 26f, 8f);
@@ -331,8 +351,9 @@ namespace MetroSort.Game
             stars.sizeDelta = new Vector2(780f, 180f);
             for (int i = 0; i < 3; i++)
             {
-                _winStars[i] = UiKit.MakeImage(stars, "Star" + i, UiKit.Star, Palette.Gold);
-                UiKit.Place(_winStars[i].rectTransform, 0.5f, 0.5f, (i - 1) * 200f, i == 1 ? 14f : 0f, 170f, 170f);
+                _winStars[i] = UiKit.MakeImage(stars, "Star" + i, UiKit.Icon("star"), Color.white);
+                _winStars[i].preserveAspect = true;
+                UiKit.Place(_winStars[i].rectTransform, 0.5f, 0.5f, (i - 1) * 215f, i == 1 ? 18f : 0f, i == 1 ? 230f : 200f, i == 1 ? 230f : 200f);
             }
             _winCoins = UiKit.MakeText(content, "", 52, Palette.UiInk);
             _winCoins.rectTransform.sizeDelta = new Vector2(780f, 76f);
@@ -514,9 +535,14 @@ namespace MetroSort.Game
                 bool unlocked = s.Progression.IsUnlocked(id);
                 int stars = s.Progression.GetStars(id);
                 Color color = !unlocked ? new Color(0.70f, 0.73f, 0.78f) : (stars > 0 ? Palette.UiGreen : Palette.UiPrimary);
-                string label = id + "\n" + (stars > 0 ? new string('*', stars) : (unlocked ? " " : Loc.T("locked")));
-                Button b = Btn(_levelsGrid, label, color, () => { _levels.SetActive(false); _app.Game.StartLevel(levelId); }, 140f, 140f, 38);
+                Button b = Btn(_levelsGrid, unlocked ? id.ToString() : "", color, () => { _levels.SetActive(false); _app.Game.StartLevel(levelId); }, 140f, 140f, 44);
                 b.interactable = unlocked;
+                if (!unlocked) UiKit.AddIcon(b.transform, "lock", 86f, 0.5f, 0.5f, 0f, 6f);
+                else
+                {
+                    UiKit.Stretch(UiKit.LabelOf(b).rectTransform, 8f, 52f, 8f, 6f);
+                    for (int k = 0; k < 3; k++) UiKit.AddIcon(b.transform, k < stars ? "star" : "star_off", 44f, 0.5f, 0f, (k - 1) * 38f, 38f + (k == 1 ? 4f : 0f));
+                }
             }
             // One page per chapter (metro line).
             _levelsPageLabel.text = Loc.F("{0}  ({1}-{2})", Loc.T(Chapters.Names[Mathf.Min(_levelsPage, Chapters.Names.Length - 1)]), first, last);
@@ -570,7 +596,7 @@ namespace MetroSort.Game
         {
             for (int i = 0; i < 3; i++)
             {
-                _winStars[i].color = i < earned ? Palette.Gold : new Color(0.84f, 0.86f, 0.90f);
+                _winStars[i].sprite = UiKit.Icon(i < earned ? "star" : "star_off");
                 _winStars[i].rectTransform.localScale = GameSettings.ReducedMotion ? Vector3.one : Vector3.zero;
             }
             if (GameSettings.ReducedMotion) yield break;

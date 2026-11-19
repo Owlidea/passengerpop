@@ -19,7 +19,7 @@ namespace MetroSort.Game
 
         private ObjectPoolManager _pool;
         private readonly Dictionary<int, PassengerView> _passengers = new Dictionary<int, PassengerView>();
-        private Transform _env, _platformRoot, _actors;
+        private Transform _env, _props, _platformRoot, _actors;
         private string _signature;
         private Vector3[] _queueFront = new Vector3[0];
         private float _queueStep = 0.9f;
@@ -392,6 +392,7 @@ namespace MetroSort.Game
         private void BuildEnvironment(BoardState state)
         {
             if (_env != null) Destroy(_env.gameObject);
+            if (_props != null) Destroy(_props.gameObject);
             if (_platformRoot != null) Destroy(_platformRoot.gameObject);
             if (_gateRoot != null) Destroy(_gateRoot.gameObject);
             _gateRoot = new GameObject("Gates").transform;
@@ -403,6 +404,9 @@ namespace MetroSort.Game
             _platformRoot.SetParent(transform, false);
             _env = new GameObject("Environment").transform;
             _env.SetParent(transform, false);
+            // Modelled props carry several materials each, so they stay out of the per-material merge below.
+            _props = new GameObject("Props").transform;
+            _props.SetParent(transform, false);
 
             int maxQueues, maxDepth;
             Measure(state, out maxQueues, out maxDepth);
@@ -500,8 +504,8 @@ namespace MetroSort.Game
             {
                 BuildPlant(new Vector3(side * sideX, 0f, 2.6f));
                 BuildLamp(new Vector3(side * (sideX + 0.2f), 0f, 0.6f));
-                if (_benchCapacity == 0)
-                    Prims.MakeRounded(_env, new Vector3(side * (sideX + 0.1f), 0.22f, -1.0f), new Vector3(0.6f, 0.44f, 1.6f), 0.12f, Palette.Wood, "DecorBench");
+                if (_benchCapacity == 0) Prop("Bench", new Vector3(side * (sideX + 0.1f), 0f, -1.0f));
+                Prop("Bin", new Vector3(side * (sideX + 0.15f), 0f, -2.6f));
             }
 
             // Nothing in the environment moves: merge it into one mesh per material so the floor tiles, sleepers,
@@ -602,7 +606,7 @@ namespace MetroSort.Game
             for (int i = -4; i <= 4; i++)
             {
                 if (i == 0) continue;
-                Prims.MakeRounded(_env, new Vector3(i * 2.6f, 1.5f, wallZ - 0.32f), new Vector3(0.5f, 3.0f, 0.36f), 0.12f, Theme.Pillar, "Pillar");
+                Prop("Pillar", new Vector3(i * 2.6f, 0f, wallZ - 0.32f));
             }
 
             // Station name board with a roundel.
@@ -627,10 +631,7 @@ namespace MetroSort.Game
             }
 
             // Clock and framed posters between the pillars.
-            GameObject clock = Prims.Make(PrimitiveType.Cylinder, _env, new Vector3(1.93f, 2.12f, face - 0.06f), new Vector3(0.56f, 0.03f, 0.56f), Color.white, "Clock");
-            clock.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(1.93f, 2.19f, face - 0.10f), new Vector3(0.035f, 0.18f, 0.01f), Palette.Dark, "ClockHandM"));
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(1.99f, 2.12f, face - 0.10f), new Vector3(0.14f, 0.035f, 0.01f), Palette.Dark, "ClockHandH"));
+            Prop("Clock", new Vector3(1.93f, 2.12f, face - 0.06f));
             for (int side = -1; side <= 1; side += 2)
             {
                 float x = side * 3.9f;
@@ -653,10 +654,7 @@ namespace MetroSort.Game
             for (int b = 0; b <= lanes; b++)
             {
                 float x = (b - lanes * 0.5f) * spacing;
-                GameObject post = Prims.MakeRounded(_env, new Vector3(x, 0.33f, z), new Vector3(0.24f, 0.66f, 0.86f), 0.08f, Steel, "GatePost", true);
-                InkOutline.Add(post, 0.02f);
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(x, 0.665f, z + 0.12f), new Vector3(0.16f, 0.02f, 0.34f), Palette.Dark, "CardReader"));
-                Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, _env, new Vector3(x, 0.70f, z - 0.28f), new Vector3(0.11f, 0.08f, 0.11f), new Color(0.35f, 0.92f, 0.50f), "GateLight"));
+                Prop("Turnstile", new Vector3(x, 0f, z));
             }
             for (int q = 0; q < lanes; q++)
             {
@@ -681,15 +679,45 @@ namespace MetroSort.Game
 
         private void BuildPlant(Vector3 pos)
         {
-            Prims.Make(PrimitiveType.Cylinder, _env, pos + new Vector3(0f, 0.22f, 0f), new Vector3(0.55f, 0.22f, 0.55f), Palette.Wood, "Pot");
-            Prims.Make(PrimitiveType.Sphere, _env, pos + new Vector3(0f, 0.78f, 0f), new Vector3(0.85f, 0.85f, 0.85f), Palette.Leaf, "Leaves");
-            Prims.Make(PrimitiveType.Sphere, _env, pos + new Vector3(0.18f, 1.18f, 0.05f), new Vector3(0.50f, 0.50f, 0.50f), Palette.Leaf, "Leaves2");
+            Prop("Plant", pos);
         }
 
         private void BuildLamp(Vector3 pos)
         {
-            Prims.Make(PrimitiveType.Cylinder, _env, pos + new Vector3(0f, 1.0f, 0f), new Vector3(0.08f, 1.0f, 0.08f), Palette.Dark, "LampPole");
-            Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, _env, pos + new Vector3(0f, 2.1f, 0f), new Vector3(0.34f, 0.34f, 0.34f), new Color(1f, 0.97f, 0.82f), "LampBulb"));
+            Prop("Lamp", pos);
+        }
+
+        /// <summary>Places one modelled prop (Models/Props) and colours it for the current chapter.</summary>
+        private GameObject Prop(string piece, Vector3 position)
+        {
+            GameObject go = ModelKit.Spawn("Props", piece, _props);
+            go.transform.localPosition = position;
+            ModelKit.Paint(go, PropMaterial);
+            return go;
+        }
+
+        private Material PropMaterial(string slot)
+        {
+            switch (slot)
+            {
+                case "Steel": return MaterialLibrary.Get(Steel, true);
+                case "Dark": return MaterialLibrary.Get(Palette.Dark);
+                case "Light": return MaterialLibrary.Get(new Color(0.35f, 0.92f, 0.50f));
+                case "Accent": return MaterialLibrary.Get(Theme.Dado);
+                case "Pot": return MaterialLibrary.Get(new Color(0.82f, 0.48f, 0.34f));
+                case "Soil": return MaterialLibrary.Get(new Color(0.36f, 0.25f, 0.18f));
+                case "Leaf": return MaterialLibrary.Get(Palette.Leaf);
+                case "LeafLight": return MaterialLibrary.Get(Color.Lerp(Palette.Leaf, new Color(0.85f, 1f, 0.55f), 0.35f));
+                case "Wood": return MaterialLibrary.Get(Palette.Wood);
+                case "WoodDark": return MaterialLibrary.Get(Color.Lerp(Palette.Wood, Palette.Dark, 0.22f));
+                case "Bulb": return MaterialLibrary.Get(new Color(1f, 0.97f, 0.82f));
+                case "Pillar": return MaterialLibrary.Get(Theme.Pillar);
+                case "PillarDark": return MaterialLibrary.Get(Color.Lerp(Theme.Pillar, Palette.Dark, 0.18f));
+                case "Glass": return MaterialLibrary.Get(new Color(0.70f, 0.90f, 1f), true);
+                case "Red": return MaterialLibrary.Get(Palette.UiRed);
+                case "Outline": return ModelKit.Outline;
+                default: return null;
+            }
         }
 
         // ------------------------------------------------------------------ camera

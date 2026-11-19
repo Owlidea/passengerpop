@@ -235,6 +235,9 @@ namespace MetroSort.Game
             }
         }
 
+        /// <summary>The front-culling ink material, for meshes that carry their own baked hull. Null without URP.</summary>
+        public static Material SharedMaterial { get { return Material; } }
+
         public static void Add(GameObject target, float thickness)
         {
             Add(target, thickness, true);

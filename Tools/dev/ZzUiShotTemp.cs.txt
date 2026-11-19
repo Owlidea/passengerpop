@@ -1,0 +1,76 @@
+using System.Collections;
+using System.IO;
+using System.Reflection;
+using MetroSort.Game;
+using MetroSort.Persistence;
+using MetroSort.Puzzle;
+using UnityEngine;
+using UnityEngine.TestTools;
+
+namespace MetroSort.Tests
+{
+    // Development helper for UI screens: copy into Assets/MetroSort/Tests/PlayMode as .cs, run the PlayMode tests
+    // filtered to ZzUiShotTemp, then convert Logs/shots/*.rgb with Tools/dev/rgb2png.py.
+    public class ZzUiShotTemp
+    {
+        private static IEnumerator Shot(string name)
+        {
+            yield return null;
+            Camera cam = GameApp.Instance.Station.Cam;
+            foreach (Canvas c in Object.FindObjectsByType<Canvas>())
+            {
+                c.renderMode = RenderMode.ScreenSpaceCamera;
+                c.worldCamera = cam;
+                c.planeDistance = 1f;
+            }
+            int w = 1080, h = 1920;
+            var rt = new RenderTexture(w, h, 24);
+            cam.targetTexture = rt;
+            yield return null;
+            yield return null;
+            cam.Render();
+            RenderTexture.active = rt;
+            var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+            tex.Apply();
+            RenderTexture.active = null;
+            cam.targetTexture = null;
+            Directory.CreateDirectory("Logs/shots");
+            File.WriteAllBytes("Logs/shots/" + name + ".rgb", tex.GetRawTextureData());
+            Debug.Log("SHOT " + name);
+        }
+
+        private static void Call(object target, string method)
+        {
+            target.GetType().GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Invoke(target, null);
+        }
+
+        [UnityTest]
+        public IEnumerator Capture()
+        {
+            GameApp app = GameApp.Create(new InMemoryFileStore());
+            app.Services.Save.Data.HighestUnlocked = 9;
+            yield return null; yield return null;
+            yield return Shot("ui_menu");
+            Call(app.UI, "OpenLevels");
+            yield return new WaitForSeconds(0.5f);
+            yield return Shot("ui_levels");
+            app.Game.StartLevel(16);
+            yield return new WaitForSeconds(1.6f);
+            yield return Shot("ui_hud");
+            app.Game.StartLevel(1);
+            yield return new WaitForSeconds(1.2f);
+            for (int i = 0; i < 40 && app.States.Current == AppState.Playing; i++)
+            {
+                Move m;
+                if (!PuzzleSolver.TryGetHint(app.Game.Board.State, out m)) break;
+                while (app.Game.TryMove(m) == MoveError.PlatformBusy) yield return null;
+                yield return new WaitForSeconds(0.35f);
+            }
+            yield return new WaitForSeconds(3.5f);
+            yield return Shot("ui_win");
+            Object.Destroy(app.gameObject);
+            yield return null;
+        }
+    }
+}

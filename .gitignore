@@ -17,7 +17,7 @@
 Tools/**/bin/
 Tools/**/obj/
 Tools/*.log
-Tools/__pycache__/
+Tools/**/__pycache__/
 
 # Android build scratch
 /.utmp/

@@ -9,13 +9,21 @@ namespace MetroSort.Game
     public static class UiKit
     {
         private static Font _font;
-        private static Sprite _rounded, _circle, _star;
+        private static bool _ownFont;
+        private static Sprite _rounded, _circle, _star, _button, _card;
+        private static readonly System.Collections.Generic.Dictionary<string, Sprite> Icons = new System.Collections.Generic.Dictionary<string, Sprite>();
 
         public static Font Font
         {
             get
             {
-                if (_font == null) _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                if (_font == null)
+                {
+                    // Baloo 2 ExtraBold (SIL Open Font License, see Resources/Fonts/Baloo2-OFL.txt), Latin subset.
+                    _font = Resources.Load<Font>("Fonts/Baloo2-ExtraBold");
+                    _ownFont = _font != null;
+                    if (_font == null) _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                }
                 return _font;
             }
         }
@@ -23,6 +31,75 @@ namespace MetroSort.Game
         public static Sprite Rounded { get { return _rounded != null ? _rounded : (_rounded = MakeRounded(64, 24)); } }
         public static Sprite Circle { get { return _circle != null ? _circle : (_circle = MakeRounded(64, 32)); } }
         public static Sprite Star { get { return _star != null ? _star : (_star = MakeStar(96)); } }
+
+        /// <summary>Chunky button skin, tinted by the Image colour: dark rim, raised lip, soft gradient and a top highlight.</summary>
+        public static Sprite ButtonSprite { get { return _button != null ? _button : (_button = MakeShaded(96, 28f, true)); } }
+        /// <summary>White card skin for panels and pills, with a cool grey rim and a thin lip.</summary>
+        public static Sprite Card { get { return _card != null ? _card : (_card = MakeShaded(96, 30f, false)); } }
+
+        /// <summary>An icon rendered by Tools/art/icons.py (Resources/UI). Null if it is missing.</summary>
+        public static Sprite Icon(string name)
+        {
+            Sprite sprite;
+            if (Icons.TryGetValue(name, out sprite) && sprite != null) return sprite;
+            sprite = Resources.Load<Sprite>("UI/" + name);
+            if (sprite == null) Debug.LogWarning("Metro Sort: icon missing at Resources/UI/" + name);
+            Icons[name] = sprite;
+            return sprite;
+        }
+
+        /// <summary>Distance from a point to the edge of a rounded rectangle, positive inside.</summary>
+        private static float Inside(float x, float y, float x0, float y0, float x1, float y1, float radius)
+        {
+            float cx = (x0 + x1) * 0.5f, cy = (y0 + y1) * 0.5f;
+            float qx = Mathf.Abs(x - cx) - ((x1 - x0) * 0.5f - radius);
+            float qy = Mathf.Abs(y - cy) - ((y1 - y0) * 0.5f - radius);
+            float outside = new Vector2(Mathf.Max(qx, 0f), Mathf.Max(qy, 0f)).magnitude;
+            return radius - outside - Mathf.Min(Mathf.Max(qx, qy), 0f);
+        }
+
+        private static Sprite MakeShaded(int size, float radius, bool button)
+        {
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.wrapMode = TextureWrapMode.Clamp;
+            tex.filterMode = FilterMode.Bilinear;
+            var pixels = new Color32[size * size];
+            float rim = button ? 3.6f : 3.2f, lip = button ? 9f : 5f;
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float px = x + 0.5f, py = y + 0.5f;
+                    float body = Inside(px, py, 0f, 0f, size, size, radius);
+                    float face = Inside(px, py, rim, rim + lip, size - rim, size - rim, radius - rim);
+                    float alpha = Mathf.Clamp01(body + 0.5f);
+                    Color c;
+                    if (button)
+                    {
+                        // Luminance only: the Image colour supplies the hue, so rim and lip come out as darker shades of it.
+                        float up = py / size;
+                        float lum = Mathf.Lerp(0.82f, 0.95f, up);
+                        float shine = Mathf.Clamp01(1f - Mathf.Abs(face - 5.5f) / 2.6f) * Mathf.Clamp01((up - 0.60f) * 6f);
+                        lum = Mathf.Lerp(lum, 1f, shine * 0.9f);
+                        lum = Mathf.Lerp(0.62f, lum, Mathf.Clamp01(face + 0.5f));         // lip under the face
+                        lum = Mathf.Lerp(0.36f, lum, Mathf.Clamp01(body - rim + 0.5f));  // dark rim
+                        c = new Color(lum, lum, lum, alpha);
+                    }
+                    else
+                    {
+                        c = Color.white;
+                        c = Color.Lerp(new Color(0.84f, 0.88f, 0.95f), c, Mathf.Clamp01(face + 0.5f));
+                        c = Color.Lerp(new Color(0.66f, 0.73f, 0.87f), c, Mathf.Clamp01(body - rim + 0.5f));
+                        c.a = alpha;
+                    }
+                    pixels[y * size + x] = c;
+                }
+            }
+            tex.SetPixels32(pixels);
+            tex.Apply(false, true);
+            float border = radius + 6f;
+            return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, new Vector4(border, border + lip, border, border));
+        }
 
         private static Sprite MakeRounded(int size, int radius)
         {
@@ -135,25 +212,28 @@ namespace MetroSort.Game
             text.fontSize = size;
             text.color = color;
             text.alignment = anchor;
-            text.fontStyle = style;
+            // The game font is already extra bold; asking for Bold on top would smear it with synthetic weight.
+            text.fontStyle = _ownFont ? FontStyle.Normal : style;
+            if (_ownFont) text.lineSpacing = 0.72f; // the font's own line box is very tall
             text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
             return text;
         }
 
-        /// <summary>A rounded button with a centred label. Returns the Button; the label is its first Text child.</summary>
+        /// <summary>A chunky button with a centred label. Returns the Button; the label is its first Text child.</summary>
         public static Button MakeButton(Transform parent, string label, Color background, UnityAction onClick, float width, float height, int fontSize = 46)
         {
-            // A darker "lip" under the face gives buttons a pressable, chunky look.
-            var lipColor = new Color(background.r * 0.72f, background.g * 0.72f, background.b * 0.72f, background.a);
-            Image lip = MakeImage(parent, "Button_" + label, Rounded, lipColor, true);
-            lip.rectTransform.sizeDelta = new Vector2(width, height);
-            Image img = MakeImage(lip.transform, "Face", Rounded, background);
-            Stretch(img.rectTransform, 0f, Mathf.Min(12f, height * 0.09f), 0f, 0f);
-            var button = lip.gameObject.AddComponent<Button>();
+            Image img = MakeImage(parent, "Button_" + label, ButtonSprite, background, true);
+            img.rectTransform.sizeDelta = new Vector2(width, height);
+            // Small buttons keep their corners round instead of squashing the 9-slice borders.
+            img.pixelsPerUnitMultiplier = Mathf.Max(1f, 150f / Mathf.Min(width, height));
+            var drop = img.gameObject.AddComponent<Shadow>();
+            drop.effectColor = new Color(0.05f, 0.08f, 0.20f, 0.28f);
+            drop.effectDistance = new Vector2(0f, -7f);
+            var button = img.gameObject.AddComponent<Button>();
             button.targetGraphic = img;
-            lip.gameObject.AddComponent<PressScale>();
+            img.gameObject.AddComponent<PressScale>();
             ColorBlock colors = button.colors;
             colors.pressedColor = new Color(0.82f, 0.82f, 0.82f, 1f);
             colors.disabledColor = new Color(0.75f, 0.75f, 0.75f, 0.6f);
@@ -161,14 +241,36 @@ namespace MetroSort.Game
             button.colors = colors;
             if (onClick != null) button.onClick.AddListener(onClick);
             Text text = MakeText(img.transform, label, fontSize, Color.white);
-            Stretch(text.rectTransform, 12f, 6f, 12f, 6f);
+            Stretch(text.rectTransform, 14f, Mathf.Min(16f, height * 0.12f), 14f, 6f);
             text.resizeTextForBestFit = true;
             text.resizeTextMinSize = 18;
             text.resizeTextMaxSize = fontSize;
-            var shadow = text.gameObject.AddComponent<Shadow>();
-            shadow.effectColor = new Color(0f, 0f, 0f, 0.22f);
-            shadow.effectDistance = new Vector2(0f, -3f);
+            Emboss(text, new Color(background.r * 0.45f, background.g * 0.45f, background.b * 0.45f, 0.9f));
             return button;
+        }
+
+        /// <summary>Outlines a light label in a dark shade so it reads on any button colour.</summary>
+        public static void Emboss(Text text, Color ink)
+        {
+            var outline = text.gameObject.AddComponent<Outline>();
+            outline.effectColor = ink;
+            outline.effectDistance = new Vector2(2f, -2f);
+            var shadow = text.gameObject.AddComponent<Shadow>();
+            shadow.effectColor = new Color(ink.r, ink.g, ink.b, 0.55f);
+            shadow.effectDistance = new Vector2(0f, -4f);
+        }
+
+        /// <summary>Adds an icon to a button or panel. ax, ay anchor it inside the parent (0..1).</summary>
+        public static Image AddIcon(Transform parent, string icon, float size, float ax = 0.5f, float ay = 0.5f, float x = 0f, float y = 0f)
+        {
+            Image img = MakeImage(parent, "Icon_" + icon, Icon(icon), Color.white);
+            img.preserveAspect = true;
+            RectTransform rt = img.rectTransform;
+            rt.anchorMin = rt.anchorMax = new Vector2(ax, ay);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = new Vector2(x, y);
+            rt.sizeDelta = new Vector2(size, size);
+            return img;
         }
 
         public static Text LabelOf(Button button)
@@ -180,7 +282,7 @@ namespace MetroSort.Game
         {
             RectTransform root = MakeRect("Slider", parent);
             root.sizeDelta = new Vector2(width, 70f);
-            Image bg = MakeImage(root, "Background", Rounded, new Color(0.86f, 0.88f, 0.92f));
+            Image bg = MakeImage(root, "Background", Rounded, new Color(0.80f, 0.84f, 0.92f));
             Stretch(bg.rectTransform, 0f, 22f, 0f, 22f);
             RectTransform fillArea = Stretch(MakeRect("FillArea", root), 0f, 22f, 0f, 22f);
             Image fill = MakeImage(fillArea, "Fill", Rounded, Palette.UiPrimary);
@@ -189,6 +291,7 @@ namespace MetroSort.Game
             fill.rectTransform.sizeDelta = Vector2.zero;
             RectTransform handleArea = Stretch(MakeRect("HandleArea", root), 32f, 0f, 32f, 0f);
             Image handle = MakeImage(handleArea, "Handle", Circle, Color.white, true);
+            handle.gameObject.AddComponent<Outline>().effectColor = new Color(0.30f, 0.40f, 0.62f, 0.9f);
             handle.rectTransform.sizeDelta = new Vector2(64f, 0f);
             var slider = root.gameObject.AddComponent<Slider>();
             slider.fillRect = fill.rectTransform;
@@ -207,14 +310,15 @@ namespace MetroSort.Game
         {
             Image dim = MakeImage(parent, name, null, Palette.UiDim, true);
             Stretch(dim.rectTransform);
-            Image card = MakeImage(dim.transform, "Card", Rounded, Palette.UiPanel, true);
+            Image card = MakeImage(dim.transform, "Card", Card, Color.white, true);
+            card.pixelsPerUnitMultiplier = 0.75f;
             card.gameObject.AddComponent<PopIn>();
             var cardShadow = card.gameObject.AddComponent<Shadow>();
             cardShadow.effectColor = new Color(0f, 0f, 0f, 0.25f);
             cardShadow.effectDistance = new Vector2(0f, -14f);
             Place(card.rectTransform, 0.5f, 0.5f, 0f, 0f, 900f, 600f);
             var layout = card.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(50, 50, 50, 50);
+            layout.padding = new RectOffset(50, 50, 46, 58);
             layout.spacing = 26f;
             layout.childAlignment = TextAnchor.UpperCenter;
             layout.childControlWidth = false;
@@ -226,8 +330,15 @@ namespace MetroSort.Game
             content = card.rectTransform;
             if (!string.IsNullOrEmpty(title))
             {
-                Text t = MakeText(content, title, 68, Palette.UiInk);
-                t.rectTransform.sizeDelta = new Vector2(800f, 100f);
+                // Title ribbon across the top of the card.
+                Image ribbon = MakeImage(content, "Title", ButtonSprite, Palette.UiPrimary);
+                ribbon.rectTransform.sizeDelta = new Vector2(800f, 124f);
+                Text t = MakeText(ribbon.transform, title, 64, Color.white);
+                Stretch(t.rectTransform, 20f, 16f, 20f, 6f);
+                t.resizeTextForBestFit = true;
+                t.resizeTextMinSize = 30;
+                t.resizeTextMaxSize = 64;
+                Emboss(t, new Color(0.08f, 0.22f, 0.48f, 0.9f));
             }
             dim.gameObject.SetActive(false);
             return dim.gameObject;

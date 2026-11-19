@@ -18,7 +18,7 @@ namespace MetroSort.Game
         /// <summary>Trains ride in the sunken track, so the car floor lines up with the platform.</summary>
         public Vector3 TrainStop { get { return transform.position + new Vector3(0f, -0.37f, 1.45f); } }
 
-        private GameObject _slab, _capL, _capR, _glow, _sign, _barrier;
+        private GameObject _body, _glow, _sign, _barrier;
         private GameObject[] _pips;
         private float _pulse;
         private bool _highlight, _hint;
@@ -47,18 +47,12 @@ namespace MetroSort.Game
             _glow = Prims.Make(PrimitiveType.Cube, t, new Vector3(0f, 0.03f, 0f), new Vector3(Width + 0.35f, 0.06f, Depth + 0.35f), Palette.Highlight, "Glow");
             Prims.NoShadow(_glow);
             _glow.SetActive(false);
-            // A slightly larger, darker pill underneath gives the platform a stepped, moulded edge.
-            float skirt = Depth + 0.16f;
-            Prims.Make(PrimitiveType.Cube, t, new Vector3(0f, 0.05f, 0f), new Vector3(body, 0.10f, skirt), Palette.PlatformSkirt, "SkirtMid");
-            Prims.Make(PrimitiveType.Cylinder, t, new Vector3(-body * 0.5f, 0.05f, 0f), new Vector3(skirt, 0.05f, skirt), Palette.PlatformSkirt, "SkirtL");
-            Prims.Make(PrimitiveType.Cylinder, t, new Vector3(body * 0.5f, 0.05f, 0f), new Vector3(skirt, 0.05f, skirt), Palette.PlatformSkirt, "SkirtR");
-            _slab = Prims.Make(PrimitiveType.Cube, t, new Vector3(0f, 0.14f, 0f), new Vector3(body, 0.28f, Depth), Palette.Platform, "Slab");
-            // Cylinder end caps turn the slab into a soft pill shape.
-            _capL = Prims.Make(PrimitiveType.Cylinder, t, new Vector3(-body * 0.5f, 0.14f, 0f), new Vector3(Depth, 0.14f, Depth), Palette.Platform, "CapL");
-            _capR = Prims.Make(PrimitiveType.Cylinder, t, new Vector3(body * 0.5f, 0.14f, 0f), new Vector3(Depth, 0.14f, Depth), Palette.Platform, "CapR");
-            InkOutline.Add(_slab, 0.03f, false);
-            InkOutline.Add(_capL, 0.03f, false);
-            InkOutline.Add(_capR, 0.03f, false);
+            // Pill-shaped slab: a straight middle stretched between two round ends (Models/Platform).
+            _body = new GameObject("Body");
+            _body.transform.SetParent(t, false);
+            ModelKit.Spawn("Platform", "Mid", _body.transform).transform.localScale = new Vector3(body, 1f, 1f);
+            ModelKit.Spawn("Platform", "Cap", _body.transform, "CapL").transform.localPosition = new Vector3(-body * 0.5f, 0f, 0f);
+            ModelKit.Spawn("Platform", "Cap", _body.transform, "CapR").transform.localPosition = new Vector3(body * 0.5f, 0f, 0f);
             // Safety line on the track side; orange on express platforms.
             GameObject line = Prims.Make(PrimitiveType.Cube, t, new Vector3(0f, 0.285f, Depth * 0.5f - 0.12f), new Vector3(body, 0.02f, 0.10f), state.Express ? Palette.Lines[5] : Palette.Gold, "SafetyLine");
             Prims.NoShadow(line);
@@ -66,8 +60,10 @@ namespace MetroSort.Game
             for (int i = 0; i < Capacity; i++)
             {
                 Vector3 local = SlotLocal(i);
-                GameObject disc = Prims.Make(PrimitiveType.Cylinder, t, new Vector3(local.x, 0.285f, local.z), new Vector3(0.62f, 0.01f, 0.62f), Palette.Slot, "Slot" + i);
-                Prims.NoShadow(disc);
+                GameObject spot = ModelKit.Spawn("Platform", "Slot", t, "Slot" + i);
+                spot.transform.localPosition = new Vector3(local.x, 0.281f, local.z);
+                ModelKit.Paint(spot, PlatformMaterial);
+                foreach (MeshRenderer r in spot.GetComponentsInChildren<MeshRenderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             }
 
             // Line sign on a pole at the left end.
@@ -140,11 +136,22 @@ namespace MetroSort.Game
 
         public void Pulse() { _pulse = 1f; }
 
+        private Material PlatformMaterial(string slot)
+        {
+            switch (slot)
+            {
+                case "Slab": return MaterialLibrary.Get(_slabColor);
+                case "Skirt": return MaterialLibrary.Get(Palette.PlatformSkirt);
+                case "Slot": return MaterialLibrary.Get(Palette.Slot);
+                case "SlotRing": return MaterialLibrary.Get(Color.white);
+                case "Outline": return ModelKit.Outline;
+                default: return null;
+            }
+        }
+
         private void ApplySlabColor()
         {
-            Prims.SetColor(_slab, _slabColor);
-            Prims.SetColor(_capL, _slabColor);
-            Prims.SetColor(_capR, _slabColor);
+            ModelKit.Paint(_body, PlatformMaterial);
         }
 
         private void Update()
@@ -182,13 +189,14 @@ namespace MetroSort.Game
 
         private sealed class Car
         {
-            public GameObject Root, Body, RoofStripe, Coupler, Pantograph;
+            public GameObject Root, Body, Coupler, Pantograph;
             public Transform DoorL, DoorR;
         }
 
         private readonly Car[] _cars = new Car[MaxCars];
-        private Transform _frontCab, _rearCab;
-        private GameObject _frontNose, _rearNose;
+        private GameObject _frontCab, _rearCab;
+        private Color _line = Color.white;
+        private Color _lamp = Color.white;
         private int _capacity = 3;
 
         public static GameObject CreateObject()
@@ -198,103 +206,52 @@ namespace MetroSort.Game
             return go;
         }
 
+        /// <summary>Assembled from the pieces in Models/Train: car shells, door leaves, gangways, a pantograph, two cabs.</summary>
         private void Build()
         {
-            for (int i = 0; i < MaxCars; i++) _cars[i] = BuildCar(i);
-            _frontCab = BuildCab(-1f, out _frontNose);
-            _rearCab = BuildCab(1f, out _rearNose);
-        }
-
-        private Car BuildCar(int index)
-        {
-            var car = new Car();
-            car.Root = new GameObject("Car" + index);
-            Transform t = car.Root.transform;
-            t.SetParent(transform, false);
-
-            car.Body = Prims.MakeRounded(t, new Vector3(0f, 0.78f, 0f), new Vector3(CarLength, 0.92f, 1.06f), 0.17f, Color.white, "Body", true);
-            InkOutline.Add(car.Body, 0.03f);
-            Prims.Make(PrimitiveType.Cube, t, new Vector3(0f, 0.30f, 0f), new Vector3(CarLength - 0.08f, 0.14f, 0.98f), Underframe, "Underframe");
-
-            // Platform-facing side (-Z): dark window band, two windows, a white waist line.
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, t, new Vector3(0f, 0.94f, SideZ), new Vector3(CarLength - 0.14f, 0.30f, 0.02f), DarkGlass, "WindowBand"));
-            for (int side = -1; side <= 1; side += 2)
+            for (int i = 0; i < MaxCars; i++)
             {
-                GameObject window = Prims.Make(PrimitiveType.Cube, t, new Vector3(side * 0.47f, 0.94f, SideZ - 0.01f), new Vector3(0.30f, 0.22f, 0.02f), Glass, "Window");
-                Prims.SetGlossy(window, Glass);
-                Prims.NoShadow(window);
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, t, new Vector3(side * 0.47f + 0.07f, 0.99f, SideZ - 0.02f), new Vector3(0.07f, 0.07f, 0.01f), Color.white, "Glint"));
+                var car = new Car();
+                car.Root = new GameObject("Car" + i);
+                Transform t = car.Root.transform;
+                t.SetParent(transform, false);
+                car.Body = ModelKit.Spawn("Train", "Car", t, "Body");
+                car.DoorL = ModelKit.Spawn("Train", "DoorL", t).transform;
+                car.DoorR = ModelKit.Spawn("Train", "DoorR", t).transform;
+                car.Coupler = ModelKit.Spawn("Train", "Coupler", t, "Gangway");
+                car.Coupler.transform.localPosition = new Vector3(Pitch * 0.5f, 0f, 0f);
+                car.Pantograph = ModelKit.Spawn("Train", "Pantograph", t);
+                car.Pantograph.transform.localPosition = new Vector3(-0.34f, 0f, 0f);
+                foreach (Transform door in new[] { car.DoorL, car.DoorR })
+                    foreach (MeshRenderer r in door.GetComponentsInChildren<MeshRenderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                _cars[i] = car;
             }
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, t, new Vector3(0f, 0.73f, SideZ - 0.005f), new Vector3(CarLength - 0.10f, 0.045f, 0.02f), Color.white, "WaistLine"));
+            _frontCab = ModelKit.Spawn("Train", "Cab", transform, "FrontCab");
+            _rearCab = ModelKit.Spawn("Train", "Cab", transform, "RearCab", true);
+        }
 
-            // Double sliding door in the middle of the car.
-            car.DoorL = BuildDoorLeaf(t, "DoorL");
-            car.DoorR = BuildDoorLeaf(t, "DoorR");
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, t, new Vector3(0f, 0.72f, SideZ + 0.004f), new Vector3(0.46f, 0.66f, 0.02f), new Color(0.05f, 0.06f, 0.09f), "Doorway"));
-
-            // Roof: silver panel, line-coloured stripe, air-conditioning unit.
-            Prims.MakeRounded(t, new Vector3(0f, 1.25f, 0f), new Vector3(CarLength - 0.12f, 0.08f, 0.80f), 0.035f, Silver, "Roof", true);
-            car.RoofStripe = Prims.Make(PrimitiveType.Cube, t, new Vector3(0f, 1.295f, 0f), new Vector3(CarLength - 0.16f, 0.012f, 0.20f), Color.white, "RoofStripe");
-            Prims.NoShadow(car.RoofStripe);
-            Prims.MakeRounded(t, new Vector3(0.32f, 1.34f, 0f), new Vector3(0.50f, 0.11f, 0.46f), 0.045f, new Color(0.74f, 0.77f, 0.83f), "AirCon");
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cylinder, t, new Vector3(0.32f, 1.40f, 0f), new Vector3(0.24f, 0.006f, 0.24f), Underframe, "Fan"));
-
-            // Pantograph (shown on one car only).
-            car.Pantograph = new GameObject("Pantograph");
-            Transform pt = car.Pantograph.transform;
-            pt.SetParent(t, false);
-            pt.localPosition = new Vector3(-0.34f, 1.30f, 0f);
-            Prims.Make(PrimitiveType.Cube, pt, new Vector3(0f, 0.02f, 0f), new Vector3(0.34f, 0.04f, 0.30f), Underframe, "Base");
-            GameObject armA = Prims.Make(PrimitiveType.Cube, pt, new Vector3(-0.07f, 0.17f, 0f), new Vector3(0.035f, 0.32f, 0.035f), Underframe, "ArmA");
-            armA.transform.localRotation = Quaternion.Euler(0f, 0f, 28f);
-            GameObject armB = Prims.Make(PrimitiveType.Cube, pt, new Vector3(0.07f, 0.17f, 0f), new Vector3(0.035f, 0.32f, 0.035f), Underframe, "ArmB");
-            armB.transform.localRotation = Quaternion.Euler(0f, 0f, -28f);
-            Prims.Make(PrimitiveType.Cube, pt, new Vector3(0f, 0.32f, 0f), new Vector3(0.05f, 0.03f, 0.62f), new Color(0.55f, 0.58f, 0.64f), "Collector");
-
-            // Two bogies with wheels on both sides.
-            for (int end = -1; end <= 1; end += 2)
+        private Material TrainMaterial(string slot)
+        {
+            switch (slot)
             {
-                Prims.Make(PrimitiveType.Cube, t, new Vector3(end * 0.40f, 0.17f, 0f), new Vector3(0.46f, 0.14f, 0.86f), Underframe, "Bogie");
-                for (int z = -1; z <= 1; z += 2)
-                {
-                    GameObject wheel = Prims.Make(PrimitiveType.Cylinder, t, new Vector3(end * 0.40f, 0.17f, z * 0.45f), new Vector3(0.32f, 0.04f, 0.32f), new Color(0.32f, 0.34f, 0.40f), "Wheel");
-                    wheel.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-                }
+                case "Body": return MaterialLibrary.Get(_line, true);
+                case "Stripe": return MaterialLibrary.Get(Color.Lerp(_line, Color.white, 0.55f));
+                case "Glass": return MaterialLibrary.Get(Glass, true);
+                case "DarkGlass": return MaterialLibrary.Get(DarkGlass, true);
+                case "Silver": return MaterialLibrary.Get(Silver, true);
+                case "Under": return MaterialLibrary.Get(Underframe);
+                case "Wheel": return MaterialLibrary.Get(new Color(0.32f, 0.34f, 0.40f));
+                case "Lamp": return MaterialLibrary.Get(_lamp);
+                case "Sign": return MaterialLibrary.Get(new Color(1f, 0.72f, 0.25f));
+                case "Outline": return ModelKit.Outline;
+                default: return null;
             }
-
-            car.Coupler = Prims.Make(PrimitiveType.Cube, t, new Vector3(Pitch * 0.5f, 0.52f, 0f), new Vector3(0.16f, 0.50f, 0.70f), Underframe, "Gangway");
-            return car;
-        }
-
-        private static Transform BuildDoorLeaf(Transform car, string name)
-        {
-            GameObject leaf = Prims.Make(PrimitiveType.Cube, car, new Vector3(0f, 0.72f, SideZ - 0.012f), new Vector3(0.21f, 0.64f, 0.025f), Silver, name);
-            Prims.NoShadow(leaf);
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, leaf.transform, new Vector3(0f, 0.20f, -0.6f), new Vector3(0.62f, 0.40f, 0.4f), Glass, "DoorWindow"));
-            return leaf.transform;
-        }
-
-        /// <summary>Rounded driver cab. direction -1 is the leading end, +1 the trailing end.</summary>
-        private Transform BuildCab(float direction, out GameObject nose)
-        {
-            var cab = new GameObject(direction < 0f ? "FrontCab" : "RearCab").transform;
-            cab.SetParent(transform, false);
-            nose = Prims.Make(PrimitiveType.Sphere, cab, new Vector3(direction * 0.10f, 0.76f, 0f), new Vector3(1.00f, 0.90f, 1.05f), Color.white, "Nose");
-            InkOutline.Add(nose, 0.03f);
-            Prims.SetGlossy(Prims.Make(PrimitiveType.Sphere, cab, new Vector3(direction * 0.27f, 0.93f, 0f), new Vector3(0.66f, 0.50f, 0.86f), DarkGlass, "Windscreen"), DarkGlass);
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, cab, new Vector3(direction * 0.50f, 1.09f, 0f), new Vector3(0.05f, 0.07f, 0.40f), new Color(1f, 0.72f, 0.25f), "DestinationSign"));
-            Prims.Make(PrimitiveType.Sphere, cab, new Vector3(direction * 0.30f, 0.40f, 0f), new Vector3(0.62f, 0.30f, 0.90f), Underframe, "Bumper");
-            Color lamp = direction < 0f ? new Color(1f, 0.97f, 0.75f) : new Color(1f, 0.30f, 0.28f);
-            for (int z = -1; z <= 1; z += 2)
-                Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, cab, new Vector3(direction * 0.53f, 0.60f, z * 0.27f), new Vector3(0.13f, 0.13f, 0.13f), lamp, "Lamp"));
-            return cab;
         }
 
         public void Configure(int color, int capacity)
         {
             _capacity = Mathf.Clamp(capacity, 1, MaxCars);
-            Color line = Palette.Line(color);
-            Color pale = Color.Lerp(line, Color.white, 0.55f);
+            _line = Palette.Line(color);
             int pantographCar = _capacity >= 3 ? 1 : 0;
             for (int i = 0; i < MaxCars; i++)
             {
@@ -303,15 +260,16 @@ namespace MetroSort.Game
                 car.Root.SetActive(used);
                 if (!used) continue;
                 car.Root.transform.localPosition = new Vector3(CarX(i), 0f, 0f);
-                Prims.SetGlossy(car.Body, line);
-                Prims.SetColor(car.RoofStripe, pale);
                 car.Coupler.SetActive(i < _capacity - 1);
                 car.Pantograph.SetActive(i == pantographCar);
+                ModelKit.Paint(car.Root, TrainMaterial);
             }
-            _frontCab.localPosition = new Vector3(CarX(0) - CarLength * 0.5f, 0f, 0f);
-            _rearCab.localPosition = new Vector3(CarX(_capacity - 1) + CarLength * 0.5f, 0f, 0f);
-            Prims.SetGlossy(_frontNose, line);
-            Prims.SetGlossy(_rearNose, line);
+            _frontCab.transform.localPosition = new Vector3(CarX(0) - CarLength * 0.5f, 0f, 0f);
+            _rearCab.transform.localPosition = new Vector3(CarX(_capacity - 1) + CarLength * 0.5f, 0f, 0f);
+            _lamp = new Color(1f, 0.97f, 0.75f);
+            ModelKit.Paint(_frontCab, TrainMaterial);
+            _lamp = new Color(1f, 0.30f, 0.28f);
+            ModelKit.Paint(_rearCab, TrainMaterial);
             SetDoors(0f);
         }
 
