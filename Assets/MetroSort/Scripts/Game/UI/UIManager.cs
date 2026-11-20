@@ -364,6 +364,7 @@ namespace MetroSort.Game
         {
             Sprite sprite = UiKit.Art("conductor_" + pose);
             if (sprite == null || GameSettings.ReducedMotion || !isActiveAndEnabled) return;
+            _app.Audio.Play(Sfx.MascotPop);
             StartCoroutine(MascotPopRoutine(sprite));
         }
 
@@ -432,6 +433,7 @@ namespace MetroSort.Game
             UiKit.Place(label.rectTransform, 0.5f, 0.5f, 0f, -250f, 960f, 100f);
             RectTransform b = box.rectTransform;
 
+            _app.Audio.Play(Sfx.ChestOpen);
             // Closed: drops in and shakes with what is inside.
             for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.55f)
             {
@@ -913,6 +915,7 @@ namespace MetroSort.Game
                 if (i < earned)
                 {
                     _app.Audio.Play(Sfx.Star);
+                    _app.Audio.Play(Sfx.StarStamp);
                     if (_winStarSpins[i] != null) _winStarSpins[i].Spin(2f);
                     StartCoroutine(StarBurst(_winStars[i].rectTransform.position));
                 }

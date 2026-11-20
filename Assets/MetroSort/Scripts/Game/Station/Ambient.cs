@@ -72,6 +72,7 @@ namespace MetroSort.Game
     {
         public Transform Left, Right;
         private float _openAt = -1f, _closeAt = -1f, _open, _speed;
+        private bool _wasOpen;
 
         public void Open(float delay, float hold)
         {
@@ -82,6 +83,8 @@ namespace MetroSort.Game
         private void Update()
         {
             float target = Time.time >= _openAt && Time.time < _closeAt ? 1f : 0f;
+            if (target > 0f && !_wasOpen) PlaySound(Sfx.GateFlap);
+            _wasOpen = target > 0f;
             if (target == 0f && _open == 0f && _speed == 0f) return;
             float dt = Mathf.Min(Time.deltaTime, 0.033f);
             _speed += (-190f * (_open - target) - 13f * _speed) * dt;
@@ -90,6 +93,12 @@ namespace MetroSort.Game
             // Each flap is hinged at its post and swings away in the direction of travel (+Z).
             if (Left != null) Left.localRotation = Quaternion.Euler(0f, -82f * _open, 0f);
             if (Right != null) Right.localRotation = Quaternion.Euler(0f, 82f * _open, 0f);
+        }
+
+        /// <summary>Plays a station sound if the game is running (these props also exist in tests and previews).</summary>
+        public static void PlaySound(Sfx sfx)
+        {
+            if (GameApp.Instance != null && GameApp.Instance.Audio != null) GameApp.Instance.Audio.Play(sfx);
         }
     }
 
@@ -117,6 +126,7 @@ namespace MetroSort.Game
             if (!gameObject.activeSelf || _t >= 0f) return;
             if (GameSettings.ReducedMotion || Arm == null) { Hide(); return; }
             _t = 0f;
+            GateFlaps.PlaySound(Sfx.Barrier);
         }
 
         private void Hide()
@@ -165,6 +175,7 @@ namespace MetroSort.Game
         public static void Flip()
         {
             if (GameSettings.ReducedMotion) return;
+            GateFlaps.PlaySound(Sfx.BoardFlip);
             _flipTime = Time.time;
             _flips++;
         }

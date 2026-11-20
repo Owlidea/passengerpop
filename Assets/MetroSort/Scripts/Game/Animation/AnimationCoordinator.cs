@@ -100,7 +100,7 @@ namespace MetroSort.Game
                         v.WalkTo(target, WalkTime, 0.35f, () =>
                         {
                             if (epoch != _epoch) return;
-                            _audio.Play(Sfx.Step);
+                            _audio.Play(e.Move.IsToBench ? Sfx.BenchSit : Sfx.Step);
                             Haptics.Tap();
                             if (!GameSettings.ReducedMotion) Puff.Burst(_pool, target + new Vector3(0f, 0.05f, 0f), 2, 0.12f);
                             _active--;

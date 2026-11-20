@@ -7,7 +7,9 @@ namespace MetroSort.Game
         Click, Select, Invalid, Step, Assign, Match, TrainArrive, Doors, TrainDepart,
         LevelComplete, LevelFailed, Coins, Booster, Achievement,
         // Appended so the indices above stay stable for Overrides.
-        Star, Cheer, CoinTick
+        Star, Cheer, CoinTick,
+        // Recordings only (no synthesised stand-in): silent when the file is missing.
+        BenchSit, GateFlap, Barrier, BoardFlip, ChestOpen, MascotPop, Reveal, StarStamp
     }
 
     /// <summary>
@@ -24,13 +26,15 @@ namespace MetroSort.Game
         // Indexed by the Sfx enum; null means there is no recording and the synthesised clip is used.
         private static readonly string[] Files =
         {
-            "ui_tap", null, "error", "footsteps", null, null, "train_arriving", null, "train_departing",
-            "win_jingle", null, "coins_drop", null, null, "star_collect", "crowd_yay", null
+            "ui_tap", "passenger_select", "error", "footsteps", "passenger_land", "platform_full", "train_arriving", "train_doors", "train_departing",
+            "win_jingle", "level_failed", "coins_drop", "booster", "achievement", "star_collect", "crowd_yay", "coin_tick",
+            "bench_sit", "gate_flap", "barrier", "board_flip", "chest_open", "mascot_pop", "mystery_reveal", "star_stamp"
         };
         private const float FileGain = 0.6f; // the recordings peak about twice as loud as the synthesised clips
 
         private AudioSource _music, _sfx;
         private AudioClip[] _clips;
+        private float[] _lastPlay;
         private bool[] _fromFile;
         private AudioClip _menuMusic, _gameMusic, _wanted;
         private float _lastStepTime, _musicVolume, _fade = 1f, _duckUntil;
@@ -58,6 +62,8 @@ namespace MetroSort.Game
 
             _clips = new AudioClip[System.Enum.GetValues(typeof(Sfx)).Length];
             _fromFile = new bool[_clips.Length];
+            _lastPlay = new float[_clips.Length];
+            for (int i = 0; i < _lastPlay.Length; i++) _lastPlay[i] = -10f;
             for (int i = 0; i < _clips.Length; i++)
             {
                 AudioClip clip = Overrides != null && i < Overrides.Length ? Overrides[i] : null;
@@ -67,7 +73,7 @@ namespace MetroSort.Game
                     _fromFile[i] = clip != null;
                 }
                 // The cheer only exists as a recording; everything else has a synthesised stand-in.
-                if (clip == null && (Sfx)i != Sfx.Cheer) clip = SynthClips.Build((Sfx)i);
+                if (clip == null && (Sfx)i != Sfx.Cheer && (Sfx)i < Sfx.BenchSit) clip = SynthClips.Build((Sfx)i);
                 _clips[i] = clip;
             }
 
@@ -126,6 +132,12 @@ namespace MetroSort.Game
                 // already holds a few steps, so it is not restarted until it has mostly played.
                 if (Time.unscaledTime - _lastStepTime < (file ? clip.length * 0.7f : 0.05f)) return;
                 _lastStepTime = Time.unscaledTime;
+            }
+            // Several gates or barriers can move together: one sound for the bunch.
+            if (sfx >= Sfx.BenchSit)
+            {
+                if (Time.unscaledTime - _lastPlay[(int)sfx] < 0.12f) return;
+                _lastPlay[(int)sfx] = Time.unscaledTime;
             }
             // The win jingle is a few seconds of music of its own: pull the loop down underneath it.
             if (sfx == Sfx.LevelComplete && file) _duckUntil = Time.unscaledTime + clip.length;

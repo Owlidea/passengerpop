@@ -497,6 +497,7 @@ namespace MetroSort.Game
                 _reveal = 1f;
                 Show(_mysteryMark, true);
                 StartAction(_clipReveal);
+                GateFlaps.PlaySound(Sfx.Reveal);
                 Fx.Sparkle(transform.position + Vector3.up * 1.6f, Palette.Line(ColorIndex), 8, 2.4f);
             }
         }
