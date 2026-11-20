@@ -53,6 +53,7 @@ def face_y(x, z, lift=0.0):
 
 # ---------------------------------------------------------------- HD body: import and measure
 HD_H = 1.52           # overall height of the HD character (top of the hair), about that of the built one
+CHIBI = 1.28          # head growth for chibi proportions (the figure keeps HD_H, so the body gets shorter)
 
 
 def smooth01(a, b, x):
@@ -103,6 +104,25 @@ if HD:
         if len(sl) > 8 and (best is None or max(sl) < best[0]):
             best = (max(sl), z)
     NECK_Z = best[1]
+
+    # Chibi proportions, to match the 2D art: the head grows about the neck, then the whole figure is scaled
+    # back to HD_H, so the body comes out shorter. The blend under the neck keeps the shoulders as they were.
+    neck_slice = [c for c in V if abs(c.z - NECK_Z) < 0.01 * H and abs(c.x) < TX]
+    CHIBI_PIVOT = Vector((0.0, sum(c.y for c in neck_slice) / len(neck_slice), NECK_Z))
+    def chibi(c):
+        k = 1 + (CHIBI - 1) * smooth01(NECK_Z - 0.025 * H, NECK_Z + 0.03 * H, c.z)
+        return CHIBI_PIVOT + (c - CHIBI_PIVOT) * k
+    for v in hd.data.vertices:
+        v.co = chibi(v.co)
+    CHIBI_S = HD_H / max(v.co.z for v in hd.data.vertices)
+    for v in hd.data.vertices:
+        v.co = v.co * CHIBI_S
+    V = [v.co.copy() for v in hd.data.vertices]
+    TX *= CHIBI_S
+    NECK_Z *= CHIBI_S
+    CHIBI_PIVOT = CHIBI_PIVOT * CHIBI_S
+    print("HD chibi: head x%.2f, figure x%.3f" % (CHIBI, CHIBI_S))
+
     arm = [c for c in V if abs(c.x) > TX and 0.30 * H < c.z < NECK_Z - 0.02 * H]
     tip_x = max(abs(c.x) for c in arm)
     # the arm's centre line, from two slices well clear of the body, carried back to the shoulder
@@ -556,6 +576,13 @@ def hd_face():
         print("HD face: no face marks for variant %d, no expressions" % HD_VARIANT)
         return
     (e1, e2), (erx, erz), (mx, mz), (mrx, mrz) = marks
+    # the marks were read before the chibi head growth: carry them onto the grown head
+    kk = CHIBI * CHIBI_S
+    pz = CHIBI_PIVOT.z / CHIBI_S
+    def grown(x, z):
+        return x * kk, (pz + (z - pz) * CHIBI) * CHIBI_S
+    e1, e2, (mx, mz) = grown(*e1), grown(*e2), grown(mx, mz)
+    erx, erz, mrx, mrz = erx * kk, erz * kk, mrx * kk, mrz * kk
     E = {-1: (Vector((e1[0], front_y, e1[1])), erx * 1.15, erz * 1.15),
          1: (Vector((e2[0], front_y, e2[1])), erx * 1.15, erz * 1.15)}
     M = (Vector((mx, front_y, mz)), mrx, mrz)
@@ -581,7 +608,7 @@ def hd_face():
         bpy.context.view_layer.update()
         ob.matrix_world = world
 
-    # closed eyes: a skin lid over each painted eye with a happy upward arc drawn on it
+    # closed eyes: a skin lid over each eye with a happy upward arc drawn on it
     for side in (1, -1):
         c, rx, rz = E[side]
         p = Part()
@@ -599,13 +626,14 @@ def hd_face():
     p.torus((0, -0.015, -fr * 0.55), fr * 0.8, 0.012, "MouthIn", seg=12, ring=6, arc=(50, 130), rot=(90, 0, 0))
     place(p, "MouthSad", mc.x, mc.z, 0.004)
     # the game looks for single objects: join the two lids into EyesClosed
-    lids = [bpy.data.objects["EyesClosed_L"], bpy.data.objects["EyesClosed_R"]]
-    bpy.ops.object.select_all(action='DESELECT')
-    for o in lids:
-        o.select_set(True)
-    bpy.context.view_layer.objects.active = lids[0]
-    bpy.ops.object.join()
-    lids[0].name = lids[0].data.name = "EyesClosed"
+    for name in ("EyesClosed",):
+        pair = [bpy.data.objects[name + "_L"], bpy.data.objects[name + "_R"]]
+        bpy.ops.object.select_all(action='DESELECT')
+        for o in pair:
+            o.select_set(True)
+        bpy.context.view_layer.objects.active = pair[0]
+        bpy.ops.object.join()
+        pair[0].name = pair[0].data.name = name
 
 
 if HD:
