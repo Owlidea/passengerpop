@@ -4,27 +4,36 @@
   "group": "Summer",
   "stages": [
     [
-      "RGBrY",
-      "YGGRY",
-      "BBBBB",
-      "GRRGG"
+      "YBGBOP",
+      "BBBGRB",
+      "YBGGRO",
+      "YRYGRG",
+      "YYBRRB"
+    ],
+    [
+      "POROOR",
+      "RORBOO",
+      "OPPPGG",
+      "RRPROBG",
+      "OORBR"
     ]
   ],
+  "trains": "BBGYBRGOYORRPPOORGRB",
   "platforms": [
     {
       "cap": 3
     },
     {
-      "cap": 2,
-      "express": true,
-      "color": "R"
+      "cap": 3
+    },
+    {
+      "cap": 3
     }
   ],
-  "bench": 1,
-  "moveLimit": 25,
-  "visible": 0,
+  "bench": 4,
+  "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 21,
-  "difficulty": 100.0
+  "par": 65,
+  "difficulty": 52.9
 }

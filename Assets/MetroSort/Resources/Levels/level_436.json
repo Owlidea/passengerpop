@@ -4,27 +4,33 @@
   "group": "Emerald",
   "stages": [
     [
-      "GBRYRB",
-      "BRBRY",
-      "GBYGG",
-      "RGRBG"
+      "RORYOGBRGORP",
+      "RPOPGBOGBOOG",
+      "RRBOBYBBPPBB",
+      "RRGPOOOPGGRP",
+      "ROROYPOGGGGO"
     ]
   ],
+  "trains": "RRROPOBGYOOBRGGPGBPO",
   "platforms": [
     {
       "cap": 3
     },
     {
-      "cap": 3,
-      "lockColor": "*",
-      "lockTrains": 1
+      "cap": 3
     }
   ],
-  "bench": 1,
-  "moveLimit": 26,
-  "visible": 0,
+  "bench": 5,
+  "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 22,
-  "difficulty": 83.2
+  "par": 69,
+  "difficulty": 87.1,
+  "gates": [
+    0,
+    0,
+    0,
+    0,
+    6
+  ]
 }

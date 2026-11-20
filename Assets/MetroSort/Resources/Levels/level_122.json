@@ -4,16 +4,15 @@
   "group": "Master",
   "stages": [
     [
-      "BRYbGR",
-      "gRBgb",
-      "YBBGr",
-      "RGRYG"
+      "YYGOOOYPY",
+      "GGROBBBO",
+      "RYOGOPB",
+      "GROGOOB",
+      "GGGOOYPB"
     ]
   ],
+  "trains": "GGYRGOOOPYBBO",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     },
@@ -21,11 +20,10 @@
       "cap": 3
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 2,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 21,
-  "difficulty": 52.2
+  "par": 39,
+  "difficulty": 16.7
 }

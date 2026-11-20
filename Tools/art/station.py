@@ -26,7 +26,8 @@ TRAIN_COLORS = {
 }
 PLATFORM_COLORS = {
     "Slab": (0.90, 0.91, 0.93), "Top": (0.96, 0.97, 0.98), "Skirt": (0.62, 0.66, 0.75),
-    "Slot": (0.74, 0.78, 0.85), "SlotRing": (1, 1, 1), "Outline": (0.14, 0.15, 0.24),
+    "Slot": (0.74, 0.78, 0.85), "SlotRing": (1, 1, 1), "Outline": (0.14, 0.15, 0.24), "Rim": (0.55, 0.62, 0.78),
+    "Coping": (1, 1, 1),
 }
 
 CAR_L, CAR_W, SIDE = 1.42, 1.06, -0.53
@@ -85,15 +86,18 @@ def build_train():
     p.box((0, 0, 0.26), (0.20, 0.10, 0.06), "Wheel", bevel=0.015)
     p.build("Coupler")
 
-    # ---- pantograph, centred on its base
+    # ---- pantograph: a base plate, and the sprung arm as its own piece (origin at its foot) so the game
+    #      can make it bob against the wire
     p = Part()
     p.box((0, 0, 1.32), (0.34, 0.30, 0.04), "Under", bevel=0.012)
+    p.build("Pantograph")
+    p = Part()
     for side in (-1, 1):
         p.capsule((side * 0.13, 0, 1.33), (0, 0, 1.47), 0.016, "Under", seg=6, rings=5)
         p.capsule((0, 0, 1.47), (side * 0.10, 0, 1.61), 0.014, "Under", seg=6, rings=5)
     p.capsule((0.10, -0.30, 1.615), (0.10, 0.30, 1.615), 0.018, "Wheel", seg=6, rings=5)
     p.capsule((-0.10, -0.30, 1.615), (-0.10, 0.30, 1.615), 0.018, "Wheel", seg=6, rings=5)
-    p.build("Pantograph")
+    p.build("PantographArm", origin=(0, 0, 1.33))
 
     # ---- driver cab: joins a car end at x = 0 and noses towards -X
     p = Part()
@@ -132,6 +136,7 @@ def build_train():
             kit.scene.collection.objects.link(g)
         bpy.data.objects["Coupler"].hide_render = True
         bpy.data.objects["Pantograph"].location.x = -0.34
+        bpy.data.objects["PantographArm"].location.x = -0.34
         cab = bpy.data.objects["Cab"]
         cab.location.x = -1.5 - CAR_L / 2
         rear = cab.copy()
@@ -152,6 +157,9 @@ def build_platform():
     p.cone((0, 0, 0.14), D / 2, D / 2, 0.28, "Slab", seg=40, bevel=0.045)
     p.outline(0.03)
     p.cone((0, 0, 0.05), D / 2 + 0.08, D / 2 + 0.08, 0.10, "Skirt", seg=40, bevel=0.02)
+    p.cone((0, 0, 0.195), D / 2 + 0.008, D / 2 + 0.008, 0.055, "Rim", seg=40, bevel=0.012)       # line-coloured band
+    p.cone((0, 0, 0.283), D / 2 - 0.10, D / 2 - 0.10, 0.012, "Top", seg=40, bevel=0.004)         # framed walking surface (just under the middle's, so no seam shows)
+    p.torus((0, 0, 0.291), D / 2 - 0.09, 0.04, "Coping", seg=40, ring=8, arc=(-90, 90))  # raised kerb round the outer half
     p.build("Cap")
 
     p = Part()   # straight middle, one unit long
@@ -162,6 +170,14 @@ def build_platform():
     p.outline(0.03)
     k = h + 0.08
     p.profile([(-k, 0), (k, 0), (k, 0.08), (k - 0.02, 0.10), (-k + 0.02, 0.10), (-k, 0.08)], -0.5, 0.5, "Skirt", smooth=False)
+    b = h + 0.008
+    p.profile([(-b, 0.168), (b, 0.168), (b, 0.222), (-b, 0.222)], -0.5, 0.5, "Rim", smooth=False)
+    t = h - 0.10
+    p.profile([(-t, 0.278), (t, 0.278), (t, 0.29), (-t, 0.29)], -0.5, 0.5, "Top", smooth=False)
+    for sy in (-1, 1):   # raised kerb along both long edges, continuing the ring on the caps
+        c = sy * (h - 0.09)
+        ring = [(c + 0.04 * math.cos(a * math.pi / 4), 0.291 + 0.04 * math.sin(a * math.pi / 4)) for a in range(8)]
+        p.profile(ring, -0.5, 0.5, "Coping")
     p.build("Mid")
 
     p = Part()   # standing spot: a soft ring around a centre dot

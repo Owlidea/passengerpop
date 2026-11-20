@@ -23,6 +23,14 @@ namespace MetroSort.Game
         private readonly Dictionary<int, int> _busyPlatforms = new Dictionary<int, int>();
         private readonly HashSet<int> _occupiedTracks = new HashSet<int>();
         private int _trainsWaiting;
+        /// <summary>Timetable levels: the train standing at each platform, doors open, waiting for its line.</summary>
+        /// Arrivals and departures at a platform are numbered, so the n-th departure always takes the n-th train
+        /// even when one move sends several trains through the same platform (bench passengers board at once).
+        private readonly Dictionary<int, TrainView> _docked = new Dictionary<int, TrainView>();
+        private readonly Dictionary<int, int> _arrivalsIssued = new Dictionary<int, int>();
+        private readonly Dictionary<int, int> _arrivalsDocked = new Dictionary<int, int>();
+        private readonly Dictionary<int, int> _departures = new Dictionary<int, int>();
+        private bool _scheduled;
 
         /// <summary>Raised once all animations for a winning or losing move have finished.</summary>
         public event Action<BoardEvent> Finished;
@@ -56,7 +64,15 @@ namespace MetroSort.Game
             _pendingEnd = null;
             foreach (TrainView t in _trains) _station.ReleaseTrain(t);
             _trains.Clear();
-            foreach (PassengerView v in _boarding) _station.ReleasePassenger(v);
+            _docked.Clear();
+            _arrivalsIssued.Clear();
+            _arrivalsDocked.Clear();
+            _departures.Clear();
+            foreach (PassengerView v in _boarding)
+            {
+                v.EndRide();
+                _station.ReleasePassenger(v);
+            }
             _boarding.Clear();
             _busyPlatforms.Clear();
             _occupiedTracks.Clear();
@@ -79,6 +95,7 @@ namespace MetroSort.Game
                         v.Selected = false;
                         v.Held = false;
                         v.SetAccessible(true);
+                        v.SetSeated(e.Move.IsToBench);
                         _active++;
                         v.WalkTo(target, WalkTime, 0.35f, () =>
                         {
@@ -92,7 +109,8 @@ namespace MetroSort.Game
                         break;
                     }
                     case BoardEventType.PlatformColorAssigned:
-                        _audio.Play(Sfx.Assign);
+                        if (_scheduled && e.Platform < _station.Platforms.Count) StartCoroutine(Arrive(e.Platform, e.Color, epoch));
+                        else _audio.Play(Sfx.Assign);
                         break;
                     case BoardEventType.TrainDeparted:
                         StartCoroutine(TrainSequence(e, epoch));
@@ -120,10 +138,151 @@ namespace MetroSort.Game
             CheckIdle();
         }
 
+        // ------------------------------------------------------------------ timetable trains
+
+        /// <summary>
+        /// Puts the right train at every platform of a timetable level (after a rebuild). animate: they pull in;
+        /// otherwise they are simply there. Classic levels have no waiting trains.
+        /// </summary>
+        public void DockTrains(BoardState state, bool animate)
+        {
+            _scheduled = state != null && state.HasSchedule;
+            if (!_scheduled) return;
+            for (int p = 0; p < state.Platforms.Count && p < _station.Platforms.Count; p++)
+            {
+                PlatformState ps = state.Platforms[p];
+                if (ps.Closed || ps.IsLocked || ps.ReservedColor < 0) continue;
+                if (animate) StartCoroutine(Arrive(p, ps.ReservedColor, _epoch));
+                else
+                {
+                    TrainView train = NewTrain(p, ps.ReservedColor);
+                    train.transform.position = _station.Platforms[p].TrainStop;
+                    train.SetDoors(1f);
+                    train.Humming = true;
+                    int ticket = Next(_arrivalsIssued, p);
+                    _docked[DockKey(p, ticket)] = train;
+                    _arrivalsDocked[p] = ticket + 1;
+                    _occupiedTracks.Add(LaneKey(p));
+                }
+            }
+        }
+
+        private static int DockKey(int platform, int ticket) { return platform * 100000 + ticket; }
+
+        /// <summary>Returns the counter's value for this platform and advances it.</summary>
+        private static int Next(Dictionary<int, int> counters, int platform)
+        {
+            int n;
+            counters.TryGetValue(platform, out n);
+            counters[platform] = n + 1;
+            return n;
+        }
+
+        private static int Get(Dictionary<int, int> counters, int platform)
+        {
+            int n;
+            counters.TryGetValue(platform, out n);
+            return n;
+        }
+
+        /// <summary>On timetable levels every platform has its own stretch of track.</summary>
+        private static int LaneKey(int platform) { return 1000 + platform; }
+
+        private int TrackKey(int platform)
+        {
+            return _scheduled ? LaneKey(platform) : Mathf.RoundToInt(_station.Platforms[platform].TrainStop.z * 10f);
+        }
+
+        /// <summary>
+        /// Which end of the station a platform's trains use: +1 right, -1 left. A platform sharing its track with
+        /// another one uses its own outer end, so a docked train is never driven through.
+        /// </summary>
+        private int SideOf(int platform)
+        {
+            PlatformView me = _station.Platforms[platform];
+            for (int i = 0; i < _station.Platforms.Count; i++)
+            {
+                if (i == platform) continue;
+                PlatformView other = _station.Platforms[i];
+                if (Mathf.Abs(other.TrainStop.z - me.TrainStop.z) < 0.05f)
+                    return me.transform.position.x >= other.transform.position.x ? 1 : -1;
+            }
+            return 1;
+        }
+
+        private bool SharesTrack(int platform)
+        {
+            PlatformView me = _station.Platforms[platform];
+            for (int i = 0; i < _station.Platforms.Count; i++)
+                if (i != platform && Mathf.Abs(_station.Platforms[i].TrainStop.z - me.TrainStop.z) < 0.05f) return true;
+            return false;
+        }
+
+        private TrainView NewTrain(int platform, int color)
+        {
+            TrainView train = _station.AcquireTrain();
+            _trains.Add(train);
+            train.Configure(color, _station.Platforms[platform].Capacity);
+            train.transform.rotation = Quaternion.identity;
+            return train;
+        }
+
+        /// <summary>The next train of the timetable pulls in once the platform's previous train has gone.</summary>
+        private IEnumerator Arrive(int platform, int color, int epoch)
+        {
+            int ticket = Next(_arrivalsIssued, platform);
+            int key = LaneKey(platform);
+            // In timetable order: the previous train must have pulled in and left before this one comes.
+            while ((_occupiedTracks.Contains(key) || Get(_arrivalsDocked, platform) != ticket) && epoch == _epoch) yield return null;
+            if (epoch != _epoch) yield break;
+            _occupiedTracks.Add(key);
+            PlatformView view = _station.Platforms[platform];
+            TrainView train = NewTrain(platform, color);
+            Vector3 stop = view.TrainStop;
+            Vector3 from = stop + Vector3.right * (18f * SideOf(platform));
+            train.transform.position = from;
+            float scale = TrainScale;
+            _audio.Play(Sfx.TrainArrive);
+            DepartureBoard.Flip();
+            for (float t = 0f; t < 1f; t += Time.deltaTime / (0.55f * scale))
+            {
+                if (epoch != _epoch) yield break;
+                train.transform.position = Vector3.LerpUnclamped(from, stop, Ease.OutCubic(t));
+                yield return null;
+            }
+            train.transform.position = stop;
+            if (!GameSettings.ReducedMotion)
+            {
+                Puff.Burst(_pool, stop + new Vector3(0f, 0.15f, -0.45f), 5, 1.8f);
+                train.Brake();
+                for (float t = 0f; t < 1f; t += Time.deltaTime / (0.15f * scale))
+                {
+                    if (epoch != _epoch) yield break;
+                    float rock = Mathf.Sin(t * Mathf.PI * 2f) * (1f - t);
+                    train.transform.position = stop + new Vector3(-rock * 0.05f * SideOf(platform), 0f, 0f);
+                    yield return null;
+                }
+                train.transform.position = stop;
+            }
+            train.Humming = true;
+            _audio.Play(Sfx.Doors);
+            for (float t = 0f; t < 1f; t += Time.deltaTime / (0.12f * scale))
+            {
+                if (epoch != _epoch) yield break;
+                train.SetDoors(Ease.OutCubic(t));
+                yield return null;
+            }
+            train.SetDoors(1f);
+            view.Pulse();
+            _docked[DockKey(platform, ticket)] = train;
+            _arrivalsDocked[platform] = ticket + 1;
+        }
+
         /// <summary>Level complete: confetti rains across the whole station for a moment.</summary>
         public void WinShower()
         {
             Haptics.Success();
+            _station.Punch(-0.035f);
             if (!GameSettings.ReducedMotion) StartCoroutine(Shower(_epoch));
         }
 
@@ -153,6 +312,16 @@ namespace MetroSort.Game
             _busyPlatforms.TryGetValue(e.Platform, out busy);
             _busyPlatforms[e.Platform] = busy + 1;
             PlatformView platform = _station.Platforms[e.Platform];
+            // Timetable levels: the train is already standing here (or still pulling in) with its doors open.
+            TrainView docked = null;
+            int dockKey = 0;
+            bool useDocked = false;
+            if (_scheduled)
+            {
+                int ticket = Next(_departures, e.Platform);
+                useDocked = ticket < Get(_arrivalsIssued, e.Platform);
+                dockKey = DockKey(e.Platform, ticket);
+            }
             var riders = new List<PassengerView>(e.PassengerIds.Length);
             foreach (int id in e.PassengerIds)
             {
@@ -167,6 +336,7 @@ namespace MetroSort.Game
             while (waited < 1.5f && AnyMoving(riders)) { waited += Time.deltaTime; yield return null; }
 
             _audio.Play(Sfx.Match);
+            _audio.Play(Sfx.Cheer);
             platform.Pulse();
             foreach (PassengerView v in riders) v.Celebrate();
             Color line = Palette.Line(e.Color);
@@ -178,7 +348,22 @@ namespace MetroSort.Game
             if (!GameSettings.ReducedMotion) _station.Shake(0.04f);
 
             // One train per track at a time: later trains wait for the line to clear instead of driving through.
-            int track = Mathf.RoundToInt(platform.TrainStop.z * 10f);
+            int track = TrackKey(e.Platform);
+            if (useDocked)
+            {
+                while (docked == null && epoch == _epoch)
+                {
+                    if (_docked.TryGetValue(dockKey, out docked)) _docked.Remove(dockKey);
+                    else yield return null;
+                }
+            }
+            TrainView train = docked;
+            Vector3 stop = platform.TrainStop;
+            Vector3 to = stop + Vector3.right * (18f * (SharesTrack(e.Platform) ? SideOf(e.Platform) : -1f));
+            float scale = TrainScale * (_trainsWaiting > 0 ? 0.65f : 1f);
+            bool lively = !GameSettings.ReducedMotion;
+            if (train == null)
+            {
             if (_occupiedTracks.Contains(track))
             {
                 _trainsWaiting++;
@@ -187,18 +372,14 @@ namespace MetroSort.Game
             }
             _occupiedTracks.Add(track);
 
-            TrainView train = _station.AcquireTrain();
+            train = _station.AcquireTrain();
             _trains.Add(train);
             train.Configure(e.Color, platform.Capacity);
-            Vector3 stop = platform.TrainStop;
             Vector3 from = stop + Vector3.right * 18f;
-            Vector3 to = stop - Vector3.right * 18f;
             train.transform.position = from;
-            // Hurry a little when other trains are queued behind this one.
-            float scale = TrainScale * (_trainsWaiting > 0 ? 0.65f : 1f);
-
-            bool lively = !GameSettings.ReducedMotion;
             _audio.Play(Sfx.TrainArrive);
+            Sway.Gust(-1f);
+            DepartureBoard.Flip();
             for (float t = 0f; t < 1f; t += Time.deltaTime / (0.40f * scale))
             {
                 train.transform.position = Vector3.LerpUnclamped(from, stop, Ease.OutCubic(t));
@@ -211,6 +392,8 @@ namespace MetroSort.Game
             {
                 Puff.Burst(_pool, stop + new Vector3(0f, 0.15f, -0.45f), 7, 2.2f);
                 _station.Shake(0.07f);
+                train.Brake();
+                Fx.Sparkle(train.PantographTop, new Color(1f, 0.93f, 0.55f), 7, 2.2f);
                 for (float t = 0f; t < 1f; t += Time.deltaTime / (0.15f * scale))
                 {
                     float rock = Mathf.Sin(t * Mathf.PI * 2f) * (1f - t);
@@ -222,18 +405,41 @@ namespace MetroSort.Game
                 train.transform.rotation = Quaternion.identity;
             }
 
+            train.Humming = true;
             _audio.Play(Sfx.Doors);
             for (float t = 0f; t < 1f; t += Time.deltaTime / (0.12f * scale)) { train.SetDoors(Ease.OutCubic(t)); yield return null; }
             train.SetDoors(1f);
-
-            for (int i = 0; i < riders.Count; i++)
-                riders[i].Board(train.DoorPosition(i), 0.20f * scale + 0.03f * i);
-            yield return new WaitForSeconds(0.21f * scale + 0.03f * riders.Count);
-            foreach (PassengerView v in riders)
-            {
-                _boarding.Remove(v);
-                _station.ReleasePassenger(v);
             }
+
+            // Boarding: one after another they run to their door and on inside, then pop up at a window and
+            // wave. They stay with the train until it has left the station.
+            int aboard = 0;
+            float run = 0.16f * scale;
+            for (int i = 0; i < riders.Count; i++)
+            {
+                PassengerView v = riders[i];
+                int slot = i;
+                Vector3 door = train.DoorPosition(slot);
+                float ground = v.transform.position.y;
+                var threshold = new Vector3(door.x, ground, door.z - 0.30f);
+                var inside = new Vector3(door.x, ground, door.z + 0.50f);
+                v.RunTo(threshold, run, i * 0.07f * scale, () =>
+                {
+                    if (epoch != _epoch) return;
+                    _audio.Play(Sfx.Step);
+                    v.RunTo(inside, run * 0.7f, 0f, () =>
+                    {
+                        if (epoch != _epoch) return;
+                        v.RideAtWindow(train.CarRoot(slot), TrainView.WindowSeat(slot), TrainView.RiderScale);
+                        aboard++;
+                    });
+                });
+            }
+            float boardingLimit = run * 2f + riders.Count * 0.07f * scale + 0.6f;
+            for (float waitedAboard = 0f; aboard < riders.Count && waitedAboard < boardingLimit; waitedAboard += Time.deltaTime) yield return null;
+            // Anyone who did not make it (reduced motion, a stalled walk) is put straight at their window.
+            for (int i = 0; i < riders.Count; i++)
+                if (riders[i].transform.parent != train.CarRoot(i)) riders[i].RideAtWindow(train.CarRoot(i), TrainView.WindowSeat(i), TrainView.RiderScale);
 
             for (float t = 0f; t < 1f; t += Time.deltaTime / (0.09f * scale)) { train.SetDoors(1f - Ease.Smooth(t)); yield return null; }
             train.SetDoors(0f);
@@ -243,6 +449,10 @@ namespace MetroSort.Game
             // Depart: a short backwards wind-up, then accelerate away trailing puffs.
             if (lively)
             {
+                train.Humming = false;
+                train.Launch();
+                Sway.Gust(-0.8f);
+                Fx.Sparkle(train.PantographTop, new Color(1f, 0.93f, 0.55f), 4, 1.8f);
                 for (float t = 0f; t < 1f; t += Time.deltaTime / (0.07f * scale))
                 {
                     train.transform.position = stop + new Vector3(Mathf.Sin(t * Mathf.PI * 0.5f) * 0.10f, 0f, 0f);
@@ -263,6 +473,12 @@ namespace MetroSort.Game
                 yield return null;
             }
             train.transform.rotation = Quaternion.identity;
+            foreach (PassengerView v in riders)
+            {
+                _boarding.Remove(v);
+                v.EndRide();
+                _station.ReleasePassenger(v);
+            }
             _trains.Remove(train);
             _station.ReleaseTrain(train);
             _occupiedTracks.Remove(track);

@@ -4,32 +4,33 @@
   "group": "Royal",
   "stages": [
     [
-      "GBBRGR",
-      "YRBRY",
-      "GGBBB",
-      "GGRYR"
+      "RRRRYB",
+      "RBBBR",
+      "RYRYR",
+      "RYBRRB",
+      "YYRRB"
+    ],
+    [
+      "BOGYPG",
+      "BBYGOO",
+      "BPPGP",
+      "ORYPPG",
+      "BOOG"
     ]
   ],
+  "trains": "RRYRBYRBBBROYPPOGG",
   "platforms": [
     {
       "cap": 3
     },
     {
       "cap": 3
-    },
-    {
-      "cap": 3
-    },
-    {
-      "cap": 3,
-      "uses": 3
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 2,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 21,
-  "difficulty": 65.6
+  "par": 58,
+  "difficulty": 32.9
 }

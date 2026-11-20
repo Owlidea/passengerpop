@@ -44,6 +44,7 @@ namespace MetroSort.Puzzle
         /// <summary>Finds a shortest solution from the given state, honouring the remaining move limit.</summary>
         public static SolveResult Solve(BoardState start, int maxNodes = DefaultMaxNodes)
         {
+            if (start.HasSchedule && !start.IsWon) return SolveFewestParks(start, maxNodes);
             var result = new SolveResult();
             if (start.IsWon) { result.Solved = true; return result; }
 
@@ -91,13 +92,76 @@ namespace MetroSort.Puzzle
             return result;
         }
 
+        /// <summary>
+        /// Timetable levels take the same number of taps whichever way they are won; what differs is how often a
+        /// passenger has to wait on the bench (each wait costs a star move). 0-1 breadth-first search: boarding
+        /// costs nothing, parking costs one, so the first win popped has the fewest parks.
+        /// </summary>
+        private static SolveResult SolveFewestParks(BoardState start, int maxNodes)
+        {
+            var result = new SolveResult();
+            var states = new List<BoardState> { start.Clone() };
+            var parents = new List<int> { -1 };
+            var moves = new List<Move> { default(Move) };
+            var costs = new List<int> { 0 };
+            var best = new Dictionary<string, int> { { start.CanonicalKey(), 0 } };
+            var done = new HashSet<string>();
+            var open = new LinkedList<int>();
+            open.AddFirst(0);
+            var legal = new List<Move>();
+            while (open.Count > 0)
+            {
+                int head = open.First.Value;
+                open.RemoveFirst();
+                BoardState s = states[head];
+                if (s == null) continue;
+                string key = s.CanonicalKey();
+                if (!done.Add(key)) continue;
+                if (s.IsWon)
+                {
+                    result.Solved = true;
+                    result.NodesExplored = states.Count;
+                    for (int n = head; n > 0; n = parents[n]) result.Moves.Add(moves[n]);
+                    result.Moves.Reverse();
+                    return result;
+                }
+                BoardRules.GetLegalMoves(s, legal);
+                for (int i = 0; i < legal.Count; i++)
+                {
+                    BoardState next = s.Clone();
+                    BoardRules.Apply(next, legal[i], null);
+                    int cost = costs[head] + (legal[i].IsToBench ? 1 : 0);
+                    string nextKey = next.CanonicalKey();
+                    int known;
+                    if (done.Contains(nextKey) || (best.TryGetValue(nextKey, out known) && known <= cost)) continue;
+                    best[nextKey] = cost;
+                    states.Add(next);
+                    parents.Add(head);
+                    moves.Add(legal[i]);
+                    costs.Add(cost);
+                    if (legal[i].IsToBench) open.AddLast(states.Count - 1);
+                    else open.AddFirst(states.Count - 1);
+                    if (states.Count >= maxNodes)
+                    {
+                        result.SearchComplete = false;
+                        result.NodesExplored = states.Count;
+                        return result;
+                    }
+                }
+                states[head] = null;
+            }
+            result.NodesExplored = states.Count;
+            return result;
+        }
+
         /// <summary>Returns a move on a verified shortest solution, or false when the position cannot be won.</summary>
         public static bool TryGetHint(BoardState state, out Move hint, int maxNodes = DefaultMaxNodes)
         {
             // Prefer the most readable good move: joining the fullest matching platform, provided the
             // position is still verifiably winnable afterwards.
             var legal = new List<Move>();
-            BoardRules.GetLegalMoves(state, legal);
+            // Timetable levels: the tap that keeps the bench emptiest over the whole level.
+            if (!state.HasSchedule) BoardRules.GetLegalMoves(state, legal);
             int bestCount = 0;
             Move best = default(Move);
             for (int i = 0; i < legal.Count; i++)

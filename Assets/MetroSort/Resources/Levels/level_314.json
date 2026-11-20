@@ -4,28 +4,15 @@
   "group": "Lakeside",
   "stages": [
     [
-      "GBY",
-      "bRY",
-      "GG",
-      "yB"
-    ],
-    [
-      "RYB",
-      "RBR",
-      "RG",
-      "BG"
-    ],
-    [
-      "GYR",
-      "YBB",
-      "BR",
-      "RR"
+      "OPYYBRYBGRBG",
+      "OYGRBYBBOGBB",
+      "PPOOYBBYBRBY",
+      "BYGPGGYBRGGG",
+      "PGPOBRBBBYGY"
     ]
   ],
+  "trains": "OYGPRPYBOYBBGBRBGBYG",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     },
@@ -33,11 +20,10 @@
       "cap": 3
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 2,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 30,
-  "difficulty": 74.9
+  "par": 68,
+  "difficulty": 95.7
 }

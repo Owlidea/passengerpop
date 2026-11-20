@@ -4,17 +4,22 @@
   "group": "Aurora",
   "stages": [
     [
-      "GRYBG",
-      "YYRYB",
-      "BBRGY",
-      "GRGBR",
-      "YGRB"
+      "GGOGRP",
+      "OPOPPR",
+      "RGRRRO",
+      "ORGRRY",
+      "OGRRPP"
+    ],
+    [
+      "BPYRB",
+      "RPYPGBY",
+      "PPRPGGG",
+      "RYPPGB",
+      "PBYBG"
     ]
   ],
+  "trains": "GOGRRRRPOPPRPYBPYGBG",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     },
@@ -22,25 +27,10 @@
       "cap": 3
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 2,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 24,
-  "difficulty": 75.2,
-  "gates": [
-    0,
-    0,
-    0,
-    1,
-    1
-  ],
-  "gateColors": [
-    "",
-    "",
-    "",
-    "R",
-    "B"
-  ]
+  "par": 63,
+  "difficulty": 24.3
 }

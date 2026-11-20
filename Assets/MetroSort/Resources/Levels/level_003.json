@@ -4,16 +4,13 @@
   "group": "Intro",
   "stages": [
     [
-      "RG",
-      "GB",
-      "BR",
-      "RGB"
+      "GBGB",
+      "RR",
+      "GRB"
     ]
   ],
+  "trains": "GRB",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     },
@@ -21,11 +18,10 @@
       "cap": 3
     }
   ],
-  "bench": 0,
+  "bench": 3,
   "moveLimit": 0,
-  "visible": 0,
   "extraPlatforms": 1,
-  "tutorial": "queue_advance",
+  "tutorial": "bench_wait",
   "par": 9,
-  "difficulty": 39.9
+  "difficulty": 0.0
 }

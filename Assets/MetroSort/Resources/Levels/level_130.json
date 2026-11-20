@@ -4,36 +4,33 @@
   "group": "Master",
   "stages": [
     [
-      "GYR",
-      "BRY",
-      "BB",
-      "GG"
-    ],
-    [
-      "RGB",
-      "GRB",
-      "BRY",
-      "RG"
+      "OPYORYYBOY",
+      "POBYGYPYPO",
+      "OYPOYYOOY",
+      "YBBRPYGGB",
+      "ROYPPPOYOB"
     ]
   ],
+  "trains": "OPYYRBYOPGOYPBOY",
   "platforms": [
     {
       "cap": 3
     },
     {
       "cap": 3
-    },
-    {
-      "cap": 3,
-      "lockColor": "*",
-      "lockTrains": 1
     }
   ],
-  "bench": 0,
+  "bench": 4,
   "moveLimit": 0,
-  "visible": 2,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 21,
-  "difficulty": 66.7
+  "par": 53,
+  "difficulty": 60.8,
+  "gates": [
+    0,
+    0,
+    5,
+    0,
+    0
+  ]
 }

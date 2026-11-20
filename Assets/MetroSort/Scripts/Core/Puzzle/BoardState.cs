@@ -108,6 +108,15 @@ namespace MetroSort.Puzzle
         public int[] GateColors;
         /// <summary>Departed trains per line, for colour-keyed gates. Null when the level has none.</summary>
         public int[] TrainsByColor;
+        /// <summary>Train schedule (line per train, arrival order). Null = classic rules. Shared, never mutated.</summary>
+        public int[] Schedule;
+        /// <summary>Index into Schedule of the next train still to arrive at a platform.</summary>
+        public int NextTrain;
+
+        public bool HasSchedule { get { return Schedule != null; } }
+
+        /// <summary>Lines of the trains still to come after the ones already at platforms.</summary>
+        public int UpcomingTrains { get { return Schedule != null ? Schedule.Length - NextTrain : 0; } }
 
         /// <summary>The line a gate waits for, or ColorCodes.Any.</summary>
         public int GateColor(int queue)
@@ -185,6 +194,18 @@ namespace MetroSort.Puzzle
                 s.GateColors = (int[])level.GateColors.Clone();
                 s.TrainsByColor = new int[ColorCodes.Count];
             }
+            if (level.HasSchedule)
+            {
+                s.Schedule = new int[level.Trains.Length];
+                for (int i = 0; i < s.Schedule.Length; i++)
+                {
+                    int color; bool vip;
+                    if (!ColorCodes.TryParse(level.Trains[i], out color, out vip))
+                        throw new FormatException("Unknown train code '" + level.Trains[i] + "' in level " + level.Id);
+                    s.Schedule[i] = color;
+                }
+                for (int i = 0; i < s.Platforms.Count; i++) BoardRules.CallNextTrain(s, i, null);
+            }
             s.Queues = new PassengerQueue[0];
             if (s.AllStages.Length > 0) s.LoadStage(0);
             return s;
@@ -212,7 +233,9 @@ namespace MetroSort.Puzzle
                 TrainsDeparted = TrainsDeparted,
                 Gates = Gates,
                 GateColors = GateColors,
-                TrainsByColor = TrainsByColor != null ? (int[])TrainsByColor.Clone() : null
+                TrainsByColor = TrainsByColor != null ? (int[])TrainsByColor.Clone() : null,
+                Schedule = Schedule,
+                NextTrain = NextTrain
             };
             c.Queues = new PassengerQueue[Queues.Length];
             for (int i = 0; i < Queues.Length; i++) c.Queues[i] = Queues[i].Clone();
@@ -231,7 +254,7 @@ namespace MetroSort.Puzzle
             var parts = new List<string>(Math.Max(Queues.Length, Platforms.Count));
             var tmp = new StringBuilder(16);
 
-            sb.Append(Stage).Append('#');
+            sb.Append(Stage).Append('t').Append(NextTrain).Append('#');
             for (int i = 0; i < Queues.Length; i++)
             {
                 if (Queues[i].IsEmpty) continue;

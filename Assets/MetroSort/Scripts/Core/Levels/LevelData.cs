@@ -40,6 +40,14 @@ namespace MetroSort.Levels
         public int Bench;
         public int MoveLimit;
         /// <summary>
+        /// Train schedule: one line letter per train, in arrival order. Empty = classic rules (a platform takes
+        /// the colour of its first passenger). Otherwise every platform is a track where the next scheduled train
+        /// waits for its own line, and passengers with no train go to the waiting bench. JSON: "trains": "RRBG".
+        /// </summary>
+        public string Trains = "";
+
+        public bool HasSchedule { get { return !string.IsNullOrEmpty(Trains); } }
+        /// <summary>
         /// Mystery queues: 0 shows everyone. Otherwise only the first N passengers of each queue show their line;
         /// the rest stay grey until they move up. Presentation only - the rules and the solver are unaffected.
         /// </summary>
@@ -109,6 +117,7 @@ namespace MetroSort.Levels
                 Visible = JsonRead.Int(root, "visible", 0),
                 ExtraPlatforms = JsonRead.Int(root, "extraPlatforms", 1),
                 Tutorial = JsonRead.Str(root, "tutorial", ""),
+                Trains = JsonRead.Str(root, "trains", ""),
                 Par = JsonRead.Int(root, "par", 0),
                 Difficulty = JsonRead.Float(root, "difficulty", 0f)
             };
@@ -185,6 +194,7 @@ namespace MetroSort.Levels
                 plats.Add(pd);
             }
             root["platforms"] = plats;
+            if (HasSchedule) root["trains"] = Trains;
             root["bench"] = Bench;
             root["moveLimit"] = MoveLimit;
             if (Visible > 0) root["visible"] = Visible;

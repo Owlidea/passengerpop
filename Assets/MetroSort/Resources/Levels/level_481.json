@@ -4,33 +4,23 @@
   "group": "Ivory",
   "stages": [
     [
-      "GBBGr",
-      "bRBBG",
-      "YGRYG",
-      "GyBRR"
+      "YOBPRBGBRORYY",
+      "POROGGOGRROO",
+      "YPOGOGPPRGOG",
+      "RGGBOROGPGR",
+      "YOOOOBBRRYOO"
     ]
   ],
+  "trains": "YPORGBOOGOGBRPRORGYO",
   "platforms": [
     {
       "cap": 3
-    },
-    {
-      "cap": 3
-    },
-    {
-      "cap": 3
-    },
-    {
-      "cap": 2,
-      "express": true,
-      "color": "R"
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 2,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 20,
-  "difficulty": 53.4
+  "par": 65,
+  "difficulty": 92.9
 }

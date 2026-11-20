@@ -4,30 +4,25 @@
   "group": "Intermediate",
   "stages": [
     [
-      "YRYGB",
-      "BYGBR",
-      "RGRB",
-      "BBRR"
+      "BGBGY",
+      "RGRBBB",
+      "GYRGYY",
+      "BRGRYRY"
     ]
   ],
+  "trains": "BGBRYRGY",
   "platforms": [
     {
       "cap": 3
     },
     {
       "cap": 3
-    },
-    {
-      "cap": 3,
-      "lockColor": "B",
-      "lockTrains": 1
     }
   ],
-  "bench": 0,
+  "bench": 4,
   "moveLimit": 0,
-  "visible": 0,
   "extraPlatforms": 1,
-  "tutorial": "locked",
-  "par": 18,
-  "difficulty": 66.7
+  "tutorial": "",
+  "par": 26,
+  "difficulty": 13.3
 }

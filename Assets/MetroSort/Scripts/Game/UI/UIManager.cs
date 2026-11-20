@@ -28,7 +28,7 @@ namespace MetroSort.Game
 
         private GameApp _app;
         private RectTransform _canvasRect, _root, _labelLayer, _pointer;
-        private GameObject _menu, _hud, _settings, _win, _lose, _shop, _levels, _tutorialBanner;
+        private GameObject _menuBackdrop, _menu, _hud, _settings, _win, _lose, _shop, _levels, _tutorialBanner;
         private Text _menuCoins, _menuLevel, _hudCoins, _hudTitle, _hudProgress, _tutorialText, _toastText;
         private Text _winCoins, _loseTitle, _loseReason, _shopCoins;
         private Button _dailyButton, _winAdButton, _loseUndo, _losePlatform, _removeAdsButton;
@@ -37,13 +37,17 @@ namespace MetroSort.Game
         private readonly Text[] _boosterBadges = new Text[4];
         private readonly Button[] _shopBoosterButtons = new Button[4];
         private readonly Image[] _winStars = new Image[3];
+        private readonly FlipBook[] _winStarSpins = new FlipBook[3];
+        private FlipBook _winCoinSpin;
         private readonly List<Text> _labels = new List<Text>();
         private CanvasGroup _toastGroup;
         private RectTransform _levelsGrid;
-        private Text _levelsPageLabel;
+        private Text _levelsPageLabel, _levelsBannerName;
+        private Image _levelsBanner;
         private Button _levelsPrev, _levelsNext;
         private int _levelsPage;
         private const int LevelsPerPage = Chapters.Size;
+        private const int ChapterPictures = 15;
         private float _toastUntil, _secretTime;
         private int _secretTaps;
         private bool _pointerOn, _settingsInGame;
@@ -129,9 +133,46 @@ namespace MetroSort.Game
             RectTransform menu = UiKit.Stretch(UiKit.MakeRect("Menu", _root));
             _menu = menu.gameObject;
 
-            Image plate = UiKit.MakeImage(menu, "TitlePlate", UiKit.ButtonSprite, Palette.UiPrimary);
-            plate.pixelsPerUnitMultiplier = 0.6f;
-            UiKit.Place(plate.rectTransform, 0.5f, 1f, 0f, -190f, 880f, 300f);
+            // Key art fills the whole screen (not just the safe area) behind the menu, cropped to cover.
+            Sprite keyArt = UiKit.Art("keyart");
+            if (keyArt != null)
+            {
+                Image backdrop = UiKit.MakeImage(_root.parent, "MenuBackdrop", keyArt, Color.white);
+                UiKit.Stretch(backdrop.rectTransform);
+                var cover = backdrop.gameObject.AddComponent<AspectRatioFitter>();
+                cover.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                cover.aspectRatio = keyArt.rect.width / keyArt.rect.height;
+                backdrop.transform.SetSiblingIndex(_root.GetSiblingIndex());
+                _menuBackdrop = backdrop.gameObject;
+            }
+
+            Sprite logo = UiKit.Art("logo");
+            Image plate;
+            if (logo != null)
+            {
+                plate = UiKit.MakeImage(menu, "TitlePlate", logo, Color.white);
+                plate.preserveAspect = true;
+                UiKit.Place(plate.rectTransform, 0.5f, 1f, 0f, -150f, 800f, 800f * logo.rect.height / logo.rect.width);
+                plate.gameObject.AddComponent<Bob>();
+            }
+            else
+            {
+                plate = UiKit.MakeImage(menu, "TitlePlate", UiKit.ButtonSprite, Palette.UiPrimary);
+                plate.pixelsPerUnitMultiplier = 0.6f;
+                UiKit.Place(plate.rectTransform, 0.5f, 1f, 0f, -190f, 880f, 300f);
+                Text title = UiKit.MakeText(plate.transform, "METRO SORT", 116, Color.white);
+                UiKit.Stretch(title.rectTransform, 20f, 104f, 20f, 16f);
+                UiKit.Emboss(title, new Color(0.06f, 0.20f, 0.46f, 0.95f));
+                title.GetComponent<Outline>().effectDistance = new Vector2(4f, -4f);
+                Image strip = UiKit.MakeImage(plate.transform, "LineStrip", UiKit.Rounded, Color.white);
+                UiKit.Place(strip.rectTransform, 0.5f, 0f, 0f, 44f, 520f, 76f);
+                for (int i = 0; i < Palette.Lines.Length; i++)
+                {
+                    Image dot = UiKit.MakeImage(plate.transform, "Line" + i, UiKit.Circle, Palette.Lines[i]);
+                    UiKit.Place(dot.rectTransform, 0.5f, 0f, (i - 2.5f) * 76f, 82f, 46f, 46f);
+                    dot.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                }
+            }
             // Tester shortcut: seven quick taps on the title unlock every level. Remove before a public release.
             plate.raycastTarget = true;
             var secret = plate.gameObject.AddComponent<Button>();
@@ -148,18 +189,6 @@ namespace MetroSort.Game
                 Refresh();
                 Toast("All levels unlocked for testing");
             });
-            Text title = UiKit.MakeText(plate.transform, "METRO SORT", 116, Color.white);
-            UiKit.Stretch(title.rectTransform, 20f, 104f, 20f, 16f);
-            UiKit.Emboss(title, new Color(0.06f, 0.20f, 0.46f, 0.95f));
-            title.GetComponent<Outline>().effectDistance = new Vector2(4f, -4f);
-            Image strip = UiKit.MakeImage(plate.transform, "LineStrip", UiKit.Rounded, Color.white);
-            UiKit.Place(strip.rectTransform, 0.5f, 0f, 0f, 44f, 520f, 76f);
-            for (int i = 0; i < Palette.Lines.Length; i++)
-            {
-                Image dot = UiKit.MakeImage(plate.transform, "Line" + i, UiKit.Circle, Palette.Lines[i]);
-                UiKit.Place(dot.rectTransform, 0.5f, 0f, (i - 2.5f) * 76f, 82f, 46f, 46f);
-                dot.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-            }
 
             Button settings = Btn(menu, "", Palette.UiPrimary, () => OpenSettings(false), 112f, 108f, 38);
             settings.name = "Button_Settings";
@@ -187,7 +216,10 @@ namespace MetroSort.Game
             for (int i = 0; i < small.Length; i++)
             {
                 UiKit.AddIcon(small[i].transform, smallIcons[i], 92f, 0f, 0.5f, 62f, 6f);
-                UiKit.Stretch(UiKit.LabelOf(small[i]).rectTransform, 112f, 16f, 14f, 6f);
+                Text label = UiKit.LabelOf(small[i]);
+                UiKit.Stretch(label.rectTransform, 112f, 16f, 14f, 6f);
+                // Two-word labels wrap here; keep them small enough that both lines stay inside the button.
+                label.resizeTextMaxSize = 36;
             }
         }
 
@@ -208,6 +240,7 @@ namespace MetroSort.Game
             UiKit.Place(_hudProgress.rectTransform, 0.5f, 0f, -20f, 16f, 600f, 60f);
             _hudCoins = CoinPill(bar.transform, 1f, 0.5f, -20f, 0f);
             ((RectTransform)_hudCoins.transform.parent).sizeDelta = new Vector2(210f, 86f);
+            BuildScheduleBar(hud);
 
             Action[] actions = { () => _app.Game.UseUndo(), () => _app.Game.UseHint(), () => _app.Game.UseExtraPlatform(), () => _app.Game.UseShuffle() };
             for (int i = 0; i < 4; i++)
@@ -229,12 +262,64 @@ namespace MetroSort.Game
             Image banner = UiKit.MakeImage(hud, "Tutorial", UiKit.Card, Color.white);
             UiKit.Place(banner.rectTransform, 0.5f, 0f, 0f, 232f, 990f, 116f);
             _tutorialText = UiKit.MakeText(banner.transform, "", 38, Palette.UiInk);
-            UiKit.Stretch(_tutorialText.rectTransform, 26f, 8f, 26f, 8f);
+            Sprite guide = UiKit.Art("conductor_point");
+            if (guide != null)
+            {
+                Image img = UiKit.MakeImage(banner.transform, "Conductor", guide, Color.white);
+                img.preserveAspect = true;
+                UiKit.Place(img.rectTransform, 0f, 0f, 6f, 8f, 180f, 180f);
+            }
+            UiKit.Stretch(_tutorialText.rectTransform, guide != null ? 190f : 26f, 8f, 26f, 8f);
             _tutorialText.resizeTextForBestFit = true;
             _tutorialText.resizeTextMinSize = 22;
             _tutorialText.resizeTextMaxSize = 38;
             _tutorialBanner = banner.gameObject;
             _tutorialBanner.SetActive(false);
+        }
+
+        private GameObject _scheduleBar;
+        private readonly Image[] _scheduleChips = new Image[ScheduleChips];
+        private Text _scheduleMore;
+        private const int ScheduleChips = 5;
+
+        /// <summary>Departure board under the top bar: the lines of the next trains, in arrival order.</summary>
+        private void BuildScheduleBar(RectTransform hud)
+        {
+            Image card = UiKit.MakeImage(hud, "NextTrains", UiKit.Card, new Color(0.10f, 0.13f, 0.22f, 0.92f));
+            UiKit.Place(card.rectTransform, 0.5f, 1f, 0f, -208f, 880f, 78f);
+            _scheduleBar = card.gameObject;
+            Text title = UiKit.MakeText(card.transform, Loc.T("Next trains"), 32, new Color(1f, 0.82f, 0.35f), TextAnchor.MiddleLeft);
+            UiKit.Place(title.rectTransform, 0f, 0.5f, 28f, 0f, 300f, 70f);
+            title.rectTransform.pivot = new Vector2(0f, 0.5f);
+            title.resizeTextForBestFit = true;
+            title.resizeTextMinSize = 18;
+            title.resizeTextMaxSize = 32;
+            for (int i = 0; i < ScheduleChips; i++)
+            {
+                Image chip = UiKit.MakeImage(card.transform, "Train" + i, UiKit.Rounded, Color.white);
+                float size = i == 0 ? 58f : 46f;
+                UiKit.Place(chip.rectTransform, 0f, 0.5f, 340f + i * 82f + (i == 0 ? 0f : 10f), 0f, size * 1.3f, size);
+                _scheduleChips[i] = chip;
+            }
+            _scheduleMore = UiKit.MakeText(card.transform, "", 32, Color.white, TextAnchor.MiddleRight);
+            UiKit.Place(_scheduleMore.rectTransform, 1f, 0.5f, -24f, 0f, 420f, 70f);
+            _scheduleBar.SetActive(false);
+        }
+
+        private void RefreshSchedule(BoardState state)
+        {
+            if (_scheduleBar == null) return;
+            bool on = state != null && state.HasSchedule;
+            _scheduleBar.SetActive(on);
+            if (!on) return;
+            int left = state.UpcomingTrains;
+            for (int i = 0; i < ScheduleChips; i++)
+            {
+                bool shown = i < left;
+                _scheduleChips[i].gameObject.SetActive(shown);
+                if (shown) _scheduleChips[i].color = Palette.Line(state.Schedule[state.NextTrain + i]);
+            }
+            _scheduleMore.text = left > ScheduleChips ? "+" + (left - ScheduleChips) : left == 0 ? Loc.T("Last trains") : "";
         }
 
         private void BuildPointer(Transform canvas)
@@ -244,6 +329,149 @@ namespace MetroSort.Game
             Image core = UiKit.MakeImage(ring.transform, "Core", UiKit.Circle, Color.white);
             UiKit.Place(core.rectTransform, 0.5f, 0.5f, 0f, 0f, 40f, 40f);
             _pointer.gameObject.SetActive(false);
+        }
+
+        /// <summary>Puts artwork at the left end of a wide row button and moves its label over.</summary>
+        private static void RowIcon(Button row, string icon)
+        {
+            if (UiKit.Icon(icon) == null) return;
+            float h = ((RectTransform)row.transform).sizeDelta.y;
+            UiKit.AddIcon(row.transform, icon, h * 0.86f, 0f, 0.5f, 62f, 5f);
+            UiKit.Stretch(UiKit.LabelOf(row).rectTransform, 112f, Mathf.Min(16f, h * 0.12f), 14f, 6f);
+        }
+
+        /// <summary>The conductor standing on top of a modal card. Returns null when the artwork is missing.</summary>
+        private static Image Mascot(RectTransform card, string pose, float size, float x, float y)
+        {
+            Sprite sprite = UiKit.Art("conductor_" + pose);
+            if (sprite == null) return null;
+            Image img = UiKit.MakeImage(card, "Conductor", sprite, Color.white);
+            img.preserveAspect = true;
+            img.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
+            RectTransform rt = img.rectTransform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
+            rt.pivot = new Vector2(0.5f, 0f);
+            rt.anchoredPosition = new Vector2(x, y);
+            rt.sizeDelta = new Vector2(size, size);
+            img.gameObject.AddComponent<Bob>().Height = 6f;
+            return img;
+        }
+
+        private bool _hadHint;
+
+        /// <summary>The conductor slides up from the bottom corner for a moment (a hint was found).</summary>
+        private void MascotPop(string pose)
+        {
+            Sprite sprite = UiKit.Art("conductor_" + pose);
+            if (sprite == null || GameSettings.ReducedMotion || !isActiveAndEnabled) return;
+            StartCoroutine(MascotPopRoutine(sprite));
+        }
+
+        private IEnumerator MascotPopRoutine(Sprite sprite)
+        {
+            Image img = UiKit.MakeImage(_root, "ConductorPop", sprite, Color.white);
+            img.preserveAspect = true;
+            _flying.Add(img.gameObject);
+            RectTransform rt = img.rectTransform;
+            rt.anchorMin = rt.anchorMax = rt.pivot = Vector2.zero;
+            rt.sizeDelta = new Vector2(300f, 300f);
+            const float hidden = -320f, shown = 250f;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.30f)
+            {
+                if (img == null) yield break;
+                rt.anchoredPosition = new Vector2(12f, Mathf.LerpUnclamped(hidden, shown, Ease.OutBack(t)));
+                yield return null;
+            }
+            for (float t = 0f; t < 1.4f; t += Time.unscaledDeltaTime)
+            {
+                if (img == null) yield break;
+                rt.anchoredPosition = new Vector2(12f, shown + Mathf.Sin(t * 6f) * 6f);
+                yield return null;
+            }
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.22f)
+            {
+                if (img == null) yield break;
+                rt.anchoredPosition = new Vector2(12f, Mathf.Lerp(shown, hidden, Ease.InCubic(t)));
+                yield return null;
+            }
+            if (img != null) Destroy(img.gameObject);
+        }
+
+        /// <summary>
+        /// A reward opens in the middle of the screen: the closed box wobbles, cracks open, then bursts, with the
+        /// conductor looking on. prefix names the three pictures (gift_0..2 or chest_0..2). Falls back to a toast.
+        /// </summary>
+        private void RevealReward(string prefix, string message)
+        {
+            if (GameSettings.ReducedMotion || UiKit.Art(prefix + "_0") == null || UiKit.Art(prefix + "_2") == null || !isActiveAndEnabled)
+            {
+                _app.Audio.Play(Sfx.Coins);
+                Toast(message);
+                return;
+            }
+            StartCoroutine(RevealRoutine(prefix, message));
+        }
+
+        private IEnumerator RevealRoutine(string prefix, string message)
+        {
+            Image dim = UiKit.MakeImage(_root, "RewardReveal", UiKit.Rounded, new Color(0.05f, 0.07f, 0.14f, 0f), true);
+            UiKit.Stretch(dim.rectTransform, -40f, -40f, -40f, -40f);
+            _flying.Add(dim.gameObject);
+            Image box = UiKit.MakeImage(dim.transform, "Box", UiKit.Art(prefix + "_0"), Color.white);
+            box.preserveAspect = true;
+            UiKit.Place(box.rectTransform, 0.5f, 0.5f, 0f, 150f, 560f, 560f);
+            Sprite onlooker = UiKit.Art("conductor_surprised");
+            Image guide = null;
+            if (onlooker != null)
+            {
+                guide = UiKit.MakeImage(dim.transform, "Conductor", onlooker, new Color(1f, 1f, 1f, 0f));
+                guide.preserveAspect = true;
+                UiKit.Place(guide.rectTransform, 0.5f, 0.5f, 340f, -150f, 300f, 300f);
+            }
+            Text label = UiKit.MakeText(dim.transform, Loc.T(message), 56, new Color(1f, 1f, 1f, 0f));
+            UiKit.Place(label.rectTransform, 0.5f, 0.5f, 0f, -250f, 960f, 100f);
+            RectTransform b = box.rectTransform;
+
+            // Closed: drops in and shakes with what is inside.
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.55f)
+            {
+                if (dim == null) yield break;
+                dim.color = new Color(0.05f, 0.07f, 0.14f, Mathf.Min(1f, t * 4f) * 0.88f);
+                b.localScale = Vector3.one * Ease.OutBack(Mathf.Min(1f, t * 3f));
+                b.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * Mathf.PI * 7f) * 8f * t);
+                yield return null;
+            }
+            // Half open.
+            box.sprite = UiKit.Art(prefix + "_1") ?? box.sprite;
+            b.localRotation = Quaternion.identity;
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.16f)
+            {
+                if (dim == null) yield break;
+                b.localScale = Vector3.one * (1f + Mathf.Sin(t * Mathf.PI) * 0.10f);
+                yield return null;
+            }
+            // Open: the burst.
+            box.sprite = UiKit.Art(prefix + "_2");
+            _app.Audio.Play(Sfx.Coins);
+            Haptics.Success();
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.30f)
+            {
+                if (dim == null) yield break;
+                b.localScale = Vector3.one * Mathf.LerpUnclamped(0.82f, 1.12f, Ease.OutBack(t));
+                label.color = new Color(1f, 1f, 1f, t);
+                if (guide != null) guide.color = new Color(1f, 1f, 1f, t);
+                yield return null;
+            }
+            yield return new WaitForSecondsRealtime(1.25f);
+            if (dim == null) yield break;
+            var group = dim.gameObject.AddComponent<CanvasGroup>();
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.2f)
+            {
+                if (dim == null) yield break;
+                group.alpha = 1f - t;
+                yield return null;
+            }
+            if (dim != null) Destroy(dim.gameObject);
         }
 
         private Button Row(RectTransform content, string label, Color color, Action onClick, float height = 112f, int font = 42)
@@ -288,6 +516,7 @@ namespace MetroSort.Game
         {
             RectTransform content;
             _shop = UiKit.Modal(_root, "Shop", "Shop", out content);
+            Mascot(content, "thumbs", 240f, 110f, 30f);
             _shopCoins = UiKit.MakeText(content, "", 46, Palette.UiInk);
             _shopCoins.rectTransform.sizeDelta = new Vector2(780f, 64f);
             GameServices s = _app.Services;
@@ -299,18 +528,26 @@ namespace MetroSort.Game
                     if (s.Boosters.Buy(type)) _app.Audio.Play(Sfx.Coins);
                     else Toast("Not enough coins");
                 }, 100f, 38);
+                RowIcon(_shopBoosterButtons[i], BoosterIcons[i]);
             }
-            Row(content, Loc.F("Watch an ad: +{0} coins (optional)", s.Config.RewardedAdCoins), new Color(0.96f, 0.62f, 0.20f), WatchAdForCoins, 100f, 38);
+            RowIcon(Row(content, Loc.F("Watch an ad: +{0} coins (optional)", s.Config.RewardedAdCoins), new Color(0.96f, 0.62f, 0.20f), WatchAdForCoins, 100f, 38), "gift");
+            int biggest = 0;
+            foreach (StoreProduct product in StoreCatalog.Products) biggest = Mathf.Max(biggest, product.Coins);
             foreach (StoreProduct product in StoreCatalog.Products)
             {
                 StoreProduct p = product;
                 string label = p.Consumable ? Loc.T(p.Title) + "  +" + p.Coins + "   " + p.PriceLabel : Loc.T(p.Title) + "   " + p.PriceLabel;
                 Button b = Row(content, label, Palette.UiInk, () => s.Store.Buy(p.Id, ok =>
                 {
-                    if (ok) _app.Audio.Play(Sfx.Coins);
-                    Toast(ok ? Loc.F("Thank you! {0} added", Loc.T(p.Title)) : "Purchase was not completed");
+                    if (ok && p.Consumable) RevealReward("chest", Loc.F("Thank you! {0} added", Loc.T(p.Title)));
+                    else
+                    {
+                        if (ok) _app.Audio.Play(Sfx.Coins);
+                        Toast(ok ? Loc.F("Thank you! {0} added", Loc.T(p.Title)) : "Purchase was not completed");
+                    }
                 }), 100f, 38);
                 if (!p.Consumable) _removeAdsButton = b;
+                else RowIcon(b, p.Coins >= biggest ? "chest" : "coins");
             }
             Row(content, "Close", Palette.UiGreen, () => _shop.SetActive(false), 120f, 50);
         }
@@ -319,6 +556,20 @@ namespace MetroSort.Game
         {
             RectTransform content;
             _levels = UiKit.Modal(_root, "Levels", "Levels", out content);
+            Mascot(content, "think", 240f, -230f, 30f);
+            if (UiKit.Art("chapter_0") != null)
+            {
+                // A picture of the line's station, clipped to rounded corners, with the line name on it.
+                Image frame = UiKit.MakeImage(content, "Banner", UiKit.Rounded, Color.white);
+                frame.rectTransform.sizeDelta = new Vector2(780f, 260f);
+                frame.pixelsPerUnitMultiplier = 0.7f;
+                frame.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+                _levelsBanner = UiKit.MakeImage(frame.transform, "Picture", null, Color.white);
+                UiKit.Stretch(_levelsBanner.rectTransform);
+                _levelsBannerName = UiKit.MakeText(frame.transform, "", 54, Color.white, TextAnchor.LowerCenter);
+                UiKit.Stretch(_levelsBannerName.rectTransform, 20f, 6f, 20f, 20f);
+                UiKit.Emboss(_levelsBannerName, new Color(0.04f, 0.08f, 0.20f, 0.9f));
+            }
             _levelsGrid = UiKit.MakeRect("Grid", content);
             var grid = _levelsGrid.gameObject.AddComponent<GridLayoutGroup>();
             grid.cellSize = new Vector2(140f, 140f);
@@ -346,17 +597,49 @@ namespace MetroSort.Game
         private void BuildWin()
         {
             RectTransform content;
-            _win = UiKit.Modal(_root, "LevelComplete", "Level Complete!", out content);
+            Sprite ribbon = UiKit.Art("ribbon");
+            _win = UiKit.Modal(_root, "LevelComplete", ribbon != null ? "" : "Level Complete!", out content);
+            Mascot(content, "cheer", 330f, 0f, 50f);
+            if (ribbon != null)
+            {
+                // The ribbon is wider than the card and overlaps its top edge; the conductor stands behind it.
+                RectTransform slot = UiKit.MakeRect("Title", content);
+                slot.sizeDelta = new Vector2(780f, 130f);
+                Image band = UiKit.MakeImage(slot, "Ribbon", ribbon, Color.white);
+                band.preserveAspect = true;
+                float bandWidth = 980f, bandHeight = bandWidth * ribbon.rect.height / ribbon.rect.width;
+                UiKit.Place(band.rectTransform, 0.5f, 0.5f, 0f, 40f, bandWidth, bandHeight);
+                Text t = UiKit.MakeText(band.transform, "Level Complete!", 62, Color.white);
+                UiKit.Place(t.rectTransform, 0.5f, 0.5f, 0f, bandHeight * 0.13f, bandWidth * 0.60f, 110f);
+                t.resizeTextForBestFit = true;
+                t.resizeTextMinSize = 30;
+                t.resizeTextMaxSize = 62;
+                t.horizontalOverflow = HorizontalWrapMode.Overflow;
+                UiKit.Emboss(t, new Color(0.50f, 0.06f, 0.10f, 0.9f));
+            }
             RectTransform stars = UiKit.MakeRect("Stars", content);
-            stars.sizeDelta = new Vector2(780f, 180f);
+            stars.sizeDelta = new Vector2(780f, 200f);
+            Sprite rays = UiKit.Art("rays");
+            if (rays != null)
+            {
+                Image glow = UiKit.MakeImage(stars, "Rays", rays, new Color(1f, 0.86f, 0.35f, 0.9f));
+                UiKit.Place(glow.rectTransform, 0.5f, 0.5f, 0f, 10f, 560f, 560f);
+                glow.gameObject.AddComponent<Spin>();
+            }
             for (int i = 0; i < 3; i++)
             {
                 _winStars[i] = UiKit.MakeImage(stars, "Star" + i, UiKit.Icon("star"), Color.white);
                 _winStars[i].preserveAspect = true;
-                UiKit.Place(_winStars[i].rectTransform, 0.5f, 0.5f, (i - 1) * 215f, i == 1 ? 18f : 0f, i == 1 ? 230f : 200f, i == 1 ? 230f : 200f);
+                float starSize = i == 1 ? 240f : 200f;
+                UiKit.Place(_winStars[i].rectTransform, 0.5f, 0.5f, (i - 1) * 215f, i == 1 ? 22f : 0f, starSize, starSize);
+                // An earned star is the 3D one, turning as it lands; the flat picture stays for empty slots.
+                _winStarSpins[i] = UiKit.MakeFlipBook(_winStars[i].transform, "star_spin", starSize * 1.15f);
+                if (_winStarSpins[i] != null) _winStarSpins[i].Interval = 3.5f + i * 0.6f;
             }
             _winCoins = UiKit.MakeText(content, "", 52, Palette.UiInk);
             _winCoins.rectTransform.sizeDelta = new Vector2(780f, 76f);
+            _winCoinSpin = UiKit.MakeFlipBook(_winCoins.transform, "coin_spin", 84f);
+            if (_winCoinSpin != null) _winCoinSpin.Loop = true;
             Row(content, "Continue", Palette.UiGreen, OnContinue, 150f, 60);
             _winAdButton = Row(content, Loc.F("Watch an ad: +{0} coins (optional)", _app.Services.Config.RewardedAdCoins), new Color(0.96f, 0.62f, 0.20f), () =>
             {
@@ -370,6 +653,7 @@ namespace MetroSort.Game
         {
             RectTransform content;
             _lose = UiKit.Modal(_root, "LevelFailed", "", out content);
+            Mascot(content, "sad", 300f, 0f, -24f);
             _loseTitle = UiKit.MakeText(content, "", 66, Palette.UiInk);
             _loseTitle.rectTransform.sizeDelta = new Vector2(800f, 96f);
             _loseReason = UiKit.MakeText(content, "", 40, new Color(0.38f, 0.42f, 0.52f), TextAnchor.MiddleCenter, FontStyle.Normal);
@@ -401,6 +685,7 @@ namespace MetroSort.Game
         {
             bool inLevel = state != AppState.Menu && state != AppState.Boot;
             _menu.SetActive(state == AppState.Menu);
+            if (_menuBackdrop != null) _menuBackdrop.SetActive(state == AppState.Menu);
             _hud.SetActive(inLevel);
             _win.SetActive(state == AppState.LevelComplete);
             _lose.SetActive(state == AppState.LevelFailed);
@@ -418,6 +703,10 @@ namespace MetroSort.Game
         public void Refresh()
         {
             if (_app == null || _menu == null) return;
+            // The conductor pops up with a bright idea whenever a hint has just been found.
+            bool hinting = _app.Game != null && _app.Game.HasHint;
+            if (hinting && !_hadHint) MascotPop("idea");
+            _hadHint = hinting;
             GameServices s = _app.Services;
             string coins = s.Economy.Coins.ToString();
             _menuCoins.text = coins;
@@ -442,9 +731,10 @@ namespace MetroSort.Game
             _removeAdsButton.interactable = !s.Store.AdsRemoved;
 
             GameController game = _app.Game;
-            if (game.Board == null) return;
+            if (game.Board == null) { RefreshSchedule(null); return; }
             BoardState state = game.Board.State;
             _hudTitle.text = Loc.F("Level {0}", game.Level.Id);
+            RefreshSchedule(state);
             string progress = Loc.F("Boarded {0} / {1}", state.Boarded, state.Total);
             if (state.StageCount > 1) progress += Loc.F("   Wave {0}/{1}", state.Stage + 1, state.StageCount);
             if (state.MoveLimit > 0) progress += Loc.F("   Moves left {0}", state.MovesRemaining);
@@ -545,7 +835,15 @@ namespace MetroSort.Game
                 }
             }
             // One page per chapter (metro line).
-            _levelsPageLabel.text = Loc.F("{0}  ({1}-{2})", Loc.T(Chapters.Names[Mathf.Min(_levelsPage, Chapters.Names.Length - 1)]), first, last);
+            string line = Loc.T(Chapters.Names[Mathf.Min(_levelsPage, Chapters.Names.Length - 1)]);
+            if (_levelsBanner != null)
+            {
+                // Only the first lines have their own painting so far; later lines reuse them in turn.
+                _levelsBanner.sprite = UiKit.Art("chapter_" + _levelsPage % ChapterPictures);
+                _levelsBannerName.text = line;
+                _levelsPageLabel.text = first + " - " + last;
+            }
+            else _levelsPageLabel.text = Loc.F("{0}  ({1}-{2})", line, first, last);
             _levelsPrev.interactable = _levelsPage > 0;
             _levelsNext.interactable = _levelsPage < pages - 1;
         }
@@ -554,16 +852,15 @@ namespace MetroSort.Game
         {
             int granted = _app.Services.Economy.ClaimDaily(EconomyManager.TodayNumber(DateTime.UtcNow));
             if (granted <= 0) return;
-            _app.Audio.Play(Sfx.Coins);
-            Toast(Loc.F("Daily gift: +{0} coins", granted));
+            RevealReward("gift", Loc.F("Daily gift: +{0} coins", granted));
         }
 
         private void WatchAdForCoins()
         {
             _app.Services.AdsCoordinator.RequestRewardedCoins(ok =>
             {
-                if (ok) _app.Audio.Play(Sfx.Coins);
-                Toast(ok ? Loc.F("+{0} coins", _app.Services.Config.RewardedAdCoins) : "No ad available right now");
+                if (ok) RevealReward("gift", Loc.F("+{0} coins", _app.Services.Config.RewardedAdCoins));
+                else Toast("No ad available right now");
             });
         }
 
@@ -587,6 +884,11 @@ namespace MetroSort.Game
         private void ShowWin(LevelResult result)
         {
             _winCoins.text = Loc.F("+{0} coins", result.CoinsAwarded);
+            if (_winCoinSpin != null)
+            {
+                // The turning coin sits just left of the reward text, whatever its length.
+                ((RectTransform)_winCoinSpin.transform).anchoredPosition = new Vector2(-_winCoins.preferredWidth * 0.5f - 56f, 4f);
+            }
             foreach (GameObject stray in _flying) if (stray != null) Destroy(stray);
             _flying.Clear();
             _winAdButton.gameObject.SetActive(_app.Services.AdsCoordinator.IsRewardedReady);
@@ -598,7 +900,11 @@ namespace MetroSort.Game
         {
             for (int i = 0; i < 3; i++)
             {
+                bool spin = i < earned && _winStarSpins[i] != null;
                 _winStars[i].sprite = UiKit.Icon(i < earned ? "star" : "star_off");
+                // Image.enabled rather than SetActive: the 3D star is a child of the flat one.
+                _winStars[i].enabled = !spin;
+                if (_winStarSpins[i] != null) _winStarSpins[i].gameObject.SetActive(spin);
                 _winStars[i].rectTransform.localScale = GameSettings.ReducedMotion ? Vector3.one : Vector3.zero;
             }
             if (GameSettings.ReducedMotion) yield break;
@@ -606,7 +912,8 @@ namespace MetroSort.Game
             {
                 if (i < earned)
                 {
-                    _app.Audio.Play(Sfx.Coins);
+                    _app.Audio.Play(Sfx.Star);
+                    if (_winStarSpins[i] != null) _winStarSpins[i].Spin(2f);
                     StartCoroutine(StarBurst(_winStars[i].rectTransform.position));
                 }
                 for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.22f)
@@ -627,6 +934,19 @@ namespace MetroSort.Game
             img.rectTransform.position = position;
             _flying.Add(img.gameObject);
             return img;
+        }
+
+        /// <summary>A coin for the reward flight: the tumbling 3D coin when its sheet exists, else the flat icon.</summary>
+        private RectTransform FloatingCoin(Vector3 position, float size)
+        {
+            FlipBook spin = UiKit.MakeFlipBook(_root.parent, "coin_spin", size * 1.15f);
+            if (spin == null) return Floating("coin", position, size).rectTransform;
+            spin.Loop = true;
+            spin.TurnsPerSecond = UnityEngine.Random.Range(1.6f, 2.4f);
+            var rt = (RectTransform)spin.transform;
+            rt.position = position;
+            _flying.Add(spin.gameObject);
+            return rt;
         }
 
         /// <summary>Little stars fly out of a win star as it lands.</summary>
@@ -665,34 +985,36 @@ namespace MetroSort.Game
             Vector3 from = _winCoins.rectTransform.position;
             RectTransform pill = (RectTransform)_hudCoins.transform.parent;
             Vector3 to = pill.position + new Vector3(-pill.rect.width * 0.5f * unit, 0f, 0f);
+            _app.Audio.Play(Sfx.Coins);
             for (int i = 0; i < count; i++) StartCoroutine(FlyCoin(from, to, i * 0.06f, unit));
             yield return new WaitForSecondsRealtime(0.55f + count * 0.06f);
         }
 
         private IEnumerator FlyCoin(Vector3 from, Vector3 to, float delay, float unit)
         {
-            Image coin = Floating("coin", from, 78f);
-            coin.rectTransform.localScale = Vector3.zero;
+            RectTransform coinRect = FloatingCoin(from, 78f);
+            GameObject coin = coinRect.gameObject;
+            coinRect.localScale = Vector3.zero;
             Vector3 scatter = from + new Vector3(UnityEngine.Random.Range(-170f, 170f), UnityEngine.Random.Range(-60f, 110f), 0f) * unit;
             yield return new WaitForSecondsRealtime(delay);
             for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.22f)
             {
                 if (coin == null) yield break;
-                coin.rectTransform.position = Vector3.LerpUnclamped(from, scatter, Ease.OutCubic(t));
-                coin.rectTransform.localScale = Vector3.one * Ease.OutBack(t);
+                coinRect.position = Vector3.LerpUnclamped(from, scatter, Ease.OutCubic(t));
+                coinRect.localScale = Vector3.one * Ease.OutBack(t);
                 yield return null;
             }
             for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.42f)
             {
                 if (coin == null) yield break;
                 float e = Ease.InCubic(t);
-                coin.rectTransform.position = Vector3.LerpUnclamped(scatter, to, e);
-                coin.rectTransform.localScale = Vector3.one * Mathf.Lerp(1f, 0.6f, e);
+                coinRect.position = Vector3.LerpUnclamped(scatter, to, e);
+                coinRect.localScale = Vector3.one * Mathf.Lerp(1f, 0.6f, e);
                 yield return null;
             }
             if (coin == null) yield break;
             Destroy(coin.gameObject);
-            _app.Audio.Play(Sfx.Coins);
+            _app.Audio.Play(Sfx.CoinTick);
             Haptics.Tap();
             RectTransform pill = (RectTransform)_hudCoins.transform.parent;
             for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.12f)
@@ -708,7 +1030,9 @@ namespace MetroSort.Game
             _loseTitle.text = Loc.T(reason == LoseReason.OutOfMoves ? "Out of Moves" : "Station Jammed");
             _loseReason.text = Loc.T(reason == LoseReason.OutOfMoves
                 ? "The move limit ran out before everyone boarded."
-                : "No passenger can reach a platform. Undo a move or try again.");
+                : (_app.Game.Board != null && _app.Game.Board.State.HasSchedule
+                    ? "The bench is full and no front passenger has a train. Undo a move or try again."
+                    : "No passenger can reach a platform. Undo a move or try again."));
             Refresh();
         }
 

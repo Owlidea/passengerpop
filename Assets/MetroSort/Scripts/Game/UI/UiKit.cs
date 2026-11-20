@@ -37,13 +37,27 @@ namespace MetroSort.Game
         /// <summary>White card skin for panels and pills, with a cool grey rim and a thin lip.</summary>
         public static Sprite Card { get { return _card != null ? _card : (_card = MakeShaded(96, 30f, false)); } }
 
-        /// <summary>An icon rendered by Tools/art/icons.py (Resources/UI). Null if it is missing.</summary>
+        /// <summary>
+        /// An icon by name. Finished artwork in Resources/Art (Tools/art/media_import.py) wins over the
+        /// Blender-rendered icon of the same name in Resources/UI (Tools/art/icons.py). Null if neither exists.
+        /// </summary>
         public static Sprite Icon(string name)
         {
-            Sprite sprite;
-            if (Icons.TryGetValue(name, out sprite) && sprite != null) return sprite;
+            Sprite sprite = Art(name);
+            if (sprite != null) return sprite;
+            if (Icons.TryGetValue("UI/" + name, out sprite) && sprite != null) return sprite;
             sprite = Resources.Load<Sprite>("UI/" + name);
             if (sprite == null) Debug.LogWarning("Metro Sort: icon missing at Resources/UI/" + name);
+            Icons["UI/" + name] = sprite;
+            return sprite;
+        }
+
+        /// <summary>Optional artwork from Resources/Art. Null, without a warning, when it has not been supplied.</summary>
+        public static Sprite Art(string name)
+        {
+            Sprite sprite;
+            if (Icons.TryGetValue(name, out sprite)) return sprite;
+            sprite = Resources.Load<Sprite>("Art/" + name);
             Icons[name] = sprite;
             return sprite;
         }
@@ -273,6 +287,23 @@ namespace MetroSort.Game
             return img;
         }
 
+        /// <summary>
+        /// A spinning 3D object from a sprite sheet rendered by Tools/art/rewards.py (Resources/Art). Null when
+        /// the sheet is missing, so callers can fall back to a flat icon.
+        /// </summary>
+        public static FlipBook MakeFlipBook(Transform parent, string sheet, float size)
+        {
+            Sprite sprite = Art(sheet);
+            if (sprite == null) return null;
+            RectTransform rt = MakeRect("Spin_" + sheet, parent);
+            rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(size, size);
+            var img = rt.gameObject.AddComponent<RawImage>();
+            img.texture = sprite.texture;
+            img.raycastTarget = false;
+            return rt.gameObject.AddComponent<FlipBook>();
+        }
+
         public static Text LabelOf(Button button)
         {
             return button.GetComponentInChildren<Text>(true);
@@ -452,6 +483,109 @@ namespace MetroSort.Game
             rt.anchorMin = new Vector2(safe.xMin / Screen.width, safe.yMin / Screen.height);
             rt.anchorMax = new Vector2(safe.xMax / Screen.width, safe.yMax / Screen.height);
             rt.offsetMin = rt.offsetMax = Vector2.zero;
+        }
+    }
+
+    /// <summary>Slow constant rotation, for light rays behind a reward.</summary>
+    public sealed class Spin : MonoBehaviour
+    {
+        public float DegreesPerSecond = 24f;
+
+        private void Update()
+        {
+            if (GameSettings.ReducedMotion) return;
+            transform.Rotate(0f, 0f, DegreesPerSecond * Time.unscaledDeltaTime);
+        }
+    }
+
+    /// <summary>Gentle idle float and breathing scale, for the logo and the mascot.</summary>
+    public sealed class Bob : MonoBehaviour
+    {
+        public float Height = 10f, Period = 2.6f, Squash = 0.015f;
+        private RectTransform _rt;
+        private Vector2 _home;
+
+        private void OnEnable()
+        {
+            _rt = (RectTransform)transform;
+            _home = _rt.anchoredPosition;
+        }
+
+        private void OnDisable()
+        {
+            if (_rt == null) return;
+            _rt.anchoredPosition = _home;
+            _rt.localScale = Vector3.one;
+        }
+
+        private void Update()
+        {
+            if (GameSettings.ReducedMotion) return;
+            float s = Mathf.Sin(Time.unscaledTime * Mathf.PI * 2f / Period);
+            _rt.anchoredPosition = _home + new Vector2(0f, s * Height);
+            _rt.localScale = new Vector3(1f - s * Squash, 1f + s * Squash, 1f);
+        }
+    }
+
+    /// <summary>
+    /// Plays a sprite sheet on a RawImage: one full turn of an object, frames left to right and top to
+    /// bottom, frame 0 facing the viewer. The grid must match COLS x ROWS in Tools/art/rewards.py.
+    /// </summary>
+    public sealed class FlipBook : MonoBehaviour
+    {
+        public const int Columns = 6, Rows = 4;
+
+        /// <summary>Spin continuously (a tumbling coin) instead of resting face-on between turns.</summary>
+        public bool Loop;
+        public float TurnsPerSecond = 1.4f;
+        /// <summary>When not looping: seconds of rest before the next idle turn; zero means never.</summary>
+        public float Interval;
+
+        private RawImage _image;
+        private float _turn = 1f, _rest;
+
+        private void Awake()
+        {
+            _image = GetComponent<RawImage>();
+            Show(0);
+        }
+
+        /// <summary>Starts one turn now (several in a row with turns greater than one).</summary>
+        public void Spin(float turns = 1f)
+        {
+            _turn = 1f - turns;
+            _rest = 0f;
+        }
+
+        private void Show(int frame)
+        {
+            frame = ((frame % (Columns * Rows)) + Columns * Rows) % (Columns * Rows);
+            int col = frame % Columns, row = frame / Columns;
+            _image.uvRect = new Rect(col / (float)Columns, 1f - (row + 1) / (float)Rows, 1f / Columns, 1f / Rows);
+        }
+
+        private void Update()
+        {
+            if (GameSettings.ReducedMotion)
+            {
+                Show(0);
+                return;
+            }
+            float dt = Time.unscaledDeltaTime;
+            if (Loop) _turn += dt * TurnsPerSecond;
+            else if (_turn < 1f)
+            {
+                _turn = Mathf.Min(1f, _turn + dt * TurnsPerSecond);
+            }
+            else if (Interval > 0f)
+            {
+                _rest += dt;
+                if (_rest >= Interval) Spin();
+            }
+            // Ease the end of a single turn so the object settles face-on instead of stopping dead.
+            float phase = Loop ? _turn : (_turn >= 1f ? 0f : _turn - Mathf.Floor(_turn));
+            if (!Loop && _turn > 0f && _turn < 1f) phase = 1f - (1f - _turn) * (1f - _turn);
+            Show(Mathf.RoundToInt(phase * Columns * Rows));
         }
     }
 }

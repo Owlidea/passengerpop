@@ -33,7 +33,8 @@ namespace MetroSort.Levels
 
             if (level.Stages.Count == 0) errors.Add("no stages");
             if (level.Platforms.Count == 0) errors.Add("no platforms");
-            if (level.Bench < 0 || level.Bench > 3) errors.Add("bench size must be 0-3");
+            int maxBench = level.HasSchedule ? 7 : 3;
+            if (level.Bench < 0 || level.Bench > maxBench) errors.Add("bench size must be 0-" + maxBench);
 
             for (int s = 0; s < level.Stages.Count; s++)
             {
@@ -70,8 +71,26 @@ namespace MetroSort.Levels
             if (level.Platforms.Count > 0 && !anyOpen) errors.Add("every platform starts locked");
             if (errors.Count > 0) return report;
 
-            // Each colour must be divisible into complete train groups using the available capacities.
             int[] counts = level.ColorCounts();
+            if (level.HasSchedule)
+            {
+                // Every scheduled train leaves full: each line needs exactly three passengers per train.
+                var trains = new int[ColorCodes.Count];
+                foreach (char c in level.Trains)
+                {
+                    int color; bool vip;
+                    if (ColorCodes.TryParse(c, out color, out vip)) trains[color]++;
+                    else errors.Add("unknown train code '" + c + "'");
+                }
+                foreach (PlatformConfig p in level.Platforms)
+                    if (p.Capacity != 3 || p.Express || p.ReservedColor >= 0 || p.Uses > 0) errors.Add("scheduled levels use plain platforms");
+                for (int c = 0; c < counts.Length; c++)
+                    if (counts[c] != trains[c] * 3)
+                        errors.Add(ColorCodes.Names[c] + " has " + counts[c] + " passengers but " + trains[c] + " trains");
+                if (errors.Count > 0) return report;
+            }
+
+            // Each colour must be divisible into complete train groups using the available capacities.
             for (int c = 0; c < counts.Length; c++)
             {
                 if (counts[c] > 0 && !CanPartition(counts[c], capacities))

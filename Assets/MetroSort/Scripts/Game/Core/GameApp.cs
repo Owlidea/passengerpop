@@ -78,6 +78,7 @@ namespace MetroSort.Game
 
             Audio = AddChild<AudioManager>("Audio");
             Audio.Init(data.MusicVolume, data.SfxVolume);
+            States.Changed += state => Audio.SetMusic(state == AppState.Menu || state == AppState.Boot);
             Station = AddChild<StationView>("Station");
             Station.Init(cam, Pool);
             Anim = AddChild<AnimationCoordinator>("Animation");

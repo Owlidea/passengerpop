@@ -4,13 +4,21 @@
   "group": "Polar",
   "stages": [
     [
-      "YGRYB",
-      "RPBBR",
-      "GBBGP",
-      "RPBGR",
-      "GGRY"
+      "OYYRRB",
+      "OPPRYP",
+      "OORPBP",
+      "YYROP",
+      "RRRPYRO"
+    ],
+    [
+      "RPOGPB",
+      "PPGGGG",
+      "BPRPP",
+      "GBYGBO",
+      "RGYGPOY"
     ]
   ],
+  "trains": "OOYRPRRBYPPRGPYBOGGP",
   "platforms": [
     {
       "cap": 3
@@ -22,25 +30,10 @@
       "cap": 3
     }
   ],
-  "bench": 0,
+  "bench": 4,
   "moveLimit": 0,
-  "visible": 2,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 24,
-  "difficulty": 90.7,
-  "gates": [
-    0,
-    0,
-    0,
-    0,
-    2
-  ],
-  "gateColors": [
-    "",
-    "",
-    "",
-    "",
-    "B"
-  ]
+  "par": 60,
+  "difficulty": 80.8
 }

@@ -4,36 +4,33 @@
   "group": "Master",
   "stages": [
     [
-      "BGR",
-      "YRG",
-      "GB",
-      "BB"
-    ],
-    [
-      "RYB",
-      "GGR",
-      "YRG",
-      "BR"
+      "ROYOBYR",
+      "RBBRRRR",
+      "ORBOGRPP",
+      "OOYPGGYO",
+      "YOBOBY"
     ]
   ],
+  "trains": "ORBYOBROGYPR",
   "platforms": [
     {
       "cap": 3
     },
     {
       "cap": 3
-    },
-    {
-      "cap": 3,
-      "lockColor": "*",
-      "lockTrains": 1
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 2,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 21,
-  "difficulty": 73.4
+  "par": 37,
+  "difficulty": 17.5,
+  "gates": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ]
 }

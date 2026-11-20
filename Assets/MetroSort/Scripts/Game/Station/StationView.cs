@@ -12,7 +12,10 @@ namespace MetroSort.Game
     public sealed class StationView : MonoBehaviour
     {
         public const int NoTarget = -2;
-        private const float Pitch = 52f;
+        // Camera tilt at the centre of the view, and its vertical field of view. The perspective makes the queues
+        // in front larger than the tracks at the back, which gets passengers' faces readable on a phone.
+        private const float Pitch = 50f;
+        private const float Fov = 30f;
 
         public Camera Cam { get; private set; }
         public readonly List<PlatformView> Platforms = new List<PlatformView>();
@@ -23,11 +26,19 @@ namespace MetroSort.Game
         private string _signature;
         private Vector3[] _queueFront = new Vector3[0];
         private float _queueStep = 0.9f;
+        private float _turnstileZ;
+        private readonly List<GateFlaps> _flaps = new List<GateFlaps>();
         private Vector3 _benchCenter;
         private int _benchCapacity;
         private GameObject _benchGlow;
         private float _minX, _maxX, _minZ, _maxZ;
-        private float _fittedAspect, _shake;
+        // How far the framing reaches above _maxZ (in view units), and the painted wall's picture width (0 = none).
+        private float _aboveTop, _wallSpan;
+        // Share of the screen kept clear for the HUD at the top. A painted wall may run up to the HUD card itself.
+        private float TopMargin { get { return _wallSpan > 0f ? 0.105f : 0.15f; } }
+        // Share of the screen under the booster bar; the ticket gates sit just above it.
+        private const float BottomMargin = 0.125f;
+        private float _fittedAspect, _shake, _fitSize, _zoom;
         private Vector3 _cameraHome;
         private Transform _gateRoot;
         private GameObject[] _gateBars = new GameObject[0];
@@ -62,8 +73,16 @@ namespace MetroSort.Game
             return VisibleDepth > 0 && queueIndex >= VisibleDepth;
         }
 
-        public void Rebuild(BoardState state, bool intro = false)
+        public void Rebuild(BoardState state, bool intro = false, RebuildStyle style = RebuildStyle.None)
         {
+            // Where everybody stood, so a booster can animate from the old picture to the new one.
+            Dictionary<int, Vector3> before = null;
+            int platformsBefore = Platforms.Count;
+            if (style != RebuildStyle.None && !GameSettings.ReducedMotion)
+            {
+                before = new Dictionary<int, Vector3>(_passengers.Count);
+                foreach (KeyValuePair<int, PassengerView> kv in _passengers) before[kv.Key] = kv.Value.transform.position;
+            }
             // The layout depends on the screen shape, so a different aspect ratio rebuilds the station too.
             string signature = Signature(state) + "/" + Mathf.RoundToInt((Cam != null ? Cam.aspect : 0.5625f) * 25f) + "/t" + ThemeIndex;
             if (signature != _signature)
@@ -83,11 +102,18 @@ namespace MetroSort.Game
                 {
                     PassengerView view = Spawn(state.Queues[q][i], QueueSlot(q, i), i == 0 && state.GateRemaining(q) == 0);
                     view.SetMystery(IsHidden(i), false);
-                    // Level intro: passengers pop in lane by lane, front to back.
-                    if (intro) view.PopIn(0.10f + q * 0.07f + i * 0.045f);
+                    // Level intro: each lane files in through its ticket gate, front of the queue first.
+                    if (intro && !GameSettings.ReducedMotion)
+                    {
+                        Vector3 slot = QueueSlot(q, i);
+                        var from = new Vector3(slot.x, 0f, _turnstileZ - 2.6f);
+                        view.WalkIn(from, 0.05f + q * 0.05f + i * 0.09f, Mathf.Clamp((slot.z - from.z) / 9f, 0.35f, 1.0f));
+                    }
                 }
+                if (intro && q < _flaps.Count && state.Queues[q].Count > 0)
+                    _flaps[q].Open(0.05f + q * 0.05f + 0.12f, state.Queues[q].Count * 0.09f + 0.30f);
             }
-            for (int b = 0; b < state.Bench.Count; b++) Spawn(state.Bench[b], BenchSlot(b), true);
+            for (int b = 0; b < state.Bench.Count; b++) Spawn(state.Bench[b], BenchSlot(b), true).SetSeated(true);
             for (int p = 0; p < state.Platforms.Count && p < Platforms.Count; p++)
             {
                 PlatformState ps = state.Platforms[p];
@@ -95,12 +121,88 @@ namespace MetroSort.Game
             }
             RefreshPlatforms(state);
             ClearHighlights();
+            if (intro) Punch(0.06f);
+            if (before != null) Transition(before, style, platformsBefore);
+        }
+
+        /// <summary>Booster follow-through: undo hops people back, shuffle whirls them round, a new platform drops in.</summary>
+        private void Transition(Dictionary<int, Vector3> before, RebuildStyle style, int platformsBefore)
+        {
+            if (style == RebuildStyle.ExtraPlatform)
+            {
+                if (Platforms.Count > platformsBefore && Platforms.Count > 0) Platforms[Platforms.Count - 1].DropIn();
+                return;
+            }
+            Vector3 centre = Vector3.zero;
+            int moved = 0;
+            foreach (KeyValuePair<int, PassengerView> kv in _passengers)
+            {
+                PassengerView v = kv.Value;
+                Vector3 old;
+                if (!before.TryGetValue(kv.Key, out old))
+                {
+                    v.PopIn(0.05f); // back from a train that an undo recalled
+                    continue;
+                }
+                if ((old - v.Target).sqrMagnitude < 0.01f) continue;
+                if (style == RebuildStyle.Shuffle)
+                    v.FlyFrom(old, (kv.Key % 6) * 0.035f, 1.3f + (kv.Key % 3) * 0.3f, kv.Key % 2 == 0 ? 360f : -360f);
+                else
+                    v.FlyFrom(old, 0f, 0.5f, 0f);
+                centre += v.Target;
+                moved++;
+            }
+            if (style == RebuildStyle.Shuffle && moved > 0)
+            {
+                centre /= moved;
+                Fx.Sparkle(centre + Vector3.up * 1.6f, Palette.Gold, 18, 5f);
+                Fx.Ring(centre + Vector3.up * 0.05f, Palette.Gold, 7f);
+            }
         }
 
         public void RefreshPlatforms(BoardState state)
         {
-            for (int p = 0; p < state.Platforms.Count && p < Platforms.Count; p++) Platforms[p].Refresh(state.Platforms[p]);
+            for (int p = 0; p < state.Platforms.Count && p < Platforms.Count; p++) Platforms[p].Refresh(state.Platforms[p], state.HasSchedule);
             RefreshGates(state);
+            RefreshMoods(state);
+        }
+
+        /// <summary>
+        /// Passengers react to the situation: a platform one short of a full group is excited, and when the
+        /// bench is full or only a few moves remain those still waiting get nervous.
+        /// </summary>
+        private void RefreshMoods(BoardState state)
+        {
+            bool tight = (state.BenchCapacity > 0 && state.Bench.Count >= state.BenchCapacity) || state.MovesRemaining <= 3;
+            for (int q = 0; q < state.Queues.Length; q++)
+            {
+                for (int i = 0; i < state.Queues[q].Count; i++)
+                {
+                    PassengerView v;
+                    if (!_passengers.TryGetValue(state.Queues[q][i].Id, out v)) continue;
+                    v.Eager = false;
+                    v.Worried = tight && i == 0;
+                }
+            }
+            for (int b = 0; b < state.Bench.Count; b++)
+            {
+                PassengerView v;
+                if (!_passengers.TryGetValue(state.Bench[b].Id, out v)) continue;
+                v.Eager = false;
+                v.Worried = tight;
+            }
+            for (int p = 0; p < state.Platforms.Count; p++)
+            {
+                PlatformState ps = state.Platforms[p];
+                bool eager = ps.IsOpen && ps.Capacity >= 2 && ps.Count == ps.Capacity - 1;
+                for (int i = 0; i < ps.Occupants.Count; i++)
+                {
+                    PassengerView v;
+                    if (!_passengers.TryGetValue(ps.Occupants[i].Id, out v)) continue;
+                    v.Eager = eager;
+                    v.Worried = false;
+                }
+            }
         }
 
         // ------------------------------------------------------------------ gated queues
@@ -140,7 +242,13 @@ namespace MetroSort.Game
                 _gateRemaining[q] = remaining;
                 _gateColor[q] = state.GateColor(q);
                 if (remaining > 0 && _gateBars[q] == null) _gateBars[q] = BuildGate(q, state.Queues[q].Count, _gateColor[q]);
-                if (_gateBars[q] != null && _gateBars[q].activeSelf != (remaining > 0)) _gateBars[q].SetActive(remaining > 0);
+                if (_gateBars[q] == null) continue;
+                var boom = _gateBars[q].GetComponent<BoomGate>();
+                if (remaining > 0)
+                {
+                    if (!_gateBars[q].activeSelf || boom.Opening) boom.Close();
+                }
+                else boom.Open(); // the bar swings up, then the gate folds away
             }
         }
 
@@ -161,9 +269,13 @@ namespace MetroSort.Game
             const float z = GateOffset;
             Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(-0.56f, 0.38f, z), new Vector3(0.14f, 0.76f, 0.14f), steel, "Post");
             Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(0.56f, 0.38f, z), new Vector3(0.14f, 0.76f, 0.14f), steel, "Post");
-            Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(0f, 0.62f, z), new Vector3(1.00f, 0.24f, 0.10f), red, "Bar");
+            var arm = new GameObject("Arm").transform;
+            arm.SetParent(root.transform, false);
+            arm.localPosition = new Vector3(-0.56f, 0.62f, z);
+            Prims.Make(PrimitiveType.Cube, arm, new Vector3(0.56f, 0f, 0f), new Vector3(1.00f, 0.24f, 0.10f), red, "Bar");
             for (int i = -1; i <= 1; i++)
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(i * 0.30f, 0.62f, z - 0.005f), new Vector3(0.11f, 0.245f, 0.11f), stripe, "Stripe"));
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, arm, new Vector3(0.56f + i * 0.30f, 0f, -0.005f), new Vector3(0.11f, 0.245f, 0.11f), stripe, "Stripe"));
+            root.AddComponent<BoomGate>().Arm = arm;
             return root;
         }
 
@@ -186,6 +298,7 @@ namespace MetroSort.Game
                 PassengerView v;
                 if (!_passengers.TryGetValue(state.Bench[b].Id, out v)) continue;
                 v.SetAccessible(true);
+                v.SetSeated(true);
                 MoveView(v, BenchSlot(b), animate, 0f);
             }
         }
@@ -207,9 +320,14 @@ namespace MetroSort.Game
                 {
                     Passenger p = state.Queues[q][i];
                     if (_passengers.ContainsKey(p.Id)) continue;
-                    PassengerView fresh = Spawn(p, QueueSlot(q, i), i == 0);
+                    Vector3 slot = QueueSlot(q, i);
+                    PassengerView fresh = Spawn(p, slot, i == 0);
                     fresh.SetMystery(IsHidden(i), false);
-                    fresh.Bounce();
+                    if (GameSettings.ReducedMotion) { fresh.Bounce(); continue; }
+                    // The next stage files in through the ticket gates, like the level intro.
+                    var from = new Vector3(slot.x, 0f, _turnstileZ - 2.6f);
+                    fresh.WalkIn(from, 0.05f + i * 0.09f, Mathf.Clamp((slot.z - from.z) / 9f, 0.35f, 1.0f));
+                    if (q < _flaps.Count) _flaps[q].Open(0.15f, state.Queues[q].Count * 0.09f + 0.30f);
                 }
             }
         }
@@ -278,7 +396,7 @@ namespace MetroSort.Game
 
         public Vector3 BenchSlot(int index)
         {
-            return _benchCenter + new Vector3((index - (_benchCapacity - 1) * 0.5f) * 1.0f, 0.14f, 0f);
+            return _benchCenter + new Vector3((index - (_benchCapacity - 1) * 0.5f) * 1.0f, 0.19f, -0.04f);
         }
 
         public Vector3 TargetWorld(int target)
@@ -331,9 +449,15 @@ namespace MetroSort.Game
 
         private bool InsideGroundRect(Vector2 screen, Vector3 center, float halfX, float halfZ, float height)
         {
-            Vector2 a = Cam.WorldToScreenPoint(center + new Vector3(-halfX, 0f, -halfZ));
-            Vector2 b = Cam.WorldToScreenPoint(center + new Vector3(halfX, height, halfZ));
-            return screen.x >= a.x && screen.x <= b.x && screen.y >= a.y && screen.y <= b.y;
+            // Screen bounds of the box's eight corners: in perspective the near and far edges differ in width.
+            Vector2 min = new Vector2(float.MaxValue, float.MaxValue), max = new Vector2(float.MinValue, float.MinValue);
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 p = Cam.WorldToScreenPoint(center + new Vector3((i & 1) == 0 ? -halfX : halfX, (i & 2) == 0 ? 0f : height, (i & 4) == 0 ? -halfZ : halfZ));
+                min = Vector2.Min(min, p);
+                max = Vector2.Max(max, p);
+            }
+            return screen.x >= min.x && screen.x <= max.x && screen.y >= min.y && screen.y <= max.y;
         }
 
         public Vector3 ScreenToGround(Vector2 screen)
@@ -415,8 +539,9 @@ namespace MetroSort.Game
             // Platforms: one row for up to two, two rows beyond that. A narrower station lets the portrait
             // camera zoom in, so passengers and touch targets stay large on a phone.
             int n = state.Platforms.Count;
-            int backCount = n <= 2 ? n : (n + 1) / 2;
-            float frontRowZ = 4.6f, backRowZ = n <= 2 ? 5.2f : 8.2f;
+            // Timetable levels give each of two platforms its own track, so a waiting train never blocks another.
+            int backCount = n <= 2 && !state.HasSchedule ? n : (n + 1) / 2;
+            float frontRowZ = 4.6f, backRowZ = backCount == n ? 5.2f : 8.2f;
             float widest = 0f;
             widest = Mathf.Max(widest, LayoutRow(state, 0, backCount, backRowZ));
             if (n > backCount) widest = Mathf.Max(widest, LayoutRow(state, backCount, n - backCount, frontRowZ));
@@ -431,12 +556,18 @@ namespace MetroSort.Game
             float previewHalfWidth = Mathf.Max(widest, (maxQueues - 1) * spacing + 1.2f) * 0.5f + 0.6f;
             float viewSize = previewHalfWidth / (aspect * 0.97f);
             float sinPitch = Mathf.Sin(Pitch * Mathf.Deg2Rad), cosPitch = Mathf.Cos(Pitch * Mathf.Deg2Rad);
-            float visibleDepth = (2f * viewSize * (1f - 0.15f - 0.19f) - 1.7f * cosPitch) / sinPitch;
+            // A painted wall is shown whole: the picture (4:1) spans a little more than the view, and the framing
+            // reaches its top so it reads as a real backdrop instead of a sliver under the HUD. The queues give up
+            // the vertical room; the view is fitted to the width, so platforms and passengers keep their size.
+            _wallSpan = Chapters.PaintingFor(ThemeIndex) >= 0 ? Mathf.Max(8f, previewHalfWidth * 2f * 1.12f) : 0f;
+            // The picture's top edge meets the bottom of the HUD card rather than the usual safety margin.
+            _aboveTop = _wallSpan > 0f ? 0.2f * sinPitch + _wallSpan / 4f : 1.7f * cosPitch;
+            float visibleDepth = (2f * viewSize * (1f - TopMargin - BottomMargin) - _aboveTop) / sinPitch;
             float fixedDepth = (lastTrackZ + 0.9f - frontZ) + 1.65f;
             float compactStep = Mathf.Min(1.0f, 5.0f / Mathf.Max(1, maxDepth - 1));
             float roomyStep = (visibleDepth - fixedDepth) / Mathf.Max(1, maxDepth - 1);
             _queueStep = Mathf.Clamp(roomyStep, compactStep, 1.45f);
-            PassengerView.WaitingScale = Mathf.Lerp(0.74f, 0.90f, Mathf.InverseLerp(1.0f, 1.4f, _queueStep));
+            PassengerView.WaitingScale = Mathf.Lerp(0.84f, 0.98f, Mathf.InverseLerp(1.0f, 1.4f, _queueStep));
             _queueFront = new Vector3[maxQueues];
             for (int q = 0; q < maxQueues; q++)
             {
@@ -447,8 +578,32 @@ namespace MetroSort.Game
                 Prims.NoShadow(lane);
                 GameObject spot = Prims.Make(PrimitiveType.Cylinder, _env, new Vector3(x, 0.016f, frontZ), new Vector3(0.90f, 0.012f, 0.90f), new Color(0.97f, 0.98f, 1f), "FrontSpot");
                 Prims.NoShadow(spot);
+                // Gold piping along both edges turns the lane into a carpet runner.
+                for (int e = -1; e <= 1; e += 2)
+                    Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(x + e * 0.455f, 0.024f, frontZ - laneLength * 0.5f + 0.5f), new Vector3(0.04f, 0.012f, laneLength), Palette.Gold, "LaneEdge"));
             }
             float queuesWidth = (maxQueues - 1) * spacing + 1.2f;
+
+            // Brass stanchions and red velvet ropes fence the queue area, as on the title screen.
+            {
+                float laneLength = (maxDepth - 1) * _queueStep + 1.0f;
+                float zTop = frontZ + 0.15f, zEnd = frontZ - laneLength + 0.75f;
+                int posts = Mathf.Max(2, Mathf.CeilToInt((zTop - zEnd) / 1.5f) + 1);
+                float step = (zTop - zEnd) / (posts - 1);
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    float sx = side * ((maxQueues - 1) * spacing * 0.5f + 0.62f);
+                    for (int i = 0; i < posts; i++)
+                    {
+                        float pz = zTop - i * step;
+                        SceneProp("Stanchion", new Vector3(sx, 0f, pz));
+                        if (i == 0) continue;
+                        GameObject rope = Prims.Make(PrimitiveType.Cylinder, _env, new Vector3(sx, 0.42f, pz + step * 0.5f), new Vector3(0.05f, step * 0.5f - 0.05f, 0.05f), new Color(0.82f, 0.16f, 0.22f), "Rope");
+                        rope.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                        Prims.NoShadow(rope);
+                    }
+                }
+            }
 
             // Waiting bench (gameplay element, only in levels that enable it).
             _benchGlow = null;
@@ -459,8 +614,11 @@ namespace MetroSort.Game
                 _benchGlow = Prims.Make(PrimitiveType.Cube, _env, _benchCenter + new Vector3(0f, 0.02f, 0f), new Vector3(w + 0.3f, 0.04f, 1.3f), Palette.Highlight, "BenchGlow");
                 Prims.NoShadow(_benchGlow);
                 _benchGlow.SetActive(false);
-                Prims.MakeRounded(_env, _benchCenter + new Vector3(0f, 0.07f, 0f), new Vector3(w, 0.14f, 1.0f), 0.06f, Palette.Wood, "Bench");
-                Prims.MakeRounded(_env, _benchCenter + new Vector3(0f, 0.45f, 0.48f), new Vector3(w, 0.5f, 0.12f), 0.05f, Palette.Wood, "BenchBack");
+                // Wooden seats with a cushion for each place, and a cast-iron arm between and at the ends of them.
+                for (int b = 0; b < _benchCapacity; b++)
+                    SceneProp("BenchSeat", _benchCenter + new Vector3((b - (_benchCapacity - 1) * 0.5f) * 1.0f, 0f, 0f));
+                for (int b = 0; b <= _benchCapacity; b++)
+                    SceneProp("BenchArm", _benchCenter + new Vector3((b - _benchCapacity * 0.5f) * 1.0f, 0f, 0f));
             }
 
             float halfWidth = Mathf.Max(widest, queuesWidth) * 0.5f + 0.6f;
@@ -491,10 +649,14 @@ namespace MetroSort.Game
                     float cz = iz * 1.6f;
                     bool clear = cz < wallZ - 0.9f;
                     foreach (float tz in trackZs) if (Mathf.Abs(cz - tz) < TrenchHalf + 0.82f) clear = false;
-                    if (clear) Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(ix * 1.6f, 0.003f, cz), new Vector3(1.6f, 0.006f, 1.6f), Theme.Tile, "Tile"));
+                    // The floor texture brings its own tiles; the flat checker is only the fallback.
+                    if (clear && !_texturedFloor) Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(ix * 1.6f, 0.003f, cz), new Vector3(1.6f, 0.006f, 1.6f), Theme.Tile, "Tile"));
                 }
             }
 
+            // In perspective the back of the station sees more width than the front: widen the painted wall to the
+            // view at its depth, so its picture never repeats at the sides.
+            if (_wallSpan > 0f) FitWallToView(wallZ - 0.21f, sinPitch);
             BuildBackWall(wallZ);
             BuildTurnstiles(maxQueues, spacing, laneEndZ - 0.40f);
 
@@ -545,22 +707,34 @@ namespace MetroSort.Game
         private void BuildFloorStrip(float z0, float z1)
         {
             if (z1 <= z0) return;
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, -0.3f, (z0 + z1) * 0.5f), new Vector3(60f, 0.6f, z1 - z0), Theme.Floor, "Floor"));
+            GameObject floor = Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, -0.3f, (z0 + z1) * 0.5f), new Vector3(60f, 0.6f, z1 - z0), Theme.Floor, "Floor");
+            Prims.NoShadow(floor);
+            // Stone tiles (two per texture, 1.6 units each) in the chapter's floor colour, with a soft polish.
+            _texturedFloor = MaterialLibrary.Paint(floor, "tex_floor", Color.Lerp(Theme.Floor, Theme.Tile, 0.5f), new Vector4(1f / 3.2f, 1f / 3.2f, 0f, 0f), false, true);
         }
+
+        private bool _texturedFloor;
 
         /// <summary>A sunken track with rails, sleepers, safety lines along both edges and a tunnel mouth at each end.</summary>
         private void BuildTrack(float z, float halfWidth)
         {
             float bed = -TrenchDepth;
             // Pale ballast, dark wooden sleepers and bright rails: strong contrast so the track reads at a glance.
-            Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, bed - 0.1f, z), new Vector3(60f, 0.2f, TrenchHalf * 2f), Ballast, "Ballast");
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, bed + 0.004f, z), new Vector3(60f, 0.008f, 1.02f), BallastDark, "BallastCentre"));
-            for (int i = -22; i <= 22; i++)
+            GameObject ballast = Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, bed - 0.1f, z), new Vector3(60f, 0.2f, TrenchHalf * 2f), Ballast, "Ballast");
+            // Painted track bed: six sleepers per picture, laid at the same 0.62 spacing as the modelled ones,
+            // and stretched once across the trench.
+            float across = TrenchHalf * 2f;
+            bool painted = MaterialLibrary.Paint(ballast, "tex_track", Color.white, new Vector4(1f / 3.72f, 1f / across, 0.5f, -(z - TrenchHalf) / across), true);
+            if (!painted)
             {
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(i * 0.62f, bed + 0.035f, z), new Vector3(0.30f, 0.07f, 1.36f), SleeperWood, "Sleeper"));
-                // Loose stones break up the flat ballast between sleepers.
-                float jitter = ((i * 37) % 11) * 0.05f - 0.25f;
-                Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, _env, new Vector3(i * 0.62f + 0.31f, bed + 0.01f, z + jitter), new Vector3(0.13f, 0.06f, 0.11f), BallastDark, "Stone"));
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, bed + 0.004f, z), new Vector3(60f, 0.008f, 1.02f), BallastDark, "BallastCentre"));
+                for (int i = -22; i <= 22; i++)
+                {
+                    Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(i * 0.62f, bed + 0.035f, z), new Vector3(0.30f, 0.07f, 1.36f), SleeperWood, "Sleeper"));
+                    // Loose stones break up the flat ballast between sleepers.
+                    float jitter = ((i * 37) % 11) * 0.05f - 0.25f;
+                    Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, _env, new Vector3(i * 0.62f + 0.31f, bed + 0.01f, z + jitter), new Vector3(0.13f, 0.06f, 0.11f), BallastDark, "Stone"));
+                }
             }
             for (int i = -1; i <= 1; i += 2)
             {
@@ -571,73 +745,119 @@ namespace MetroSort.Game
                 Prims.NoShadow(rail);
                 // Yellow safety line and a pale tactile strip on the concourse along the trench edge.
                 Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 0.012f, z + i * (TrenchHalf + 0.09f)), new Vector3(60f, 0.02f, 0.14f), Palette.Gold, "SafetyLine"));
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 0.010f, z + i * (TrenchHalf + 0.27f)), new Vector3(60f, 0.016f, 0.14f), new Color(0.93f, 0.93f, 0.90f), "TactileStrip"));
             }
             // Orange power rail on its insulators along the far side of the trench.
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, bed + 0.17f, z + TrenchHalf - 0.16f), new Vector3(60f, 0.07f, 0.08f), new Color(0.98f, 0.55f, 0.16f), "PowerRail"));
+            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, bed + 0.17f, z + TrenchHalf - 0.16f), new Vector3(60f, 0.07f, 0.08f), new Color(0.46f, 0.48f, 0.54f), "PowerRail"));
             for (int i = -11; i <= 11; i++)
                 Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(i * 1.24f, bed + 0.07f, z + TrenchHalf - 0.16f), new Vector3(0.10f, 0.14f, 0.12f), Color.white, "Insulator"));
 
             for (int side = -1; side <= 1; side += 2)
             {
                 float inner = side * (halfWidth - 0.05f);
-                Prims.MakeRounded(_env, new Vector3(inner + side * 0.8f, 0.55f, z), new Vector3(1.6f, 1.9f, 2.5f), 0.12f, Concrete, "TunnelPortal");
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(inner - side * 0.01f, 0.25f, z), new Vector3(0.04f, 1.30f, 1.70f), new Color(0.04f, 0.04f, 0.07f), "TunnelMouth"));
-                // Hazard edging on top of the portal, visible from the high camera.
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(inner + side * 0.09f, 1.505f, z), new Vector3(0.14f, 0.02f, 2.3f), Palette.Gold, "PortalEdge"));
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(inner + side * 0.8f, 1.505f, z), new Vector3(0.9f, 0.02f, 1.5f), new Color(0.40f, 0.42f, 0.50f), "PortalRoofPanel"));
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(inner - side * 0.02f, 0.97f, z), new Vector3(0.05f, 0.14f, 1.70f), Palette.Gold, "PortalLintel"));
-                Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, _env, new Vector3(inner - side * 0.03f, 1.22f, z - 0.95f), new Vector3(0.14f, 0.14f, 0.14f), new Color(0.35f, 0.92f, 0.50f), "Signal"));
+                // Stone portal with an arched mouth and a little garden on top (Models/Scene). It is authored for
+                // the right-hand end; the left-hand one is mirrored so its mouth also faces the station.
+                GameObject portal = SceneProp("TunnelPortal", new Vector3(inner + side * 0.8f, 0f, z));
+                if (side < 0) portal.transform.localScale = new Vector3(-1f, 1f, 1f);
             }
         }
 
         private void BuildBackWall(float wallZ)
         {
             float face = wallZ - 0.21f;
-            Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 1.5f, wallZ), new Vector3(60f, 3.0f, 0.4f), Theme.Wall, "Wall");
-            // Tiled dado along the bottom of the wall, as in most metro stations.
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 0.55f, face), new Vector3(60f, 1.1f, 0.04f), Theme.Dado, "Dado"));
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 1.13f, face - 0.01f), new Vector3(60f, 0.07f, 0.05f), Color.white, "DadoCap"));
-            for (int i = -14; i <= 14; i++)
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(i * 0.7f, 0.55f, face - 0.022f), new Vector3(0.02f, 1.1f, 0.01f), Theme.Joint, "TileJoint"));
-            Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 3.1f, wallZ - 0.1f), new Vector3(60f, 0.3f, 0.7f), Theme.Pillar, "Cornice");
-            for (int i = 0; i < ColorCodes.Count; i++)
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 2.90f - i * 0.075f, face), new Vector3(60f, 0.055f, 0.02f), Palette.Lines[i], "LineStripe"));
-            for (int i = -4; i <= 4; i++)
+            // Chapters with a painting wear it as the whole back wall: arches, lamps and pictures are painted in,
+            // once across the visible width. The wall is made taller by the camera's foreshortening (it is seen
+            // from 52 degrees above), so on screen the 4:1 picture keeps its proportions.
+            int painting = Chapters.PaintingFor(ThemeIndex);
+            float span = _wallSpan > 0f ? _wallSpan : 8f;
+            float height = painting >= 0 ? span / 4f / Mathf.Cos(Pitch * Mathf.Deg2Rad) : 3.0f;
+            // A painted wall is a thin panel on the usual front face, with no cornice: from above, the wall's top
+            // and a cornice would hide the top of the picture.
+            GameObject wall = painting >= 0
+                ? Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, height * 0.5f, face + 0.01f), new Vector3(60f, height, 0.02f), Theme.Wall, "Wall")
+                : Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, height * 0.5f, wallZ), new Vector3(60f, height, 0.4f), Theme.Wall, "Wall");
+            bool paintedWall = painting >= 0 && MaterialLibrary.Paint(wall, "wall_" + painting, Color.white, new Vector4(1f / span, 1f / height, 0.5f, 0f), true);
+            if (!paintedWall)
             {
-                if (i == 0) continue;
-                Prop("Pillar", new Vector3(i * 2.6f, 0f, wallZ - 0.32f));
+                if (painting >= 0)
+                {
+                    // Missing picture: fall back to the full modelled wall.
+                    wall.transform.localPosition = new Vector3(0f, 1.5f, wallZ);
+                    wall.transform.localScale = new Vector3(60f, 3.0f, 0.4f);
+                }
+                Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 3.1f, wallZ - 0.1f), new Vector3(60f, 0.3f, 0.7f), Theme.Pillar, "Cornice");
+                // Without the picture (missing texture) frame the modelled wall as usual.
+                _aboveTop = 1.7f * Mathf.Cos(Pitch * Mathf.Deg2Rad);
+                _wallSpan = 0f;
+                // Tiled dado along the bottom of the wall, as in most metro stations.
+                GameObject dado = Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 0.55f, face), new Vector3(60f, 1.1f, 0.04f), Theme.Dado, "Dado");
+                Prims.NoShadow(dado);
+                // Glazed tiles (four per texture) in the chapter's colour; three rows fill the dado exactly.
+                bool tiled = MaterialLibrary.Paint(dado, "tex_wall", Theme.Dado, new Vector4(1f / 1.4667f, 1f / 1.4667f, 0f, 0f), false, true);
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 1.13f, face - 0.01f), new Vector3(60f, 0.07f, 0.05f), Color.white, "DadoCap"));
+                for (int i = -14; i <= 14 && !tiled; i++)
+                    Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(i * 0.7f, 0.55f, face - 0.022f), new Vector3(0.02f, 1.1f, 0.01f), Theme.Joint, "TileJoint"));
+                for (int i = 0; i < ColorCodes.Count; i++)
+                    Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 2.90f - i * 0.075f, face), new Vector3(60f, 0.055f, 0.02f), Palette.Lines[i], "LineStripe"));
+                for (int i = -4; i <= 4; i++)
+                {
+                    if (i == 0) continue;
+                    Prop("Pillar", new Vector3(i * 2.6f, 0f, wallZ - 0.32f));
+                }
+
+                // Station name board with a roundel.
+                var navy = new Color(0.12f, 0.20f, 0.46f);
+                Prims.MakeRounded(_env, new Vector3(0f, 2.12f, face - 0.05f), new Vector3(3.0f, 0.52f, 0.08f), 0.04f, navy, "NameBoard", true);
+                float[] wordX = { -0.45f, 0.20f, 0.92f };
+                float[] wordW = { 0.50f, 0.62f, 0.56f };
+                for (int i = 0; i < wordX.Length; i++)
+                    Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(wordX[i], 2.12f, face - 0.10f), new Vector3(wordW[i], 0.14f, 0.01f), Color.white, "NameText"));
+                GameObject ring = Prims.Make(PrimitiveType.Cylinder, _env, new Vector3(-1.12f, 2.12f, face - 0.10f), new Vector3(0.40f, 0.012f, 0.40f), Palette.Lines[0], "RoundelRing");
+                ring.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                GameObject hole = Prims.Make(PrimitiveType.Cylinder, _env, new Vector3(-1.12f, 2.12f, face - 0.115f), new Vector3(0.25f, 0.012f, 0.25f), Color.white, "RoundelCentre");
+                hole.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(-1.12f, 2.12f, face - 0.13f), new Vector3(0.54f, 0.11f, 0.01f), navy, "RoundelBar"));
             }
 
-            // Station name board with a roundel.
-            var navy = new Color(0.12f, 0.20f, 0.46f);
-            Prims.MakeRounded(_env, new Vector3(0f, 2.12f, face - 0.05f), new Vector3(3.0f, 0.52f, 0.08f), 0.04f, navy, "NameBoard", true);
-            float[] wordX = { -0.45f, 0.20f, 0.92f };
-            float[] wordW = { 0.50f, 0.62f, 0.56f };
-            for (int i = 0; i < wordX.Length; i++)
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(wordX[i], 2.12f, face - 0.10f), new Vector3(wordW[i], 0.14f, 0.01f), Color.white, "NameText"));
-            GameObject ring = Prims.Make(PrimitiveType.Cylinder, _env, new Vector3(-1.12f, 2.12f, face - 0.10f), new Vector3(0.40f, 0.012f, 0.40f), Palette.Lines[0], "RoundelRing");
-            ring.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            GameObject hole = Prims.Make(PrimitiveType.Cylinder, _env, new Vector3(-1.12f, 2.12f, face - 0.115f), new Vector3(0.25f, 0.012f, 0.25f), Color.white, "RoundelCentre");
-            hole.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(-1.12f, 2.12f, face - 0.13f), new Vector3(0.54f, 0.11f, 0.01f), navy, "RoundelBar"));
+            // A painted wall has its own clock, lamps and pictures; the modelled fittings would only clutter it.
+            if (paintedWall) return;
+
+            // The painting brings its own clocks, pictures and signs; the modelled ones would cover it.
+            if (paintedWall) return;
 
             // Departure board.
             Prims.MakeRounded(_env, new Vector3(0f, 1.50f, face - 0.05f), new Vector3(2.4f, 0.56f, 0.10f), 0.045f, new Color(0.10f, 0.12f, 0.17f), "Display", true);
+            // The rows live under Props (the environment is merged into static meshes) so they can flip.
+            var board = new GameObject("DepartureBoard").AddComponent<DepartureBoard>();
+            board.transform.SetParent(_props, false);
+            board.Rows = new Transform[3];
+            board.Chips = new GameObject[3];
             for (int row = 0; row < 3; row++)
             {
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(-0.85f, 1.65f - row * 0.15f, face - 0.11f), new Vector3(0.22f, 0.08f, 0.01f), Palette.Lines[(row * 2) % Palette.Lines.Length], "DisplayLine"));
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0.15f, 1.65f - row * 0.15f, face - 0.11f), new Vector3(1.5f, 0.045f, 0.01f), new Color(1f, 0.80f, 0.35f), "DisplayText"));
+                var line = new GameObject("Row" + row).transform;
+                line.SetParent(board.transform, false);
+                line.localPosition = new Vector3(0f, 1.65f - row * 0.15f, face - 0.11f);
+                board.Rows[row] = line;
+                board.Chips[row] = Prims.Make(PrimitiveType.Cube, line, new Vector3(-0.85f, 0f, 0f), new Vector3(0.22f, 0.08f, 0.01f), Palette.Lines[(row * 2) % Palette.Lines.Length], "DisplayLine");
+                Prims.NoShadow(board.Chips[row]);
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, line, new Vector3(0.15f, 0f, 0f), new Vector3(1.5f, 0.045f, 0.01f), new Color(1f, 0.80f, 0.35f), "DisplayText"));
             }
 
             // Clock and framed posters between the pillars.
-            Prop("Clock", new Vector3(1.93f, 2.12f, face - 0.06f));
-            for (int side = -1; side <= 1; side += 2)
+            var clockAt = new Vector3(1.93f, 2.12f, face - 0.06f);
+            var hands = Prop("Clock", clockAt).AddComponent<ClockHands>();
+            hands.Minute = Prop("ClockMinute", clockAt).transform;
+            hands.Second = Prop("ClockSecond", clockAt).transform;
+            for (int side = -1; side <= 1 && !paintedWall; side += 2)
             {
                 float x = side * 3.9f;
                 Color tint = Palette.Lines[side < 0 ? 1 : 5];
                 Prims.MakeRounded(_env, new Vector3(x, 1.95f, face - 0.03f), new Vector3(1.25f, 1.45f, 0.06f), 0.04f, Color.white, "PosterFrame");
-                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(x, 1.95f, face - 0.065f), new Vector3(1.08f, 1.28f, 0.01f), Color.Lerp(tint, Color.white, 0.55f), "PosterArt"));
+                GameObject art = Prims.Make(PrimitiveType.Cube, _env, new Vector3(x, 1.95f, face - 0.065f), new Vector3(1.08f, 1.28f, 0.01f), Color.Lerp(tint, Color.white, 0.55f), "PosterArt");
+                Prims.NoShadow(art);
+                // A painted travel poster, two different ones per chapter; the flat placeholder is the fallback.
+                int poster = (ThemeIndex * 2 + (side < 0 ? 0 : 1)) % 6;
+                var frame = new Vector4(1f / 1.08f, 1f / 1.28f, -(x - 0.54f) / 1.08f, -(1.95f - 0.64f) / 1.28f);
+                if (MaterialLibrary.Paint(art, "poster_" + poster, Color.white, frame, true)) continue;
                 GameObject sun = Prims.Make(PrimitiveType.Cylinder, _env, new Vector3(x - 0.18f, 2.18f, face - 0.075f), new Vector3(0.42f, 0.006f, 0.42f), tint, "PosterShape");
                 sun.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
                 Prims.NoShadow(sun);
@@ -649,6 +869,8 @@ namespace MetroSort.Game
         /// <summary>Ticket gates where the queues enter the concourse: one gate per queue lane.</summary>
         private void BuildTurnstiles(int lanes, float spacing, float z)
         {
+            _turnstileZ = z;
+            _flaps.Clear();
             float width = lanes * spacing;
             Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 0.008f, z), new Vector3(width + 0.5f, 0.016f, 1.15f), new Color(0.42f, 0.44f, 0.52f), "GateMat"));
             for (int b = 0; b <= lanes; b++)
@@ -660,11 +882,21 @@ namespace MetroSort.Game
             {
                 float x = (q - (lanes - 1) * 0.5f) * spacing;
                 float flap = (spacing - 0.24f) * 0.5f - 0.04f;
+                // Under Props, not Environment: the environment is merged into static meshes, and these move.
+                var lane = new GameObject("GateFlaps");
+                lane.transform.SetParent(_props, false);
+                var flaps = lane.AddComponent<GateFlaps>();
                 for (int side = -1; side <= 1; side += 2)
                 {
-                    GameObject paddle = Prims.Make(PrimitiveType.Cube, _env, new Vector3(x + side * (flap * 0.5f + 0.03f), 0.38f, z), new Vector3(flap, 0.34f, 0.04f), new Color(0.72f, 0.90f, 1f), "GateFlap");
+                    // Hinged at the post end so the flap can swing open.
+                    var hinge = new GameObject(side < 0 ? "HingeL" : "HingeR").transform;
+                    hinge.SetParent(lane.transform, false);
+                    hinge.localPosition = new Vector3(x + side * (flap + 0.03f), 0.38f, z);
+                    GameObject paddle = Prims.Make(PrimitiveType.Cube, hinge, new Vector3(-side * flap * 0.5f, 0f, 0f), new Vector3(flap, 0.34f, 0.04f), new Color(0.72f, 0.90f, 1f), "GateFlap");
                     Prims.SetGlossy(paddle, new Color(0.72f, 0.90f, 1f));
+                    if (side < 0) flaps.Left = hinge; else flaps.Right = hinge;
                 }
+                _flaps.Add(flaps);
             }
             // Railings close off the rest of the concourse edge.
             for (int side = -1; side <= 1; side += 2)
@@ -680,6 +912,10 @@ namespace MetroSort.Game
         private void BuildPlant(Vector3 pos)
         {
             Prop("Plant", pos);
+            // The foliage is its own piece so it can sway and be ruffled by passing trains.
+            var sway = Prop("PlantLeaves", pos).AddComponent<Sway>();
+            sway.Home = pos;
+            sway.PivotHeight = 0.42f;
         }
 
         private void BuildLamp(Vector3 pos)
@@ -694,6 +930,45 @@ namespace MetroSort.Game
             go.transform.localPosition = position;
             ModelKit.Paint(go, PropMaterial);
             return go;
+        }
+
+        /// <summary>Places one of the larger modelled scene pieces (Models/Scene): tunnel portals, the bench, stanchions.</summary>
+        private GameObject SceneProp(string piece, Vector3 position)
+        {
+            GameObject go = ModelKit.Spawn("Scene", piece, _props);
+            go.transform.localPosition = position;
+            ModelKit.Paint(go, SceneMaterial);
+            return go;
+        }
+
+        private Material SceneMaterial(string slot)
+        {
+            switch (slot)
+            {
+                case "Stone": return MaterialLibrary.Get(new Color(0.80f, 0.74f, 0.66f));
+                case "StoneLight": return MaterialLibrary.Get(new Color(0.90f, 0.85f, 0.77f));
+                case "StoneDark": return MaterialLibrary.Get(new Color(0.66f, 0.60f, 0.53f));
+                case "Coping": return MaterialLibrary.Get(new Color(0.96f, 0.93f, 0.87f));
+                case "Mouth": return MaterialLibrary.Get(new Color(0.05f, 0.05f, 0.09f));
+                case "MouthEdge": return MaterialLibrary.Get(new Color(0.20f, 0.20f, 0.27f));
+                case "Trim": return MaterialLibrary.Get(Palette.Gold, true);
+                case "Accent": return MaterialLibrary.Get(Theme.Dado, true);
+                case "White": return MaterialLibrary.Get(Color.white);
+                case "Grass": return MaterialLibrary.Get(new Color(0.33f, 0.52f, 0.30f));
+                case "Leaf": return MaterialLibrary.Get(Palette.Leaf, false, false, true);
+                case "LeafLight": return MaterialLibrary.Get(Color.Lerp(Palette.Leaf, new Color(0.85f, 1f, 0.55f), 0.35f));
+                case "FlowerA": return MaterialLibrary.Get(new Color(0.98f, 0.52f, 0.66f));
+                case "FlowerB": return MaterialLibrary.Get(new Color(1f, 0.84f, 0.30f));
+                case "FlowerC": return MaterialLibrary.Get(Color.white);
+                case "Light": return MaterialLibrary.Get(new Color(0.35f, 0.92f, 0.50f));
+                case "Dark": return MaterialLibrary.Get(Palette.Dark);
+                case "Wood": return MaterialLibrary.Get(Palette.Wood, false, false, true);
+                case "WoodDark": return MaterialLibrary.Get(Color.Lerp(Palette.Wood, Palette.Dark, 0.22f), false, false, true);
+                case "Iron": return MaterialLibrary.Get(new Color(0.18f, 0.30f, 0.36f), true);
+                case "Cushion": return MaterialLibrary.Get(new Color(0.86f, 0.26f, 0.30f), false, false, true);
+                case "CushionLight": return MaterialLibrary.Get(new Color(0.95f, 0.42f, 0.44f), false, false, true);
+                default: return null;
+            }
         }
 
         private Material PropMaterial(string slot)
@@ -728,10 +1003,22 @@ namespace MetroSort.Game
             if (!GameSettings.ReducedMotion) _shake = Mathf.Max(_shake, amount);
         }
 
+        /// <summary>A brief zoom that eases back: positive starts wider (level intro), negative pushes in (win).</summary>
+        public void Punch(float amount)
+        {
+            if (!GameSettings.ReducedMotion) _zoom = amount;
+        }
+
         private void Update()
         {
             if (Cam == null) return;
             if (Mathf.Abs(Cam.aspect - _fittedAspect) > 0.001f) FitCamera();
+            if (_zoom != 0f && _fitSize > 0f)
+            {
+                _zoom *= Mathf.Exp(-Time.deltaTime * 4.5f);
+                if (Mathf.Abs(_zoom) < 0.0006f) _zoom = 0f;
+                Cam.fieldOfView = _fitSize * (1f + _zoom);
+            }
             if (_shake > 0f)
             {
                 _shake = Mathf.MoveTowards(_shake, 0f, Time.deltaTime * 0.35f);
@@ -741,27 +1028,74 @@ namespace MetroSort.Game
             }
         }
 
-        /// <summary>Fixed elevated orthographic view, framed so the station sits between the top HUD and the booster bar.</summary>
+        /// <summary>
+        /// Fixed elevated perspective view, framed so the station sits between the top HUD and the booster bar:
+        /// the front of the concourse sits on the booster bar, the top of the back wall meets the HUD, and the
+        /// whole width stays on screen.
+        /// </summary>
         private void FitCamera()
         {
             if (Cam == null) return;
-            // Cam.aspect follows the real output (screen, or a render target), so framing is right everywhere.
-            float aspect = Cam.aspect > 0.01f ? Cam.aspect : 0.5625f;
             _fittedAspect = Cam.aspect;
-            float sp = Mathf.Sin(Pitch * Mathf.Deg2Rad), cp = Mathf.Cos(Pitch * Mathf.Deg2Rad);
-            const float top = 0.15f, bottom = 0.19f;
-            float vMin = _minZ * sp;
-            float vMax = _maxZ * sp + 1.7f * cp;
-            float sizeV = (vMax - vMin) / (2f * (1f - top - bottom));
-            float sizeH = (_maxX - _minX) / (2f * aspect * 0.97f);
-            float size = Mathf.Max(6f, Mathf.Max(sizeV, sizeH));
-            float center = (vMin + vMax) * 0.5f - (bottom - top) * size;
-            Cam.orthographic = true;
-            Cam.orthographicSize = size;
+            float cp = Mathf.Cos(Pitch * Mathf.Deg2Rad), sp = Mathf.Sin(Pitch * Mathf.Deg2Rad);
+            float yBottom = BottomMargin, yTop = 1f - TopMargin;
+            Cam.orthographic = false;
+            Cam.fieldOfView = Fov * (1f + _zoom);
+            _fitSize = Fov;
             Cam.transform.rotation = Quaternion.Euler(Pitch, 0f, 0f);
-            var look = new Vector3((_minX + _maxX) * 0.5f, 0f, center / sp);
-            _cameraHome = look - Cam.transform.forward * 24f;
+            Vector3 forward = Cam.transform.forward;
+            float cx = (_minX + _maxX) * 0.5f;
+            var bottomPoint = new Vector3(cx, 0f, _minZ);
+            var topPoint = new Vector3(cx, _aboveTop / cp, _maxZ);
+            Vector3[] corners =
+            {
+                new Vector3(_minX, 0f, _minZ), new Vector3(_maxX, 0f, _minZ),
+                new Vector3(_minX, 0f, _maxZ), new Vector3(_maxX, 0f, _maxZ),
+            };
+            float keepFov = Cam.fieldOfView;
+            Cam.fieldOfView = Fov;
+            float distance = 26f, targetZ = (_minZ + _maxZ) * 0.5f;
+            float tan = Mathf.Tan(Fov * 0.5f * Mathf.Deg2Rad);
+            for (int i = 0; i < 40; i++)
+            {
+                Cam.transform.position = new Vector3(cx, 0f, targetZ) - forward * distance;
+                float vb = Cam.WorldToViewportPoint(bottomPoint).y;
+                float vt = Cam.WorldToViewportPoint(topPoint).y;
+                float need = (vt - vb) / (yTop - yBottom);
+                foreach (Vector3 c in corners)
+                    need = Mathf.Max(need, Mathf.Abs(Cam.WorldToViewportPoint(c).x - 0.5f) / 0.485f);
+                distance = Mathf.Max(MinDistance, distance * Mathf.Lerp(1f, need, 0.8f));
+                // Pin the front of the board to the booster bar; spare height goes to the top.
+                Cam.transform.position = new Vector3(cx, 0f, targetZ) - forward * distance;
+                vb = Cam.WorldToViewportPoint(bottomPoint).y;
+                targetZ += (vb - yBottom) * 2f * distance * tan / sp;
+            }
+            Cam.fieldOfView = keepFov;
+            _cameraHome = new Vector3(cx, 0f, targetZ) - forward * distance;
             Cam.transform.position = _cameraHome;
+        }
+
+        // Closest the camera comes, so a tiny station is not blown up to fill the screen.
+        private const float MinDistance = 15f;
+
+        /// <summary>
+        /// Widens the painted wall to what the camera sees at its depth (plus a margin), so its picture never
+        /// repeats at the sides. The framing keeps the picture's original height; a widened picture grows taller
+        /// too, and only its top (ceiling) slips under the HUD.
+        /// </summary>
+        private void FitWallToView(float face, float sinPitch)
+        {
+            _aboveTop = 0.2f * sinPitch + _wallSpan / 4f;
+            FitCamera();
+            float width = 0f;
+            var plane = new Plane(Vector3.back, new Vector3(0f, 0f, face));
+            foreach (float vx in new[] { 0f, 1f })
+            {
+                Ray ray = Cam.ViewportPointToRay(new Vector3(vx, 1f - TopMargin, 0f));
+                float hit;
+                if (plane.Raycast(ray, out hit)) width = Mathf.Max(width, Mathf.Abs(ray.GetPoint(hit).x - (_minX + _maxX) * 0.5f) * 2f);
+            }
+            _wallSpan = Mathf.Max(_wallSpan, width * 1.04f);
         }
     }
 }

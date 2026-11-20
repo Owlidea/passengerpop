@@ -99,6 +99,14 @@ namespace MetroSort.Game
                 Deselect();
                 return;
             }
+            if (state.HasSchedule)
+            {
+                // One tap: the passenger boards their train if it is in, otherwise takes a seat on the bench.
+                Move auto;
+                if (BoardRules.TryAutoMove(state, source, out auto)) Execute(auto);
+                else Deselect();
+                return;
+            }
             if (!GameSettings.AssistedMode || _app.Tutorial.IsGuiding) return;
             int target;
             if (TryAutoTarget(state, source, out target)) Execute(new Move(source, target));

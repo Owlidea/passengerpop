@@ -4,11 +4,11 @@
   "group": "Intro",
   "stages": [
     [
-      "RB",
-      "RB",
-      "RB"
+      "RBR",
+      "BBR"
     ]
   ],
+  "trains": "BR",
   "platforms": [
     {
       "cap": 3
@@ -17,11 +17,10 @@
       "cap": 3
     }
   ],
-  "bench": 0,
+  "bench": 3,
   "moveLimit": 0,
-  "visible": 0,
   "extraPlatforms": 1,
-  "tutorial": "select_move",
+  "tutorial": "board",
   "par": 6,
-  "difficulty": 29.1
+  "difficulty": 0.0
 }

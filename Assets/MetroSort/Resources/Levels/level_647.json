@@ -4,34 +4,33 @@
   "group": "Autumn",
   "stages": [
     [
-      "BBRRR",
-      "RBBYG",
-      "GGRY",
-      "BYBR"
+      "RRYYOO",
+      "YYYOPGRO",
+      "GGGPPY",
+      "YOPYR",
+      "ROGOP"
+    ],
+    [
+      "PYRYGY",
+      "YGPBPYPP",
+      "YYYGGP",
+      "OYBGY",
+      "OBPGG"
     ]
   ],
+  "trains": "YRYGOPOGYROPYBPYYGGP",
   "platforms": [
     {
       "cap": 3
     },
     {
       "cap": 3
-    },
-    {
-      "cap": 3,
-      "uses": 3
-    },
-    {
-      "cap": 3,
-      "lockColor": "*",
-      "lockTrains": 1
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 1,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 18,
-  "difficulty": 66.7
+  "par": 65,
+  "difficulty": 38.6
 }

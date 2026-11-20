@@ -4,12 +4,12 @@
   "group": "Intro",
   "stages": [
     [
-      "GRG",
-      "RGB",
-      "RRB",
-      "RRB"
+      "RRBGB",
+      "RRGRG",
+      "BRGGG"
     ]
   ],
+  "trains": "RRBGG",
   "platforms": [
     {
       "cap": 3
@@ -18,11 +18,10 @@
       "cap": 3
     }
   ],
-  "bench": 0,
+  "bench": 3,
   "moveLimit": 0,
-  "visible": 0,
   "extraPlatforms": 1,
-  "tutorial": "decision",
-  "par": 12,
-  "difficulty": 35.0
+  "tutorial": "schedule",
+  "par": 16,
+  "difficulty": 5.0
 }

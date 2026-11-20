@@ -4,12 +4,13 @@
   "group": "Advanced",
   "stages": [
     [
-      "BYRRG",
-      "bRGBY",
-      "RGYB",
-      "RBrB"
+      "RYRBRYB",
+      "BBBGBBY",
+      "GRRPBPP",
+      "GRBBBB"
     ]
   ],
+  "trains": "BGRBRYBPB",
   "platforms": [
     {
       "cap": 3
@@ -18,11 +19,10 @@
       "cap": 3
     }
   ],
-  "bench": 1,
-  "moveLimit": 20,
-  "visible": 0,
+  "bench": 5,
+  "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 18,
-  "difficulty": 60.5
+  "par": 28,
+  "difficulty": 15.0
 }

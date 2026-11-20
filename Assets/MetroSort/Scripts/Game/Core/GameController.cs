@@ -68,6 +68,7 @@ namespace MetroSort.Game
             _stamp++;
             _app.Station.SetLevel(level);
             _app.Station.Rebuild(Board.State, true);
+            _app.Anim.DockTrains(Board.State, true);
             _app.States.Set(AppState.Playing);
             _app.Tutorial.OnLevelStarted();
             Track(AnalyticsEvents.LevelStarted, null);
@@ -81,7 +82,9 @@ namespace MetroSort.Game
             Board = null;
             LevelData backdrop = _app.Services.Levels.Get(levelId);
             _app.Station.SetLevel(backdrop);
-            _app.Station.Rebuild(BoardState.Create(backdrop));
+            BoardState preview = BoardState.Create(backdrop);
+            _app.Station.Rebuild(preview);
+            _app.Anim.DockTrains(preview, false);
         }
 
         public MoveError TryMove(Move move)
@@ -177,7 +180,7 @@ namespace MetroSort.Game
             BoosterUseResult r = _app.Services.Boosters.TryUse(BoosterType.Undo, () =>
             {
                 if (!Board.Undo()) return false;
-                ResyncAfterBooster();
+                ResyncAfterBooster(RebuildStyle.Undo);
                 return true;
             });
             Report(r, BoosterType.Undo, "Nothing to undo");
@@ -191,7 +194,7 @@ namespace MetroSort.Game
             BoosterUseResult r = _app.Services.Boosters.TryUse(BoosterType.ExtraPlatform, () =>
             {
                 if (!Board.AddExtraPlatform(null)) return false;
-                ResyncAfterBooster();
+                ResyncAfterBooster(RebuildStyle.ExtraPlatform);
                 return true;
             });
             Report(r, BoosterType.ExtraPlatform, "No room for another platform in this level");
@@ -200,7 +203,7 @@ namespace MetroSort.Game
         public void UseHint()
         {
             if (Board == null || _jobRunning || _app.States.Current != AppState.Playing) return;
-            if (HasHint) { _app.Station.ShowHint(Hint); return; }
+            if (HasHint) { ShowHintOnStation(); return; }
             if (!_app.Services.Boosters.CanPay(BoosterType.Hint)) { Report(BoosterUseResult.NotAffordable, BoosterType.Hint, null); return; }
             BoardState snapshot = Board.State.Clone();
             Move found = default(Move);
@@ -213,7 +216,7 @@ namespace MetroSort.Game
                     _app.Services.Boosters.Pay(BoosterType.Hint);
                     Hint = found;
                     HasHint = true;
-                    _app.Station.ShowHint(found);
+                    ShowHintOnStation();
                     Report(BoosterUseResult.Used, BoosterType.Hint, null);
                 }));
         }
@@ -236,7 +239,7 @@ namespace MetroSort.Game
                     if (shuffled == null) { Report(BoosterUseResult.NoEffect, BoosterType.Shuffle, "No winnable shuffle here. Nothing was spent."); return; }
                     _app.Services.Boosters.Pay(BoosterType.Shuffle);
                     Board.ReplaceState(shuffled);
-                    ResyncAfterBooster();
+                    ResyncAfterBooster(RebuildStyle.Shuffle);
                     Report(BoosterUseResult.Used, BoosterType.Shuffle, null);
                 }));
         }
@@ -258,10 +261,11 @@ namespace MetroSort.Game
             RaiseChanged();
         }
 
-        private void ResyncAfterBooster()
+        private void ResyncAfterBooster(RebuildStyle style)
         {
             _app.Anim.CancelAll();
-            _app.Station.Rebuild(Board.State);
+            _app.Station.Rebuild(Board.State, false, style);
+            _app.Anim.DockTrains(Board.State, false);
             ClearHint();
             _stamp++;
             if (Board.Status == GameStatus.Playing) _app.States.Set(AppState.Playing);
@@ -291,6 +295,14 @@ namespace MetroSort.Game
         }
 
         // ------------------------------------------------------------------ helpers
+
+        /// <summary>Lights up the hinted target and has the passenger to move wave at the player.</summary>
+        private void ShowHintOnStation()
+        {
+            _app.Station.ShowHint(Hint);
+            PassengerView view = _app.Station.SourceView(Board.State, Hint.Source);
+            if (view != null) view.Beckon();
+        }
 
         private void ClearHint()
         {

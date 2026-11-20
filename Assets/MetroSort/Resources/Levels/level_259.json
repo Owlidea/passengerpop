@@ -4,35 +4,33 @@
   "group": "Alpine",
   "stages": [
     [
-      "PRPYB",
-      "RGRBR",
-      "RRGYG",
-      "RPBGG",
-      "BYGB"
+      "OGRGG",
+      "GBGGB",
+      "RRBRGG",
+      "ROGRGP",
+      "GBYOY"
+    ],
+    [
+      "GBPBGP",
+      "OBPBPG",
+      "OOPRG",
+      "RYPPG",
+      "RBPGG"
     ]
   ],
+  "trains": "GRBOGRGYGBPBORPGPG",
   "platforms": [
     {
       "cap": 3
     },
     {
       "cap": 3
-    },
-    {
-      "cap": 4,
-      "color": "R"
-    },
-    {
-      "cap": 2,
-      "express": true,
-      "color": "B"
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 24,
-  "difficulty": 99.8
+  "par": 58,
+  "difficulty": 15.8
 }

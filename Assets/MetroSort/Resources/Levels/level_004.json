@@ -4,24 +4,21 @@
   "group": "Intro",
   "stages": [
     [
-      "RGG",
-      "BGR",
-      "BBR"
+      "RRR",
+      "RGRBBB",
+      "GGR"
     ]
   ],
+  "trains": "GRBR",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     }
   ],
-  "bench": 0,
+  "bench": 3,
   "moveLimit": 0,
-  "visible": 0,
   "extraPlatforms": 1,
-  "tutorial": "capacity",
-  "par": 9,
-  "difficulty": 40.2
+  "tutorial": "bench_full",
+  "par": 13,
+  "difficulty": 17.5
 }

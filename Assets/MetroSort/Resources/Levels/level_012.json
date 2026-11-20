@@ -4,17 +4,13 @@
   "group": "Basic",
   "stages": [
     [
-      "RRBY",
-      "GYBB",
-      "RYGR",
-      "RGB",
-      "BRB"
+      "RBGRB",
+      "BBGBG",
+      "BGRGG"
     ]
   ],
+  "trains": "BBRGG",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     },
@@ -22,11 +18,10 @@
       "cap": 3
     }
   ],
-  "bench": 0,
+  "bench": 4,
   "moveLimit": 0,
-  "visible": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 18,
-  "difficulty": 48.8
+  "par": 17,
+  "difficulty": 12.5
 }

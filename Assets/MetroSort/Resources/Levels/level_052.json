@@ -4,12 +4,13 @@
   "group": "Intermediate",
   "stages": [
     [
-      "RBBGR",
-      "GYRGB",
-      "RBBR",
-      "YBRY"
+      "PBPGY",
+      "RYGYG",
+      "YBYP",
+      "RBRY"
     ]
   ],
+  "trains": "YPRBGY",
   "platforms": [
     {
       "cap": 3
@@ -18,11 +19,10 @@
       "cap": 3
     }
   ],
-  "bench": 1,
-  "moveLimit": 21,
-  "visible": 0,
+  "bench": 4,
+  "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 19,
-  "difficulty": 77.7
+  "par": 20,
+  "difficulty": 15.0
 }

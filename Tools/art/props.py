@@ -39,19 +39,23 @@ for side in (-1, 1):   # arrow head
     p.box((side * 0.024, -0.44, 0.445), (0.026, 0.008, 0.075), "Light", bevel=0.0, rot=(0, side * 42, 0))
 p.build("Turnstile")
 
-# ---- potted plant
+# ---- potted plant: the pot, and the foliage as its own piece (origin at the soil) so it can sway
 p = Part()
 p.cone((0, 0, 0.21), 0.22, 0.30, 0.42, "Pot", seg=24, bevel=0.03)
 p.torus((0, 0, 0.42), 0.295, 0.04, "Pot", seg=24, ring=8)
+p.outline(0.022)
+p.cone((0, 0, 0.425), 0.26, 0.26, 0.02, "Soil", seg=20, bevel=0.0)
+p.build("Plant")
+
+p = Part()
 blobs = [((0, 0, 0.86), 0.40), ((0.24, -0.05, 0.74), 0.27), ((-0.25, 0.04, 0.78), 0.28), ((0.10, 0.18, 1.12), 0.30),
          ((-0.10, -0.16, 1.14), 0.27), ((0.02, 0.0, 1.40), 0.22), ((0.26, 0.10, 1.00), 0.20), ((-0.24, -0.10, 1.02), 0.20)]
 for (c, r) in blobs:
     p.ellipsoid(c, (r, r, r * 0.92), "Leaf", seg=16, rings=10)
 p.outline(0.022)
-p.cone((0, 0, 0.425), 0.26, 0.26, 0.02, "Soil", seg=20, bevel=0.0)
 for (c, r) in blobs[::2]:   # sunlit tufts on the camera side
     p.ellipsoid((c[0] - 0.05, c[1] - r * 0.55, c[2] + r * 0.45), (r * 0.42, r * 0.36, r * 0.34), "LeafLight", seg=12, rings=8)
-p.build("Plant")
+p.build("PlantLeaves", origin=(0, 0, 0.42))
 
 # ---- platform lamp
 p = Part()
@@ -91,11 +95,17 @@ for i in range(12):
     a = math.radians(i * 30)
     big = i % 3 == 0
     p.box((math.sin(a) * 0.215, -0.026, math.cos(a) * 0.215), (0.022 if big else 0.012, 0.006, 0.05 if big else 0.03), "Dark", bevel=0.0, rot=(0, math.degrees(a), 0))
-p.box((0, -0.03, 0.075), (0.026, 0.008, 0.17), "Dark", bevel=0.004)                               # minute hand at 12
 p.box((0.06, -0.034, 0.035), (0.03, 0.008, 0.13), "Dark", bevel=0.004, rot=(0, 60, 0))            # hour hand at 2
-p.box((-0.03, -0.038, -0.052), (0.01, 0.006, 0.15), "Red", bevel=0.0, rot=(0, 210, 0))            # second hand
 p.ellipsoid((0, -0.04, 0), (0.022, 0.012, 0.022), "Dark", seg=10, rings=6)
 p.build("Clock")
+
+# the minute and second hands are their own pieces, pointing at 12 and turning about the dial centre
+p = Part()
+p.box((0, -0.03, 0.075), (0.026, 0.008, 0.17), "Dark", bevel=0.004)
+p.build("ClockMinute")
+p = Part()
+p.box((0, -0.038, 0.06), (0.01, 0.006, 0.20), "Red", bevel=0.0)
+p.build("ClockSecond")
 
 # ---- litter bin
 p = Part()
@@ -109,10 +119,10 @@ p.build("Bin")
 if PREVIEW:
     cam = kit.render_setup(4.2, (1100, 520))
     for i, n in enumerate(("Turnstile", "Plant", "Lamp", "Bench", "Pillar", "Clock", "Bin")):
-        ob = bpy.data.objects[n]
-        ob.location.x = (i - 3) * 1.25
-        if n == "Clock":
-            ob.location.z = 1.5
+        for ob in [o for o in bpy.data.objects if o.name.startswith(n)]:
+            ob.location.x = (i - 3) * 1.25
+            if n == "Clock":
+                ob.location.z = 1.5
     kit.render(cam, os.path.join(PREVIEW, "props.png"), (0, -6, 6.5), (0, 0, 1.1))
 else:
     kit.export(OUT)

@@ -26,10 +26,21 @@ namespace MetroSort.Puzzle
             if (m.IsToBench)
             {
                 if (s.BenchCapacity <= 0) return MoveError.BadTarget;
+                // With a train schedule the bench is only for passengers whose train is not in yet.
+                if (s.HasSchedule && BoardRules.PlatformFor(s, p) >= 0) return MoveError.BadTarget;
                 return s.Bench.Count >= s.BenchCapacity ? MoveError.BenchFull : MoveError.None;
             }
 
             if (m.Target < 0 || m.Target >= s.Platforms.Count) return MoveError.BadTarget;
+            if (s.HasSchedule)
+            {
+                // One-tap play: bench passengers board by themselves, and a passenger always walks to the fullest
+                // platform whose train is theirs, so that is the only legal target.
+                if (m.IsFromBench) return MoveError.BadSource;
+                int expected = BoardRules.PlatformFor(s, p);
+                if (expected < 0) return MoveError.ColorMismatch;
+                if (expected != m.Target) return MoveError.BadTarget;
+            }
             PlatformState plat = s.Platforms[m.Target];
             if (plat.Closed) return MoveError.PlatformClosed;
             if (plat.IsLocked) return MoveError.PlatformLocked;
@@ -68,6 +79,7 @@ namespace MetroSort.Puzzle
             if (s.TrainsByColor != null && color >= 0) s.TrainsByColor[color]++;
             plat.Occupants.Clear();
             plat.Color = ColorCodes.None;
+            if (s.HasSchedule) plat.ReservedColor = ColorCodes.None;
 
             if (plat.UsesLeft > 0)
             {
@@ -85,9 +97,13 @@ namespace MetroSort.Puzzle
                 if (!other.IsLocked) continue;
                 if (other.LockColor != ColorCodes.Any && other.LockColor != color) continue;
                 other.LockRemaining--;
-                if (other.LockRemaining == 0 && events != null)
-                    events.Add(new BoardEvent { Type = BoardEventType.PlatformUnlocked, Platform = i });
+                if (other.LockRemaining == 0)
+                {
+                    if (events != null) events.Add(new BoardEvent { Type = BoardEventType.PlatformUnlocked, Platform = i });
+                    if (s.HasSchedule) BoardRules.CallNextTrain(s, i, events);
+                }
             }
+            if (s.HasSchedule && !plat.Closed) BoardRules.CallNextTrain(s, platformIndex, events);
             return true;
         }
     }
@@ -118,22 +134,15 @@ namespace MetroSort.Puzzle
             }
             else
             {
-                PlatformState plat = s.Platforms[m.Target];
-                bool assigns = plat.Count == 0;
-                plat.Occupants.Add(p);
-                plat.Color = p.Color;
-                if (events != null)
-                {
-                    events.Add(new BoardEvent { Type = BoardEventType.PassengerMoved, PassengerId = p.Id, Move = m, Platform = m.Target, Slot = plat.Count - 1, Color = p.Color });
-                    if (assigns) events.Add(new BoardEvent { Type = BoardEventType.PlatformColorAssigned, Platform = m.Target, Color = p.Color });
-                }
                 int[] gatesBefore = null;
                 if (events != null && s.Gates != null && s.Stage == 0)
                 {
                     gatesBefore = new int[s.Gates.Length];
                     for (int q = 0; q < gatesBefore.Length; q++) gatesBefore[q] = s.GateRemaining(q);
                 }
-                MatchResolver.Resolve(s, m.Target, events);
+                Place(s, p, m, events);
+                // A newly arrived train collects its waiting passengers from the bench straight away.
+                if (s.HasSchedule) while (AutoBoard(s, events)) { }
                 if (gatesBefore != null)
                 {
                     for (int q = 0; q < gatesBefore.Length && q < s.Queues.Length; q++)
@@ -147,6 +156,91 @@ namespace MetroSort.Puzzle
                 s.LoadStage(s.Stage + 1);
                 if (events != null) events.Add(new BoardEvent { Type = BoardEventType.StageAdvanced, Stage = s.Stage });
             }
+        }
+
+        private static void Place(BoardState s, Passenger p, Move m, List<BoardEvent> events)
+        {
+            PlatformState plat = s.Platforms[m.Target];
+            bool assigns = plat.Count == 0 && !s.HasSchedule;
+            plat.Occupants.Add(p);
+            plat.Color = p.Color;
+            if (events != null)
+            {
+                events.Add(new BoardEvent { Type = BoardEventType.PassengerMoved, PassengerId = p.Id, Move = m, Platform = m.Target, Slot = plat.Count - 1, Color = p.Color });
+                if (assigns) events.Add(new BoardEvent { Type = BoardEventType.PlatformColorAssigned, Platform = m.Target, Color = p.Color });
+            }
+            MatchResolver.Resolve(s, m.Target, events);
+        }
+
+        /// <summary>Schedule mode: lets every bench passenger whose train is in board it (chains through arrivals).</summary>
+        public static void Settle(BoardState s, List<BoardEvent> events)
+        {
+            if (s.HasSchedule) while (AutoBoard(s, events)) { }
+        }
+
+        /// <summary>Moves one waiting bench passenger onto a platform whose train is theirs. Counts as a move.</summary>
+        private static bool AutoBoard(BoardState s, List<BoardEvent> events)
+        {
+            for (int b = 0; b < s.Bench.Count; b++)
+            {
+                int target = PlatformFor(s, s.Bench[b]);
+                if (target < 0) continue;
+                Passenger p = s.Bench[b];
+                s.Bench.RemoveAt(b);
+                s.MovesUsed++;
+                Place(s, p, Move.FromBench(b, target), events);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>The platform a passenger would board at: the fullest open one that takes them, or -1.</summary>
+        public static int PlatformFor(BoardState s, Passenger p)
+        {
+            int best = -1;
+            for (int i = 0; i < s.Platforms.Count; i++)
+            {
+                PlatformState plat = s.Platforms[i];
+                if (plat.Closed || plat.IsLocked || plat.IsFull) continue;
+                if (plat.ReservedColor >= 0 && plat.ReservedColor != p.Color) continue;
+                if (plat.Count > 0 && plat.Color != p.Color) continue;
+                if (p.Vip && plat.Count == 0) continue;
+                if (best < 0 || plat.Count > s.Platforms[best].Count) best = i;
+            }
+            return best;
+        }
+
+        /// <summary>
+        /// Schedule mode: the next train in the timetable pulls into an empty platform. When the timetable is used
+        /// up the platform closes. Locked platforms wait for their unlock.
+        /// </summary>
+        public static void CallNextTrain(BoardState s, int platform, List<BoardEvent> events)
+        {
+            PlatformState plat = s.Platforms[platform];
+            if (plat.Closed || plat.IsLocked || plat.Count > 0) return;
+            if (s.NextTrain >= s.Schedule.Length)
+            {
+                plat.ReservedColor = ColorCodes.None;
+                plat.Closed = true;
+                if (events != null) events.Add(new BoardEvent { Type = BoardEventType.PlatformClosed, Platform = platform });
+                return;
+            }
+            int color = s.Schedule[s.NextTrain++];
+            plat.ReservedColor = color;
+            if (events != null) events.Add(new BoardEvent { Type = BoardEventType.PlatformColorAssigned, Platform = platform, Color = color });
+        }
+
+        /// <summary>
+        /// Schedule mode has one-tap play: a tap on a queue sends its front passenger to their train if it is in,
+        /// otherwise to the bench. Returns false when neither is possible.
+        /// </summary>
+        public static bool TryAutoMove(BoardState s, int queue, out Move move)
+        {
+            move = default(Move);
+            if (queue < 0 || queue >= s.Queues.Length || s.Queues[queue].IsEmpty) return false;
+            int target = PlatformFor(s, s.Queues[queue].Front);
+            move = target >= 0 ? Move.FromQueue(queue, target) : Move.QueueToBench(queue);
+            return MoveValidator.Validate(s, move) == MoveError.None;
         }
 
         public static void GetLegalMoves(BoardState s, List<Move> result)

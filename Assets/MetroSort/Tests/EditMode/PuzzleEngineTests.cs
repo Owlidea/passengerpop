@@ -498,7 +498,9 @@ namespace MetroSort.Tests
                 Assert.AreEqual(i + 1, level.Id, files[i]);
                 ValidationReport report = LevelValidator.Validate(level);
                 Assert.IsTrue(report.IsValid, report.ToString());
-                Assert.AreEqual(report.Analysis.MinSolutionLength, level.Par, "par mismatch in level " + level.Id);
+                // Scheduled levels count the bench detours in par (a park and the automatic boarding after it).
+                if (level.HasSchedule) Assert.GreaterOrEqual(level.Par, report.Analysis.MinSolutionLength, "par below taps in level " + level.Id);
+                else Assert.AreEqual(report.Analysis.MinSolutionLength, level.Par, "par mismatch in level " + level.Id);
             }
         }
     }

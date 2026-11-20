@@ -4,12 +4,21 @@
   "group": "Master",
   "stages": [
     [
-      "BBRYRB",
-      "GBGGB",
-      "BRRGR",
-      "YGRGY"
+      "YBYYPG",
+      "YY",
+      "BGYO",
+      "GOR",
+      "BOP"
+    ],
+    [
+      "YRGR",
+      "RRYP",
+      "RYR",
+      "RRP",
+      "GPGP"
     ]
   ],
+  "trains": "BGYYOPRRYRGP",
   "platforms": [
     {
       "cap": 3
@@ -18,11 +27,10 @@
       "cap": 3
     }
   ],
-  "bench": 1,
-  "moveLimit": 23,
-  "visible": 2,
+  "bench": 5,
+  "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 21,
-  "difficulty": 61.8
+  "par": 37,
+  "difficulty": 26.7
 }

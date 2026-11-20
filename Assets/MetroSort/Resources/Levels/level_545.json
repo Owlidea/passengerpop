@@ -4,41 +4,26 @@
   "group": "Eastern",
   "stages": [
     [
-      "BB",
-      "RB",
-      "RY",
-      "G"
-    ],
-    [
-      "GY",
-      "BB",
-      "YR",
-      "B"
-    ],
-    [
-      "RR",
-      "GG",
-      "GR",
-      "G"
+      "BRBGGYYGOPYO",
+      "YBYBYYOOOYOY",
+      "BYYYYGYGOYOO",
+      "RBYRRRGPPOYO",
+      "YYRPPYOPOOYO"
     ]
   ],
+  "trains": "BYYRBRYYGPGYOPOOYOYO",
   "platforms": [
     {
       "cap": 3
     },
     {
       "cap": 3
-    },
-    {
-      "cap": 3,
-      "uses": 3
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 21,
-  "difficulty": 64.7
+  "par": 60,
+  "difficulty": 11.4
 }

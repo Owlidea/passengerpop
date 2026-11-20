@@ -4,35 +4,26 @@
   "group": "Golden",
   "stages": [
     [
-      "yRBBR",
-      "RPGRB",
-      "BBRGG",
-      "YGGy",
-      "RYPG",
-      "YPBY"
+      "PRBPGGOBRBRYR",
+      "YPYRBOOBBYRYY",
+      "BPGPOOBBRYR",
+      "YBOGGOOBYBR",
+      "RPBGRBOBRRRR"
     ]
   ],
+  "trains": "PRYPBGGOOBORBBBRYRYR",
   "platforms": [
     {
       "cap": 3
     },
     {
       "cap": 3
-    },
-    {
-      "cap": 3
-    },
-    {
-      "cap": 3,
-      "lockColor": "*",
-      "lockTrains": 2
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 2,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 27,
-  "difficulty": 73.4
+  "par": 62,
+  "difficulty": 40.0
 }

@@ -33,8 +33,9 @@ namespace MetroSort.Tests
 
         private IEnumerator PlayToEnd()
         {
-            int guard = 0;
-            while (_app.Game.Board.Status == GameStatus.Playing && guard++ < 4000)
+            // Time-based: on timetable levels a passenger may have to wait for the next train to pull in.
+            float guard = 90f;
+            while (_app.Game.Board.Status == GameStatus.Playing && (guard -= Time.unscaledDeltaTime) > 0f)
             {
                 Move move;
                 if (_app.Tutorial.IsGuiding) move = _app.Tutorial.Expected;
@@ -84,16 +85,31 @@ namespace MetroSort.Tests
             }
         }
 
+        /// <summary>The one-tap move for a queue (scheduled levels decide the target themselves).</summary>
+        private Move TapMove(int queue)
+        {
+            Move m;
+            Assert.IsTrue(BoardRules.TryAutoMove(_app.Game.Board.State, queue, out m), "queue " + queue + " cannot move");
+            return m;
+        }
+
         [UnityTest]
         public IEnumerator IllegalMove_ChangesNothing_AndUndoRebuildsViews()
         {
-            _app.Services.Progression.MarkTutorialDone("match_three"); // free play, no guided steps
+            _app.Services.Progression.MarkTutorialDone("next_train"); // free play, no guided steps
             _app.Game.StartLevel(2);
             yield return null;
             BoardState state = _app.Game.Board.State;
-            Assert.AreEqual(MoveError.None, _app.Game.TryMove(Move.FromQueue(0, 0)));
+            Assert.AreEqual(MoveError.None, _app.Game.TryMove(TapMove(0)));
             string key = _app.Game.Board.State.CanonicalKey();
-            Assert.AreNotEqual(MoveError.None, _app.Game.TryMove(Move.FromQueue(1, 0)), "blue must not join the green platform");
+            // Sending a passenger to a train of another line is refused and changes nothing.
+            state = _app.Game.Board.State;
+            int queue = state.Queues[1].IsEmpty ? 2 : 1;
+            int wrong = -1;
+            for (int p = 0; p < state.Platforms.Count; p++)
+                if (MoveValidator.Validate(state, Move.FromQueue(queue, p)) != MoveError.None) wrong = p;
+            Assert.GreaterOrEqual(wrong, 0, "expected a platform that refuses the passenger");
+            Assert.AreNotEqual(MoveError.None, _app.Game.TryMove(Move.FromQueue(queue, wrong)));
             Assert.AreEqual(key, _app.Game.Board.State.CanonicalKey());
 
             int undoBefore = _app.Services.Boosters.Count(Boosters.BoosterType.Undo);
@@ -110,18 +126,18 @@ namespace MetroSort.Tests
         [UnityTest]
         public IEnumerator Restart_RestoresTheOriginalLevel()
         {
-            _app.Services.Progression.MarkTutorialDone("match_three");
+            _app.Services.Progression.MarkTutorialDone("next_train");
             _app.Game.StartLevel(2);
             yield return null;
             string initial = _app.Game.Board.State.CanonicalKey();
-            _app.Game.TryMove(Move.FromQueue(0, 0));
-            _app.Game.TryMove(Move.FromQueue(1, 1));
+            _app.Game.TryMove(TapMove(0));
+            _app.Game.TryMove(TapMove(_app.Game.Board.State.Queues[1].IsEmpty ? 0 : 1));
             yield return null;
             _app.Game.Restart();
             yield return null;
             Assert.AreEqual(initial, _app.Game.Board.State.CanonicalKey());
             Assert.AreEqual(AppState.Playing, _app.States.Current);
-            Assert.AreEqual(3, _app.Station.Platforms.Count);
+            Assert.AreEqual(_app.Game.Level.Platforms.Count, _app.Station.Platforms.Count);
         }
 
         [UnityTest]

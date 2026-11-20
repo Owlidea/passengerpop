@@ -4,12 +4,14 @@
   "group": "Coastal",
   "stages": [
     [
-      "RRBY",
-      "BBRG",
-      "RYRr",
-      "YGG"
+      "GGPOOORPYY",
+      "OOOBRORPY",
+      "OPORRPOBBB",
+      "PGYBBBYYYY",
+      "ORRBBRRYO"
     ]
   ],
+  "trains": "OOGPBORRRBYBPYOY",
   "platforms": [
     {
       "cap": 3
@@ -18,11 +20,10 @@
       "cap": 3
     }
   ],
-  "bench": 2,
-  "moveLimit": 17,
-  "visible": 0,
+  "bench": 5,
+  "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 15,
-  "difficulty": 52.6
+  "par": 50,
+  "difficulty": 19.2
 }

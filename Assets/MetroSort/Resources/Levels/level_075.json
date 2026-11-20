@@ -4,39 +4,31 @@
   "group": "Advanced",
   "stages": [
     [
-      "RBG",
-      "YG",
-      "RG",
-      "RY",
-      "BB",
-      "GR"
+      "RYPY",
+      "RYRY",
+      "RRRB",
+      "PPY"
     ],
     [
-      "BBY",
-      "GYR",
-      "RG",
-      "YY",
-      "RR",
-      "RB"
+      "RPPPYP",
+      "PRG",
+      "BGB",
+      "RPG"
     ]
   ],
+  "trains": "YPRYRBRPPG",
   "platforms": [
     {
       "cap": 3
     },
     {
       "cap": 3
-    },
-    {
-      "cap": 3,
-      "uses": 3
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 27,
-  "difficulty": 70.0
+  "par": 33,
+  "difficulty": 23.3
 }

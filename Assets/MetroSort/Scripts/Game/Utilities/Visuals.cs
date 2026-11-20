@@ -71,6 +71,13 @@ namespace MetroSort.Game
             get
             {
                 if (_base != null) return _base;
+                // Preferred look: the glossy toy shader (Resources/MetroSortToy), which needs the Universal pipeline.
+                Shader toy = GraphicsSettings.currentRenderPipeline != null ? Resources.Load<Shader>("MetroSortToy") : null;
+                if (toy != null && toy.isSupported)
+                {
+                    _base = new Material(toy);
+                    return _base;
+                }
                 // The editor setup script stores a material in Resources so the shader is never stripped from builds.
                 _base = Resources.Load<Material>("MetroSortLit");
                 if (_base != null) return _base;
@@ -91,17 +98,91 @@ namespace MetroSort.Game
             return Get(color, false);
         }
 
+        private static readonly Dictionary<string, Material> Textured = new Dictionary<string, Material>();
+
+        /// <summary>
+        /// A surface carrying one of the pictures in Resources/Textures, projected in world space by the toy
+        /// shader. Detail mode keeps the given colour and takes only the tile pattern from the picture; picture
+        /// mode shows it as painted. st is scale (xy) and offset (zw) from world units to texture space.
+        /// Returns null when the texture or the toy shader is not there, so callers can fall back.
+        /// </summary>
+        public static Material GetTextured(string texture, Color color, Vector4 st, bool picture, bool glossy = false)
+        {
+            Color32 c = color;
+            string key = texture + "/" + c.r + "," + c.g + "," + c.b + "/" + st + "/" + picture + glossy;
+            Material m;
+            if (Textured.TryGetValue(key, out m) && m != null) return m;
+            if (!Base.HasProperty("_MapMode")) return null;
+            var map = Resources.Load<Texture2D>("Textures/" + texture);
+            if (map == null) return null;
+            map.wrapMode = TextureWrapMode.Repeat;
+            m = new Material(Base);
+            m.name = "Toy_" + texture;
+            m.SetColor("_BaseColor", color);
+            m.SetFloat("_Smoothness", glossy ? 0.78f : 0.35f);
+            m.SetTexture("_BaseMap", map);
+            m.SetVector("_MapST", st);
+            m.SetFloat("_MapMode", picture ? 2f : 1f);
+            Textured[key] = m;
+            return m;
+        }
+
+        /// <summary>
+        /// A character material drawn from a painted texture (UV mode of the toy shader). Tinted regions of the
+        /// texture hold shading around 0.5, so boost 2 with a colour recolours them; boost 1 with white shows the
+        /// texture as painted. Returns null without the toy shader or the texture.
+        /// </summary>
+        public static Material GetCharacter(Texture2D map, Color color, float boost, float sheen)
+        {
+            if (map == null || !Base.HasProperty("_MapMode")) return null;
+            Color32 c = color;
+            string key = map.GetEntityId() + "/" + c.r + "," + c.g + "," + c.b + "/" + boost + "/" + sheen;
+            Material m;
+            if (Textured.TryGetValue(key, out m) && m != null) return m;
+            m = new Material(Base);
+            m.name = "Character_" + map.name;
+            m.SetColor("_BaseColor", color);
+            m.SetTexture("_BaseMap", map);
+            m.SetFloat("_MapMode", 3f);
+            m.SetFloat("_UVBoost", boost);
+            m.SetFloat("_Smoothness", sheen > 0f ? 0.15f : 0.3f);
+            if (m.HasProperty("_Sheen")) m.SetFloat("_Sheen", sheen);
+            m.enableInstancing = true;
+            Textured[key] = m;
+            return m;
+        }
+
+        /// <summary>Swaps in a textured material if one is available; returns whether it did.</summary>
+        public static bool Paint(GameObject go, string texture, Color color, Vector4 st, bool picture, bool glossy = false)
+        {
+            Material m = GetTextured(texture, color, st, picture, glossy);
+            if (m == null) return false;
+            go.GetComponent<MeshRenderer>().sharedMaterial = m;
+            return true;
+        }
+
         /// <summary>Glossy materials give trains and signs a polished toy look.</summary>
         public static Material Get(Color color, bool glossy)
         {
+            return Get(color, glossy, false, false);
+        }
+
+        /// <summary>
+        /// bakedOcclusion: the mesh carries ambient occlusion in its vertex colours (the Blender characters).
+        /// fabric: matt cloth with a soft sheen at the silhouette instead of a plastic highlight.
+        /// </summary>
+        public static Material Get(Color color, bool glossy, bool bakedOcclusion, bool fabric)
+        {
             Color32 c = color;
-            int key = c.r << 24 | c.g << 16 | c.b << 8 | (glossy ? 1 : 0);
+            int key = c.r << 24 | c.g << 16 | c.b << 8 | (glossy ? 1 : 0) | (bakedOcclusion ? 2 : 0) | (fabric ? 4 : 0);
             Material m;
             if (Cache.TryGetValue(key, out m) && m != null) return m;
             m = new Material(Base);
             m.color = color;
             if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", color);
-            float smoothness = glossy ? 0.78f : 0.35f;
+            float smoothness = glossy ? 0.78f : (fabric ? 0.12f : 0.35f);
+            if (m.HasProperty("_VertexAO")) m.SetFloat("_VertexAO", bakedOcclusion ? 1f : 0f);
+            if (m.HasProperty("_Sheen")) m.SetFloat("_Sheen", fabric ? 1f : 0f);
             if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", smoothness);
             if (m.HasProperty("_Glossiness")) m.SetFloat("_Glossiness", smoothness);
             m.enableInstancing = true;

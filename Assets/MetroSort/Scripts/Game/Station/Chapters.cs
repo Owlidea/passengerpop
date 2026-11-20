@@ -65,6 +65,17 @@ namespace MetroSort.Game
             Make(new Color(0.84f, 0.16f, 0.44f), new Color(0.96f, 0.92f, 0.86f), new Color(0.66f, 0.94f, 0.80f))  // festival pink and mint
         };
 
+        /// <summary>
+        /// Which painted station wall (Resources/Textures/wall_N) a chapter uses, or -1 for the modelled wall.
+        /// Paintings exist for the first five lines and for Crimson to Uptown (chapters 20-29).
+        /// </summary>
+        public static int PaintingFor(int chapter)
+        {
+            if (chapter >= 0 && chapter < 5) return chapter;
+            if (chapter >= 20 && chapter < 30) return chapter - 15;
+            return -1;
+        }
+
         public static int IndexFor(int levelId)
         {
             return Mathf.Clamp((levelId - 1) / Size, 0, Names.Length - 1);

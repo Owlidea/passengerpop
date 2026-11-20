@@ -4,17 +4,15 @@
   "group": "Crimson",
   "stages": [
     [
-      "rRYRg",
-      "BBgRB",
-      "PGbbR",
-      "PGGYY",
-      "gRBP"
+      "GRBPOBRRYBOOO",
+      "GOPPBYGRGRGR",
+      "GPROYRBBRGGG",
+      "OPYBBYRBBBRR",
+      "PYOOBRBBBRR"
     ]
   ],
+  "trains": "GOOYPPBRBRYBBBRGORGR",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     },
@@ -22,25 +20,10 @@
       "cap": 3
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 24,
-  "difficulty": 82.9,
-  "gates": [
-    0,
-    0,
-    0,
-    0,
-    1
-  ],
-  "gateColors": [
-    "",
-    "",
-    "",
-    "",
-    "R"
-  ]
+  "par": 66,
+  "difficulty": 97.1
 }

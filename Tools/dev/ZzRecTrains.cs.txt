@@ -1,0 +1,127 @@
+using System.Collections;
+using System.IO;
+using MetroSort.Game;
+using MetroSort.Persistence;
+using MetroSort.Puzzle;
+using UnityEngine;
+using UnityEngine.TestTools;
+
+namespace MetroSort.Tests
+{
+    // Development helper: records the timetable levels being played (540x960 RGB24, bottom-up, 20 fps) into
+    // Logs/rec_trains/*.rgb. Copy into Assets/MetroSort/Tests/PlayMode as .cs, run PlayMode filtered to
+    // ZzRecTrains, then: ffmpeg -f rawvideo -pix_fmt rgb24 -s 540x960 -r 20 -i X.rgb -vf vflip X.mp4
+    public class ZzRecTrains
+    {
+        private const int W = 540, H = 960;
+        private const string Dir = "Logs/rec_trains";
+
+        private sealed class Recorder : MonoBehaviour
+        {
+            public FileStream Out;
+            private RenderTexture _rt;
+            private Texture2D _tex;
+
+            private void LateUpdate()
+            {
+                if (Out == null || GameApp.Instance == null) return;
+                Camera cam = GameApp.Instance.Station.Cam;
+                foreach (Canvas c in Object.FindObjectsByType<Canvas>())
+                {
+                    if (c.renderMode == RenderMode.ScreenSpaceCamera) continue;
+                    c.renderMode = RenderMode.ScreenSpaceCamera;
+                    c.worldCamera = cam;
+                    c.planeDistance = 1f;
+                }
+                if (_rt == null) { _rt = new RenderTexture(W, H, 24); _tex = new Texture2D(W, H, TextureFormat.RGB24, false); }
+                cam.targetTexture = _rt;
+                cam.Render();
+                RenderTexture.active = _rt;
+                _tex.ReadPixels(new Rect(0, 0, W, H), 0, 0);
+                RenderTexture.active = null;
+                cam.targetTexture = null;
+                byte[] data = _tex.GetRawTextureData();
+                Out.Write(data, 0, data.Length);
+            }
+        }
+
+        private Recorder _rec;
+
+        private void Begin(string clip)
+        {
+            End();
+            Directory.CreateDirectory(Dir);
+            _rec.Out = new FileStream(Dir + "/" + clip + ".rgb", FileMode.Create);
+        }
+
+        private void End()
+        {
+            if (_rec.Out != null) { _rec.Out.Dispose(); _rec.Out = null; }
+        }
+
+        /// <summary>Plays the level with one-tap moves along the solver's best line, at a human pace.</summary>
+        private static IEnumerator Play(GameApp app, int level, float pace, int maxTaps = 200)
+        {
+            app.Game.StartLevel(level);
+            yield return new WaitForSeconds(1.4f);
+            for (int i = 0; i < maxTaps && app.States.Current == AppState.Playing; i++)
+            {
+                Move m;
+                if (app.Tutorial.IsGuiding) m = app.Tutorial.Expected;
+                else if (!PuzzleSolver.TryGetHint(app.Game.Board.State, out m, 60000)) break;
+                for (int w = 0; w < 400 && app.Game.TryMove(m) == MoveError.PlatformBusy; w++) yield return null;
+                yield return new WaitForSeconds(pace);
+            }
+            yield return new WaitForSeconds(3.0f);
+        }
+
+        [UnityTest]
+        public IEnumerator Record()
+        {
+            Time.captureFramerate = 20;
+            GameApp app = GameApp.Create(new InMemoryFileStore());
+            GameSettings.FastTrains = false;
+            app.Services.Save.Data.HighestUnlocked = 9999;
+            _rec = new GameObject("Recorder").AddComponent<Recorder>();
+            yield return null; yield return null;
+
+            Begin("01_tutorial");
+            yield return Play(app, 1, 0.5f);
+            Begin("02_bench");
+            yield return Play(app, 3, 0.55f);
+            Begin("03_level10");
+            yield return Play(app, 10, 0.45f);
+
+            // A wrong choice: park everyone who has no train until the bench fills and the station jams.
+            Begin("04_jam");
+            app.Game.StartLevel(20);
+            yield return new WaitForSeconds(1.4f);
+            for (int i = 0; i < 40 && app.States.Current == AppState.Playing; i++)
+            {
+                BoardState s = app.Game.Board.State;
+                Move pick = default(Move);
+                bool found = false;
+                for (int q = 0; q < s.Queues.Length && !found; q++)
+                {
+                    Move m;
+                    if (BoardRules.TryAutoMove(s, q, out m) && m.IsToBench) { pick = m; found = true; }
+                }
+                for (int q = 0; q < s.Queues.Length && !found; q++)
+                {
+                    Move m;
+                    if (BoardRules.TryAutoMove(s, q, out m)) { pick = m; found = true; }
+                }
+                if (!found) break;
+                for (int w = 0; w < 400 && app.Game.TryMove(pick) == MoveError.PlatformBusy; w++) yield return null;
+                yield return new WaitForSeconds(0.45f);
+            }
+            yield return new WaitForSeconds(3.0f);
+            End();
+
+            Time.captureFramerate = 0;
+            Object.Destroy(_rec.gameObject);
+            Object.Destroy(app.gameObject);
+            yield return null;
+        }
+    }
+}

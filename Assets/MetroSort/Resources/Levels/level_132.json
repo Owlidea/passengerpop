@@ -4,29 +4,26 @@
   "group": "Master",
   "stages": [
     [
-      "RGBYY",
-      "RRGYB",
-      "BBRRR",
-      "RBGB"
+      "ROYPPYP",
+      "ROBBOG",
+      "RRRPBB",
+      "BRRPRGP",
+      "RBBYBBG"
     ]
   ],
+  "trains": "RRBROPBBYPG",
   "platforms": [
     {
       "cap": 3
     },
     {
       "cap": 3
-    },
-    {
-      "cap": 4,
-      "color": "R"
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 2,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 19,
-  "difficulty": 69.5
+  "par": 35,
+  "difficulty": 18.3
 }

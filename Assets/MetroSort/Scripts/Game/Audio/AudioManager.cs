@@ -5,27 +5,40 @@ namespace MetroSort.Game
     public enum Sfx
     {
         Click, Select, Invalid, Step, Assign, Match, TrainArrive, Doors, TrainDepart,
-        LevelComplete, LevelFailed, Coins, Booster, Achievement
+        LevelComplete, LevelFailed, Coins, Booster, Achievement,
+        // Appended so the indices above stay stable for Overrides.
+        Star, Cheer, CoinTick
     }
 
     /// <summary>
-    /// Music and sound effects with separate volumes. All clips are synthesised at startup so the game has
-    /// complete, original audio without any imported files; drop real clips into Overrides to replace them.
+    /// Music and sound effects with separate volumes. Clips come from Resources/Audio (copied there by
+    /// Tools/art/media_import.py); any that is missing falls back to a clip synthesised at startup, so the
+    /// game always has complete audio.
     /// </summary>
     public sealed class AudioManager : MonoBehaviour
     {
-        /// <summary>Optional replacements, indexed by the Sfx enum. Null entries keep the synthesised clip.</summary>
+        /// <summary>Optional replacements, indexed by the Sfx enum. Null entries keep the default clip.</summary>
         public AudioClip[] Overrides;
         public AudioClip MusicOverride;
 
+        // Indexed by the Sfx enum; null means there is no recording and the synthesised clip is used.
+        private static readonly string[] Files =
+        {
+            "ui_tap", null, "error", "footsteps", null, null, "train_arriving", null, "train_departing",
+            "win_jingle", null, "coins_drop", null, null, "star_collect", "crowd_yay", null
+        };
+        private const float FileGain = 0.6f; // the recordings peak about twice as loud as the synthesised clips
+
         private AudioSource _music, _sfx;
         private AudioClip[] _clips;
-        private float _lastStepTime;
+        private bool[] _fromFile;
+        private AudioClip _menuMusic, _gameMusic, _wanted;
+        private float _lastStepTime, _musicVolume, _fade = 1f, _duckUntil;
 
         public float MusicVolume
         {
-            get { return _music.volume / 0.5f; }
-            set { _music.volume = Mathf.Clamp01(value) * 0.5f; }
+            get { return _musicVolume; }
+            set { _musicVolume = Mathf.Clamp01(value); ApplyMusicVolume(); }
         }
 
         public float SfxVolume
@@ -41,30 +54,82 @@ namespace MetroSort.Game
             _music.playOnAwake = false;
             _sfx = gameObject.AddComponent<AudioSource>();
             _sfx.playOnAwake = false;
-            MusicVolume = musicVolume;
             SfxVolume = sfxVolume;
 
             _clips = new AudioClip[System.Enum.GetValues(typeof(Sfx)).Length];
+            _fromFile = new bool[_clips.Length];
             for (int i = 0; i < _clips.Length; i++)
             {
-                AudioClip over = Overrides != null && i < Overrides.Length ? Overrides[i] : null;
-                _clips[i] = over != null ? over : SynthClips.Build((Sfx)i);
+                AudioClip clip = Overrides != null && i < Overrides.Length ? Overrides[i] : null;
+                if (clip == null && i < Files.Length && Files[i] != null)
+                {
+                    clip = Resources.Load<AudioClip>("Audio/" + Files[i]);
+                    _fromFile[i] = clip != null;
+                }
+                // The cheer only exists as a recording; everything else has a synthesised stand-in.
+                if (clip == null && (Sfx)i != Sfx.Cheer) clip = SynthClips.Build((Sfx)i);
+                _clips[i] = clip;
             }
-            _music.clip = MusicOverride != null ? MusicOverride : SynthClips.BuildMusic();
+
+            _menuMusic = MusicOverride != null ? MusicOverride : Resources.Load<AudioClip>("Audio/menu_theme");
+            _gameMusic = MusicOverride != null ? MusicOverride : Resources.Load<AudioClip>("Audio/gameplay_loop");
+            if (_menuMusic == null || _gameMusic == null)
+            {
+                AudioClip synth = SynthClips.BuildMusic();
+                if (_menuMusic == null) _menuMusic = synth;
+                if (_gameMusic == null) _gameMusic = synth;
+            }
+            _wanted = _menuMusic;
+            _music.clip = _wanted;
+            MusicVolume = musicVolume;
             _music.Play();
+        }
+
+        /// <summary>Chooses the menu theme or the gameplay loop; the change is cross-faded in Update.</summary>
+        public void SetMusic(bool menu)
+        {
+            _wanted = menu ? _menuMusic : _gameMusic;
+        }
+
+        private void ApplyMusicVolume()
+        {
+            float duck = Time.unscaledTime < _duckUntil ? 0.3f : 1f;
+            _music.volume = _musicVolume * 0.5f * _fade * duck;
+        }
+
+        private void Update()
+        {
+            if (_music == null) return;
+            float step = Time.unscaledDeltaTime / 0.3f;
+            if (_music.clip != _wanted)
+            {
+                _fade = Mathf.Max(0f, _fade - step);
+                if (_fade <= 0f)
+                {
+                    _music.clip = _wanted;
+                    _music.Play();
+                }
+            }
+            else _fade = Mathf.Min(1f, _fade + step);
+            ApplyMusicVolume();
         }
 
         public void Play(Sfx sfx)
         {
             if (_clips == null) return;
+            AudioClip clip = _clips[(int)sfx];
+            if (clip == null) return;
+            bool file = _fromFile[(int)sfx];
             if (sfx == Sfx.Step)
             {
-                // Several passengers can arrive in the same frame; one footstep is enough.
-                if (Time.unscaledTime - _lastStepTime < 0.05f) return;
+                // Several passengers can arrive in the same frame; one footstep is enough. The recording
+                // already holds a few steps, so it is not restarted until it has mostly played.
+                if (Time.unscaledTime - _lastStepTime < (file ? clip.length * 0.7f : 0.05f)) return;
                 _lastStepTime = Time.unscaledTime;
             }
-            AudioClip clip = _clips[(int)sfx];
-            if (clip != null) _sfx.PlayOneShot(clip);
+            // The win jingle is a few seconds of music of its own: pull the loop down underneath it.
+            if (sfx == Sfx.LevelComplete && file) _duckUntil = Time.unscaledTime + clip.length;
+            _sfx.PlayOneShot(clip, file ? FileGain : 1f);
         }
     }
 
@@ -181,6 +246,8 @@ namespace MetroSort.Game
                     b.Note(0f, 0.25f, 392f, 0.3f, Wave.Triangle); b.Note(0.2f, 0.25f, 330f, 0.3f, Wave.Triangle); b.Note(0.4f, 0.4f, 262f, 0.3f, Wave.Triangle, 0f, 4f);
                     break;
                 case Sfx.Coins:
+                case Sfx.Star:
+                case Sfx.CoinTick:
                     b = new Buffer(0.3f, false); b.Note(0f, 0.12f, 1319f, 0.25f, Wave.Sine, 0f, 16f); b.Note(0.09f, 0.2f, 1760f, 0.25f, Wave.Sine, 0f, 12f); break;
                 case Sfx.Booster:
                     b = new Buffer(0.3f, false); b.Note(0f, 0.28f, 440f, 0.3f, Wave.Triangle, 900f, 7f); break;

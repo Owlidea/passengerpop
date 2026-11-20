@@ -4,40 +4,26 @@
   "group": "Northern",
   "stages": [
     [
-      "RBR",
-      "BB",
-      "RG",
-      "GB"
-    ],
-    [
-      "YRR",
-      "YG",
-      "BR",
-      "YR"
+      "RRGGGOOORORP",
+      "GGRGGRGPGPB",
+      "GRROOYRBOORP",
+      "GOPGYBYBBYR",
+      "OPPPOOOYOYROPB"
     ]
   ],
+  "trains": "RGGGRPGOPOOYBYROROPB",
   "platforms": [
     {
       "cap": 3
     },
     {
       "cap": 3
-    },
-    {
-      "cap": 4,
-      "color": "R"
-    },
-    {
-      "cap": 2,
-      "express": true,
-      "color": "B"
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 18,
-  "difficulty": 71.1
+  "par": 62,
+  "difficulty": 35.7
 }

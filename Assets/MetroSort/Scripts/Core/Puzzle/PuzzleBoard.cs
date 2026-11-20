@@ -26,7 +26,7 @@ namespace MetroSort.Puzzle
         public int ExtraPlatformsUsed { get; private set; }
 
         public bool CanUndo { get { return _history.Count > 0 && Status != GameStatus.Won; } }
-        public bool CanAddExtraPlatform { get { return Status != GameStatus.Won && ExtraPlatformsUsed < Level.ExtraPlatforms; } }
+        public bool CanAddExtraPlatform { get { return Status != GameStatus.Won && ExtraPlatformsUsed < Level.ExtraPlatforms && (!State.HasSchedule || State.UpcomingTrains > 0); } }
 
         public PuzzleBoard(LevelData level)
         {
@@ -83,6 +83,12 @@ namespace MetroSort.Puzzle
             ExtraPlatformsUsed++;
             State.Platforms.Add(new PlatformState { Capacity = 3, IsExtra = true });
             if (events != null) events.Add(new BoardEvent { Type = BoardEventType.PlatformAdded, Platform = State.Platforms.Count - 1 });
+            if (State.HasSchedule)
+            {
+                // The extra platform brings the next train in early, and anyone waiting for it boards.
+                BoardRules.CallNextTrain(State, State.Platforms.Count - 1, events);
+                BoardRules.Settle(State, events);
+            }
             Reevaluate(events);
             return true;
         }

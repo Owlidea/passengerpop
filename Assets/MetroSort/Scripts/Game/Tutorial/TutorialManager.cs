@@ -27,6 +27,11 @@ namespace MetroSort.Game
 
         private static readonly Dictionary<string, Definition> Definitions = new Dictionary<string, Definition>
         {
+            { "board", new Definition("Tap a passenger: they board the train of their colour.", 3, "A full train departs. Keep them coming!") },
+            { "next_train", new Definition("When a train leaves, the next one on the board pulls in.", 2, "Watch the next trains at the top.") },
+            { "bench_wait", new Definition("No train for them yet? They wait on the bench.", 1, "Their train will collect them when it arrives.") },
+            { "bench_full", new Definition("If the bench fills up, the station jams. Choose who waits!", 0, null) },
+            { "schedule", new Definition("Plan ahead: send the passengers whose trains come first.", 0, null) },
             { "select_move", new Definition("Tap a passenger, then tap a platform.", 3, "Three of a colour call their train. Send the rest!") },
             { "match_three", new Definition("Gather three of the same colour on one platform.", 2, "Keep each colour together.") },
             { "queue_advance", new Definition("When the front passenger leaves, the next one steps up.", 1, "Peek at who is waiting behind.") },

@@ -4,29 +4,33 @@
   "group": "Expert",
   "stages": [
     [
-      "YRRYG",
-      "BYRBR",
-      "GGBB",
-      "BRRB"
+      "YBYG",
+      "RPG",
+      "YYR",
+      "YPY",
+      "RGB"
+    ],
+    [
+      "GGY",
+      "PYG",
+      "YRP",
+      "BGG",
+      "RRPPG"
     ]
   ],
+  "trains": "YRGPBYYGGPR",
   "platforms": [
     {
       "cap": 3
     },
     {
       "cap": 3
-    },
-    {
-      "cap": 3,
-      "uses": 2
     }
   ],
-  "bench": 0,
+  "bench": 5,
   "moveLimit": 0,
-  "visible": 3,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 18,
-  "difficulty": 67.0
+  "par": 39,
+  "difficulty": 8.3
 }
