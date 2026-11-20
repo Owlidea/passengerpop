@@ -64,7 +64,10 @@ namespace MetroSort.Game
     public static class MaterialLibrary
     {
         private static Material _base;
-        private static readonly Dictionary<int, Material> Cache = new Dictionary<int, Material>();
+        // Keyed by text ("r,g,b/flags"). An int key packed with bit shifts came out the same for every colour in
+        // the Android (IL2CPP) build, so each group of plain materials collapsed into its first colour: all hats
+        // red, lanes and tunnels yellow. The text key is the one the textured materials use, proven on the phone.
+        private static readonly Dictionary<string, Material> Cache = new Dictionary<string, Material>();
 
         private static Material Base
         {
@@ -152,6 +155,30 @@ namespace MetroSort.Game
             return m;
         }
 
+        /// <summary>
+        /// A character painted in its own colours whose tinted parts (the jacket) are marked in the texture's
+        /// alpha (Tools/art/hdface.py): those take the colour, with a fabric sheen; the rest shows as painted.
+        /// </summary>
+        public static Material GetCharacterMasked(Texture2D map, Color color)
+        {
+            if (map == null || !Base.HasProperty("_MapMode")) return null;
+            Color32 c = color;
+            string key = map.GetEntityId() + "/" + c.r + "," + c.g + "," + c.b + "/masked";
+            Material m;
+            if (Textured.TryGetValue(key, out m) && m != null) return m;
+            m = new Material(Base);
+            m.name = "CharacterMasked_" + map.name;
+            m.SetColor("_BaseColor", color);
+            m.SetTexture("_BaseMap", map);
+            m.SetFloat("_MapMode", 4f);
+            m.SetFloat("_UVBoost", 2f);
+            m.SetFloat("_Smoothness", 0.25f);
+            if (m.HasProperty("_Sheen")) m.SetFloat("_Sheen", 1f);
+            m.enableInstancing = true;
+            Textured[key] = m;
+            return m;
+        }
+
         /// <summary>Swaps in a textured material if one is available; returns whether it did.</summary>
         public static bool Paint(GameObject go, string texture, Color color, Vector4 st, bool picture, bool glossy = false)
         {
@@ -174,18 +201,24 @@ namespace MetroSort.Game
         public static Material Get(Color color, bool glossy, bool bakedOcclusion, bool fabric)
         {
             Color32 c = color;
-            int key = c.r << 24 | c.g << 16 | c.b << 8 | (glossy ? 1 : 0) | (bakedOcclusion ? 2 : 0) | (fabric ? 4 : 0);
+            int flags = (glossy ? 1 : 0) + (bakedOcclusion ? 2 : 0) + (fabric ? 4 : 0);
+            string key = c.r + "," + c.g + "," + c.b + "/" + flags;
             Material m;
             if (Cache.TryGetValue(key, out m) && m != null) return m;
             m = new Material(Base);
-            m.color = color;
+            m.name = "Plain_" + ColorUtility.ToHtmlStringRGB(color) + "_" + flags;
             if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", color);
+            else m.color = color;
+            // Every per-material value is set explicitly, as the textured materials do.
+            if (m.HasProperty("_BaseMap")) m.SetTexture("_BaseMap", Texture2D.whiteTexture);
+            if (m.HasProperty("_MapMode")) m.SetFloat("_MapMode", 0f);
+            if (m.HasProperty("_MapST")) m.SetVector("_MapST", new Vector4(1f, 1f, 0f, 0f));
+            if (m.HasProperty("_UVBoost")) m.SetFloat("_UVBoost", 1f);
             float smoothness = glossy ? 0.78f : (fabric ? 0.12f : 0.35f);
             if (m.HasProperty("_VertexAO")) m.SetFloat("_VertexAO", bakedOcclusion ? 1f : 0f);
             if (m.HasProperty("_Sheen")) m.SetFloat("_Sheen", fabric ? 1f : 0f);
             if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", smoothness);
             if (m.HasProperty("_Glossiness")) m.SetFloat("_Glossiness", smoothness);
-            m.enableInstancing = true;
             Cache[key] = m;
             return m;
         }

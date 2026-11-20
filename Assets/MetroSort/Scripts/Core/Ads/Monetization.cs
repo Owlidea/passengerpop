@@ -70,6 +70,12 @@ namespace MetroSort.Ads
         /// <summary>Coins are granted only inside the Rewarded callback, never for merely requesting an ad.</summary>
         public void RequestRewardedCoins(Action<bool> onDone)
         {
+            RequestRewarded(() => _economy.AddCoins(_economy.Config.RewardedAdCoins), onDone);
+        }
+
+        /// <summary>Shows a rewarded ad and runs grant once if it was watched to the end (a life, coins, ...).</summary>
+        public void RequestRewarded(Action grant, Action<bool> onDone)
+        {
             _analytics.Track(AnalyticsEvents.RewardedRequested, null);
             if (!_ads.IsRewardedAdReady())
             {
@@ -84,7 +90,7 @@ namespace MetroSort.Ads
                 bool rewarded = result == AdResult.Rewarded;
                 if (rewarded)
                 {
-                    _economy.AddCoins(_economy.Config.RewardedAdCoins);
+                    if (grant != null) grant();
                     _analytics.Track(AnalyticsEvents.RewardedCompleted, null);
                 }
                 if (onDone != null) onDone(rewarded);

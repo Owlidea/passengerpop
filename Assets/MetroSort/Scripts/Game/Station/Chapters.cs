@@ -66,13 +66,17 @@ namespace MetroSort.Game
         };
 
         /// <summary>
-        /// Which painted station wall (Resources/Textures/wall_N) a chapter uses, or -1 for the modelled wall.
-        /// Paintings exist for the first five lines and for Crimson to Uptown (chapters 20-29).
+        /// Which station painting a chapter uses: Resources/Textures/wall_N for the 3D back wall and
+        /// Resources/Art/chapter_N for its banner on the level map. Every line has one; -1 only beyond the last.
+        /// Numbering follows the order the paintings were made: lines 0-4, then Crimson to Uptown (20-29) as
+        /// 5-14, then Misty to Golden (5-19) as 15-29 and the season lines (30-34) as themselves.
         /// </summary>
         public static int PaintingFor(int chapter)
         {
             if (chapter >= 0 && chapter < 5) return chapter;
             if (chapter >= 20 && chapter < 30) return chapter - 15;
+            if (chapter >= 5 && chapter < 20) return chapter + 10;
+            if (chapter >= 30 && chapter < 35) return chapter;
             return -1;
         }
 

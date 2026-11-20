@@ -45,6 +45,45 @@ namespace MetroSort.Game
             return _busyPlatforms.TryGetValue(platform, out count) && count > 0;
         }
 
+        // ------------------------------------------------------------------ praise
+
+        private static readonly string[] PraiseWords = { "Super!", "Great!", "Amazing!", "Perfect!" };
+        private int _streak, _directMoves;
+        private float _lastMatch = -10f, _lastDirect = -10f;
+
+        /// <summary>
+        /// Floating praise over the station: every filled platform gets one, stronger when platforms fill in
+        /// quick succession; a run of direct moves (no bench) earns one too.
+        /// </summary>
+        private void Praise(Vector3 world, bool match)
+        {
+            if (GameApp.Instance == null || GameApp.Instance.UI == null) return;
+            float now = Time.time;
+            int level;
+            if (match)
+            {
+                _streak = now - _lastMatch < 7f ? _streak + 1 : 0;
+                _lastMatch = now;
+                level = Mathf.Min(_streak, PraiseWords.Length - 1);
+            }
+            else level = Mathf.Min(_directMoves / 4, PraiseWords.Length - 1);
+            GameApp.Instance.UI.Praise(Loc.T(PraiseWords[level]), world, level);
+        }
+
+        /// <summary>
+        /// Counts passengers sent straight to a platform; every fourth in a row is praised, unless the same tap
+        /// also fills a train (that one gets the bigger match praise a moment later).
+        /// </summary>
+        private void CountMove(bool toBench, Vector3 at, bool fillsTrain)
+        {
+            float now = Time.time;
+            if (toBench || now - _lastDirect > 4f) _directMoves = 0;
+            _lastDirect = now;
+            if (toBench) return;
+            _directMoves++;
+            if (_directMoves >= 4 && _directMoves % 4 == 0 && !fillsTrain) Praise(at + Vector3.up * 1.4f, false);
+        }
+
         public void Init(StationView station, AudioManager audio, ObjectPoolManager pool)
         {
             _station = station;
@@ -82,6 +121,8 @@ namespace MetroSort.Game
         public void Play(List<BoardEvent> events, BoardState stateAfter)
         {
             int epoch = _epoch;
+            bool departs = false;
+            foreach (BoardEvent ev in events) departs |= ev.Type == BoardEventType.TrainDeparted;
             for (int i = 0; i < events.Count; i++)
             {
                 BoardEvent e = events[i];
@@ -96,6 +137,7 @@ namespace MetroSort.Game
                         v.Held = false;
                         v.SetAccessible(true);
                         v.SetSeated(e.Move.IsToBench);
+                        CountMove(e.Move.IsToBench, target, departs);
                         _active++;
                         v.WalkTo(target, WalkTime, 0.35f, () =>
                         {
@@ -338,6 +380,7 @@ namespace MetroSort.Game
             _audio.Play(Sfx.Match);
             _audio.Play(Sfx.Cheer);
             platform.Pulse();
+            Praise(platform.transform.position + Vector3.up * 1.6f, true);
             foreach (PassengerView v in riders) v.Celebrate();
             Color line = Palette.Line(e.Color);
             Vector3 centre = platform.transform.position;
@@ -446,11 +489,15 @@ namespace MetroSort.Game
 
             _audio.Play(Sfx.TrainDepart);
             if (TrainDeparted != null) TrainDeparted();
+            // The riders count on the HUD only now, flying up from the train to the boarding bar.
+            if (epoch == _epoch && GameApp.Instance != null && GameApp.Instance.UI != null)
+                GameApp.Instance.UI.CollectBoarded(train.transform.position + Vector3.up * 1.1f, e.PassengerIds.Length, e.Color);
             // Depart: a short backwards wind-up, then accelerate away trailing puffs.
             if (lively)
             {
                 train.Humming = false;
                 train.Launch();
+                Haptics.Tap();
                 Sway.Gust(-0.8f);
                 Fx.Sparkle(train.PantographTop, new Color(1f, 0.93f, 0.55f), 4, 1.8f);
                 for (float t = 0f; t < 1f; t += Time.deltaTime / (0.07f * scale))

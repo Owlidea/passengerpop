@@ -339,17 +339,18 @@ namespace MetroSort.Game
         /// <summary>Full-screen dimmer with a centred white card whose height follows its content.</summary>
         public static GameObject Modal(Transform parent, string name, string title, out RectTransform content)
         {
-            Image dim = MakeImage(parent, name, null, Palette.UiDim, true);
+            Image dim = MakeImage(parent, name, null, new Color(0.03f, 0.06f, 0.16f, 0.72f), true);
             Stretch(dim.rectTransform);
-            Image card = MakeImage(dim.transform, "Card", Card, Color.white, true);
-            card.pixelsPerUnitMultiplier = 0.75f;
+            // The gold-framed sky-blue panel of the shop and settings (UiPremium).
+            Image card = MakeImage(dim.transform, "Card", UiPremium.Panel, Color.white, true);
+            card.pixelsPerUnitMultiplier = 0.8f;
             card.gameObject.AddComponent<PopIn>();
             var cardShadow = card.gameObject.AddComponent<Shadow>();
             cardShadow.effectColor = new Color(0f, 0f, 0f, 0.25f);
             cardShadow.effectDistance = new Vector2(0f, -14f);
             Place(card.rectTransform, 0.5f, 0.5f, 0f, 0f, 900f, 600f);
             var layout = card.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(50, 50, 46, 58);
+            layout.padding = new RectOffset(56, 56, 52, 64);
             layout.spacing = 26f;
             layout.childAlignment = TextAnchor.UpperCenter;
             layout.childControlWidth = false;
@@ -543,6 +544,14 @@ namespace MetroSort.Game
 
         private RawImage _image;
         private float _turn = 1f, _rest;
+        private float _once = -1f, _onceLength;
+
+        /// <summary>Plays every frame once, in order, over seconds, then holds the last frame (a heart breaking).</summary>
+        public void PlayOnce(float seconds)
+        {
+            _once = 0f;
+            _onceLength = Mathf.Max(0.05f, seconds);
+        }
 
         private void Awake()
         {
@@ -572,6 +581,12 @@ namespace MetroSort.Game
                 return;
             }
             float dt = Time.unscaledDeltaTime;
+            if (_once >= 0f)
+            {
+                _once = Mathf.Min(1f, _once + dt / _onceLength);
+                Show(Mathf.Min(Columns * Rows - 1, Mathf.FloorToInt(_once * Columns * Rows)));
+                return;
+            }
             if (Loop) _turn += dt * TurnsPerSecond;
             else if (_turn < 1f)
             {

@@ -10,7 +10,7 @@ Shader "MetroSort/Toy"
         _Smoothness ("Gloss", Range(0, 1)) = 0.35
         _BaseMap ("Texture", 2D) = "white" {}
         _MapST ("Texture scale and offset", Vector) = (1, 1, 0, 0)
-        _MapMode ("Texture mode (0 off, 1 detail, 2 picture)", Float) = 0
+        _MapMode ("Texture mode (0 off, 1 detail, 2 picture, 3 UV painted, 4 UV painted with alpha tint mask)", Float) = 0
         _VertexAO ("Baked occlusion from vertex colour", Range(0, 1)) = 0
         _Sheen ("Fabric sheen", Range(0, 1)) = 0
         _UVBoost ("Texture brightness in UV mode (3)", Float) = 1
@@ -23,14 +23,16 @@ Shader "MetroSort/Toy"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
+        // Full precision only: some mobile GPUs (Mali on Vulkan) lay out 16-bit members differently between
+        // passes, and the SRP Batcher then reads another material's colour.
         CBUFFER_START(UnityPerMaterial)
-            half4 _BaseColor;
-            half _Smoothness;
+            float4 _BaseColor;
             float4 _MapST;
-            half _MapMode;
-            half _VertexAO;
-            half _Sheen;
-            half _UVBoost;
+            float _Smoothness;
+            float _MapMode;
+            float _VertexAO;
+            float _Sheen;
+            float _UVBoost;
         CBUFFER_END
         TEXTURE2D(_BaseMap);
         SAMPLER(sampler_BaseMap);
@@ -89,9 +91,18 @@ Shader "MetroSort/Toy"
                 half3 v = GetWorldSpaceNormalizeViewDir(i.positionWS);
                 Light sun = GetMainLight(TransformWorldToShadowCoord(i.positionWS));
                 half3 base = _BaseColor.rgb;
+                half tintMask = 1.0h;
+                // UV mode (4): a character painted in its own colours; the parts the game tints (the jacket)
+                // are marked in alpha and store shading around 0.5, so they take colour * texture * 2 per texel.
+                if (_MapMode > 3.5)
+                {
+                    half4 own = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv);
+                    tintMask = own.a;
+                    base = lerp(own.rgb, _BaseColor.rgb * own.rgb * _UVBoost, tintMask);
+                }
                 // UV mode (3): a painted character texture; tinted regions store shading around 0.5,
                 // so colour * texture * 2 gives the tint with the painted shading on top.
-                if (_MapMode > 2.5)
+                else if (_MapMode > 2.5)
                 {
                     half3 painted = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv).rgb;
                     base *= painted * _UVBoost;
@@ -124,7 +135,7 @@ Shader "MetroSort/Toy"
 
                 // Fabric: a soft velvety glow towards the silhouette instead of a hard highlight.
                 half ndv = saturate(dot(n, v));
-                colour += lerp(base, half3(1, 1, 1), 0.35) * pow(1.0 - ndv, 2.0) * _Sheen * (0.35 + 0.65 * lit) * ao * 0.55;
+                colour += lerp(base, half3(1, 1, 1), 0.35) * pow(1.0 - ndv, 2.0) * _Sheen * tintMask * (0.35 + 0.65 * lit) * ao * 0.55;
 
                 half spec = ao * pow(saturate(dot(n, h)), lerp(30.0, 150.0, gloss)) * gloss * gloss * gloss * 2.0 * lit;
                 colour += sun.color * spec;

@@ -103,6 +103,7 @@ namespace MetroSort.Game
         public EconomyConfig Config;
         public SaveManager Save;
         public EconomyManager Economy;
+        public LivesManager Lives;
         public ProgressionManager Progression;
         public BoosterManager Boosters;
         public AchievementManager Achievements;
@@ -122,6 +123,7 @@ namespace MetroSort.Game
             s.Save = new SaveManager(store ?? new UnityFileStore(), s.Config);
             s.Save.Load();
             s.Economy = new EconomyManager(s.Save, s.Config);
+            s.Lives = new LivesManager(s.Save, s.Economy, s.Config);
             s.Progression = new ProgressionManager(s.Save, s.Economy);
             s.Boosters = new BoosterManager(s.Save, s.Economy);
             s.Achievements = new AchievementManager(s.Save, s.Economy);

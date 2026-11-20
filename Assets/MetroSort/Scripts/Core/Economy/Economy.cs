@@ -19,6 +19,14 @@ namespace MetroSort.Economy
         /// <summary>No interstitials at or below this level (tutorial and early game stay ad-free).</summary>
         public int InterstitialFreeUntilLevel = 10;
         public int InterstitialEveryNLevels = 3;
+        /// <summary>Lives: the most a player can hold, how long one takes to come back, and the coin price of a full refill.</summary>
+        public int MaxLives = 5;
+        public int LifeRefillSeconds = 30 * 60;
+        public int LivesRefillCost = 120;
+
+        // Star chest: every new star a level earns goes into the chest; it opens when full.
+        public int StarChestStars = 10;
+        public int StarChestCoins = 100;
     }
 
     public sealed class EconomyManager
@@ -79,6 +87,11 @@ namespace MetroSort.Economy
         public bool FirstClear;
         /// <summary>True when this attempt had already been rewarded; nothing was granted this time.</summary>
         public bool Duplicate;
+        /// <summary>Stars that beat the level's best so far; they go into the star chest.</summary>
+        public int NewStars;
+        /// <summary>Star chest progress before this level, and the coins it paid if it filled (0 otherwise).</summary>
+        public int ChestBefore;
+        public int ChestCoins;
     }
 
     /// <summary>
@@ -145,8 +158,22 @@ namespace MetroSort.Economy
 
             if (stars > previous) _save.Data.Stars[_activeLevel] = stars;
             if (_activeLevel >= _save.Data.HighestUnlocked) _save.Data.HighestUnlocked = _activeLevel + 1;
-            _activeResult = new LevelResult { LevelId = _activeLevel, Stars = stars, CoinsAwarded = coins, FirstClear = first };
-            _economy.AddCoins(coins); // also saves
+            // Only stars that beat the best so far fill the chest, so replaying an easy level earns nothing.
+            int newStars = Math.Max(0, stars - previous);
+            int chestBefore = _save.Data.ChestStars;
+            int chestCoins = 0;
+            _save.Data.ChestStars += newStars;
+            if (cfg.StarChestStars > 0 && _save.Data.ChestStars >= cfg.StarChestStars)
+            {
+                _save.Data.ChestStars -= cfg.StarChestStars;
+                chestCoins = cfg.StarChestCoins;
+            }
+            _activeResult = new LevelResult
+            {
+                LevelId = _activeLevel, Stars = stars, CoinsAwarded = coins, FirstClear = first,
+                NewStars = newStars, ChestBefore = chestBefore, ChestCoins = chestCoins
+            };
+            _economy.AddCoins(coins + chestCoins); // also saves
             if (Changed != null) Changed();
             return _activeResult;
         }

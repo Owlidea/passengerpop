@@ -12,7 +12,7 @@ import shutil
 import sys
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 from scipy import ndimage
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -85,13 +85,27 @@ def matte(im):
     return Image.fromarray(out)
 
 
+def import_logo():
+    # Keep the main menu's existing sprite bounds as the new mark is taller.
+    logo = ImageOps.pad(trim(load("logo-v2")), (1207, 997), method=Image.Resampling.LANCZOS)
+    save(logo, "logo")
+
+
+def import_menu_icons():
+    for name in ("levels", "shop", "daily"):
+        source = "menu-" + name
+        if os.path.isfile(os.path.join(SRC, "Gorseller", source + ".png")):
+            save(fit(trim(load(source)), 384), "menu_" + name)
+
+
 def main():
     if not os.path.isdir(SRC):
         sys.exit("MetroSort-Media/ not found next to the project")
     for folder in (ART, AUDIO, os.path.dirname(ICON)):
         os.makedirs(folder, exist_ok=True)
 
-    save(fit(trim(load("logo")), 1280), "logo")
+    import_logo()
+    import_menu_icons()
     save(load("key-art").convert("RGB"), "keyart")
 
     # Reward sheet: star, empty slot, ribbon and rays sit in fixed quarters of the sheet.

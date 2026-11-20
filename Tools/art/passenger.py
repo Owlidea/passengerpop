@@ -3,6 +3,13 @@
 Run:  Blender --background --python Tools/art/passenger.py -- [--preview DIR]
 Output: Assets/MetroSort/Resources/Characters/Passenger.fbx
 
+HD variants (sculpted bodies, face painted back from the concept picture by Tools/art/hdface.py):
+    Blender --background --python Tools/art/passenger.py -- --hd MetroSort-Media/yolcu-trellis.glb --variant 0 \
+        --art MetroSort-Media/Gorseller/yolcu-a-poz.png
+    Blender --background --python Tools/art/passenger.py -- --hd MetroSort-Media/yolcu-varyant-N.glb --variant N \
+        --art MetroSort-Media/Gorseller/yolcu-varyant-N.png          (N = 1 .. 5)
+Output: Assets/MetroSort/Resources/Characters/PassengerHD_N.fbx and PassengerHD_N_albedo.png
+
 Blender space: Z up, the character faces -Y, 1 unit = 1 Unity unit. Parts are skinned rigidly (one bone
 each). Optional parts (hair styles, hats, skirt ...) are separate objects parented to bones; the game shows
 and hides them by name and recolours material slots by name.
@@ -19,12 +26,18 @@ PREVIEW = argv[argv.index("--preview") + 1] if "--preview" in argv else None
 HD = "--hd" in argv
 HD_SRC = argv[argv.index("--hd") + 1] if HD else None
 HD_VARIANT = int(argv[argv.index("--variant") + 1]) if "--variant" in argv else 0
+# --art PICTURE: the concept picture the HD model was made from; its crisp face is painted back onto the head
+# (Tools/art/hdface.py), since image-to-3D smears it.
+HD_ART = argv[argv.index("--art") + 1] if "--art" in argv else None
 if HD:
     OUT = os.path.join(ROOT, "Assets", "MetroSort", "Resources", "Characters", "PassengerHD_%d.fbx" % HD_VARIANT)
 HD_TRIS = 6000        # phones draw dozens of passengers at once: the scanned mesh is reduced to about this
+PROJ = None           # HD: how the concept art was laid on the face (hd_body), for the overlays (hd_face)
+SKIN_UV = None        # HD: the plain skin patch in the body texture
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import kit
+import hdface
 from kit import Part, MATS
 
 COLORS = {
@@ -33,6 +46,7 @@ COLORS = {
     "White": (1, 1, 1), "EyeDark": (0.13, 0.10, 0.12), "Blush": (1.0, 0.60, 0.60),
     "Mouth": (0.72, 0.28, 0.30), "MouthIn": (0.42, 0.12, 0.16), "SkinFlat": (1.0, 0.82, 0.68), "Hat": (0.93, 0.33, 0.31), "Grey": (0.52, 0.55, 0.62),
     "Gold": (1.0, 0.82, 0.22), "Outline": (0.14, 0.15, 0.24),
+    "HatShade": (0.70, 0.22, 0.20), "Pink": (1.0, 0.62, 0.72),
 }
 scene = kit.reset(COLORS)
 
@@ -122,6 +136,11 @@ if HD:
     NECK_Z *= CHIBI_S
     CHIBI_PIVOT = CHIBI_PIVOT * CHIBI_S
     print("HD chibi: head x%.2f, figure x%.3f" % (CHIBI, CHIBI_S))
+
+    def grown(x, z):
+        """A point read off the model before the chibi head growth (FACE_MARKS), carried onto the grown head."""
+        pz = CHIBI_PIVOT.z / CHIBI_S
+        return x * CHIBI * CHIBI_S, (pz + (z - pz) * CHIBI) * CHIBI_S
 
     arm = [c for c in V if abs(c.x) > TX and 0.30 * H < c.z < NECK_Z - 0.02 * H]
     tip_x = max(abs(c.x) for c in arm)
@@ -444,8 +463,48 @@ def hd_weights(c):
     return {b: x for b, x in w.items() if x > 0.001}
 
 
+def flatten_mouth():
+    """Image-to-3D sculpts a pouting lip bump where the picture only paints a smile line, and the painted face
+    reads cleanly only on a smooth surface. The mouth area is pushed back (along Y only, so no triangle can fold
+    over as seen from the front) onto a smooth surface fitted to the ring of face around it."""
+    import numpy as np
+    marks = FACE_MARKS.get(HD_VARIANT)
+    if not marks:
+        return
+    cx, cz = grown(*marks[2])
+    rx = max(marks[3][0] * CHIBI * CHIBI_S * 2.0, 0.07)
+    rz = max(marks[3][1] * CHIBI * CHIBI_S * 3.0, 0.05)
+    me = hd.data
+    me.update()
+    ring, inner = [], []
+    for v in me.vertices:
+        if v.normal.y > -0.25 or v.co.y > 0:
+            continue
+        d = ((v.co.x - cx) / rx) ** 2 + ((v.co.z - cz) / rz) ** 2
+        if d < 1.0:
+            inner.append((v, d))
+        elif d < 2.2:
+            ring.append(v.co.copy())
+    if len(ring) < 8 or not inner:
+        return
+    R = np.array([[1, c.x - cx, c.z - cz, (c.x - cx) ** 2, (c.z - cz) ** 2, (c.x - cx) * (c.z - cz)] for c in ring])
+    coef, *_ = np.linalg.lstsq(R, np.array([c.y for c in ring]), rcond=None)
+    moved = 0
+    for v, d in inner:
+        x, z = v.co.x - cx, v.co.z - cz
+        fit = float(np.dot(coef, [1, x, z, x * x, z * z, x * z]))
+        w = 1 - d
+        w = w * w * (3 - 2 * w)
+        if fit > v.co.y:                     # only ever push a bump back, never pull the face out
+            v.co.y = v.co.y + (fit - v.co.y) * w
+            moved += 1
+    me.update()
+    print("HD mouth flattened", moved, "of", len(inner), "vertices")
+
+
 def hd_body():
     """Skins the HD mesh, sorts its faces into recolourable regions and writes the region-normalised texture."""
+    flatten_mouth()
     import numpy as np, colorsys
     ob = hd
     ob.name = ob.data.name = "Body"
@@ -456,76 +515,44 @@ def hd_body():
             groups[b].add([v.index], x, 'REPLACE')
     img = next(i for i in bpy.data.images if i.size[0] > 0)
     W, Hh = img.size
-    px = np.array(img.pixels[:], dtype=np.float32).reshape(Hh, W, 4)
-    uv = me.uv_layers.active.data
-    regions = ("Jacket", "Hair", "Skin", "Lower", "Detail")
-    region_of = []
-    tris = []
-    for poly in me.polygons:
-        loops = list(poly.loop_indices)
-        uvs = [uv[l].uv.copy() for l in loops]
-        cu = sum((u for u in uvs), Vector((0, 0))) / len(uvs)
-        r, g, b, _ = px[min(Hh - 1, int(cu.y * Hh)), min(W - 1, int(cu.x * W))]
-        hh, ss, vv = colorsys.rgb_to_hsv(r, g, b)
-        z = poly.center.z
-        upper_head = z > NECK_Z + 0.5 * (HEAD_TOP - NECK_Z) or (z > NECK_Z and poly.center.y > CROWN_Y + 0.04 * H)
-        if (hh < 0.05 or hh > 0.92) and ss > 0.35 and vv > 0.15 and z < NECK_Z and z > HIP_Z - 0.06 * H:
-            reg = "Jacket"
-        elif 0.5 < hh < 0.75 and z < HIP_Z + 0.02 * H and z > ANKLE_Z:
-            reg = "Lower"
-        elif 0.02 < hh < 0.13 and upper_head and vv < 0.62 and ss > 0.35:
-            reg = "Hair"
-        elif 0.0 <= hh < 0.12 and ss < 0.55 and vv > 0.55 and z > HIP_Z:
-            reg = "Skin"
+    px = np.array(img.pixels[:], dtype=np.float32).reshape(Hh, W, 4)   # bottom row first, like UV space
+    pos, nrm, valid = hdface.texel_geometry(me, W, Hh)
+    global PROJ, SKIN_UV
+    PROJ = None
+    marks = FACE_MARKS.get(HD_VARIANT)
+    if HD_ART and marks:
+        art = hdface.load_rgba(HD_ART)
+        eyes_art = hdface.find_eyes(art)
+        if eyes_art:
+            eyes_model = (grown(*marks[0][0]), grown(*marks[0][1]))
+            scale, painted = hdface.project_face(px, pos, nrm, valid, art, eyes_art, eyes_model, NECK_Z)
+            PROJ = {"scale": scale, "eye_half": (eyes_art["half"][0] / scale, eyes_art["half"][1] / scale)}
+            print("HD face painted from %s: %d texels, %.0f px per unit" % (os.path.basename(HD_ART), painted, scale))
         else:
-            reg = "Detail"
-        region_of.append(regions.index(reg))
-        for i in range(1, len(uvs) - 1):
-            tris.append((regions.index(reg), uvs[0], uvs[i], uvs[i + 1]))
-    # region mask over the texture (rasterised UV triangles), then normalise each tinted region
-    mask = np.full((Hh, W), 5, dtype=np.int8)      # 5 = no face here (padding between UV islands)
-    for reg, a, b, c in tris:
-        P = np.array([[a.x * W, a.y * Hh], [b.x * W, b.y * Hh], [c.x * W, c.y * Hh]])
-        x0, y0 = np.floor(P.min(0)).astype(int) - 1
-        x1, y1 = np.ceil(P.max(0)).astype(int) + 1
-        x0, y0 = max(x0, 0), max(y0, 0)
-        x1, y1 = min(x1, W - 1), min(y1, Hh - 1)
-        if x1 < x0 or y1 < y0:
-            continue
-        gx, gy = np.meshgrid(np.arange(x0, x1 + 1) + 0.5, np.arange(y0, y1 + 1) + 0.5)
-        d = (P[1, 1] - P[2, 1]) * (P[0, 0] - P[2, 0]) + (P[2, 0] - P[1, 0]) * (P[0, 1] - P[2, 1])
-        if abs(d) < 1e-9:
-            continue
-        l1 = ((P[1, 1] - P[2, 1]) * (gx - P[2, 0]) + (P[2, 0] - P[1, 0]) * (gy - P[2, 1])) / d
-        l2 = ((P[2, 1] - P[0, 1]) * (gx - P[2, 0]) + (P[0, 0] - P[2, 0]) * (gy - P[2, 1])) / d
-        inside = (l1 >= -0.01) & (l2 >= -0.01) & (1 - l1 - l2 >= -0.01)
-        sub = mask[y0:y1 + 1, x0:x1 + 1]
-        sub[inside] = reg
-    # grow the tinted regions a few texels into the empty padding, so filtering at island edges
-    # never pulls in unnormalised colour (which shows as bright slivers once tinted)
-    for _ in range(4):
-        grown = mask.copy()
-        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-            src = np.roll(mask, (dy, dx), axis=(0, 1))
-            fill = (grown == 5) & (src < 4)
-            grown[fill] = src[fill]
-        mask = grown
-    rgb = px[..., :3]
-    lum = rgb @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
-    out = px.copy()
-    for i, name in enumerate(regions[:4]):
-        m = mask == i
-        if not m.any():
-            continue
-        core = m  # statistics over every texel of the region
-        if name == "Skin":
-            mean = rgb[core].mean(0)
-            out[..., :3][m] = np.clip(rgb[m] / mean * 0.5, 0, 1)            # keeps blush and shading hues
-        else:
-            mean = lum[m].mean()
-            out[..., :3][m] = np.clip((lum[m] / mean * 0.5)[:, None], 0, 1)  # shading only, the game tints it
-        print("region", name, int(m.sum()), "texels")
+            print("HD face: no eyes found in", HD_ART)
+    # Everything keeps the colours of its design; only the jacket is tinted with the line colour, per texel.
+    tips = [(TIP.x, TIP.y, TIP.z), (-TIP.x, TIP.y, TIP.z)]
+    jacket = hdface.jacket_mask(px, pos, valid, HIP_Z - 0.06 * H, NECK_Z - 0.01 * H, tips, (TIP - WRIST).length * 1.25)
+    out = hdface.finish_texture(px, valid, jacket)
+    print("HD jacket texels", int(jacket.sum()))
+    # A patch of plain skin colour in a free corner of the texture, for eyelids and patches laid on the face.
+    rgb = out[..., :3]
+    mx, mn = rgb.max(-1), rgb.min(-1)
+    sat = (mx - mn) / np.maximum(mx, 1e-6)
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    face = valid & (-nrm[..., 1] > 0.6) & (pos[..., 2] > NECK_Z + 0.02) & ~jacket
+    skinny = face & (r >= g) & (g >= b) & (sat > 0.12) & (sat < 0.55) & (mx > 0.55) & (r - g < 0.35)
+    skin = np.median(rgb[skinny], axis=0) if skinny.sum() > 50 else np.array(COLORS["Skin"], dtype=np.float32)
+    block = hdface.free_block(valid, 32)
+    if block is None:
+        block = (0, 0)
+    bx, by = block
+    out[by:by + 32, bx:bx + 32, :3] = skin
+    out[by:by + 32, bx:bx + 32, 3] = 0.0
+    SKIN_UV = ((bx + 16) / W, (by + 16) / Hh)
+    print("HD skin", tuple(round(float(c), 3) for c in skin), "at", block)
     tex = bpy.data.images.new("PassengerHD_albedo", W, Hh, alpha=True)
+    tex.alpha_mode = 'STRAIGHT'
     tex.pixels = out.ravel()
     tex.filepath_raw = OUT[:-4] + "_albedo.png"
     tex.file_format = 'PNG'
@@ -533,10 +560,9 @@ def hd_body():
     for poly in me.polygons:
         poly.use_smooth = True
     me.materials.clear()
-    for name in regions:
-        me.materials.append(MATS[name] if name in MATS else bpy.data.materials.new(name))
-    for poly, r in zip(me.polygons, region_of):
-        poly.material_index = r
+    mat = bpy.data.materials.get("Body") or bpy.data.materials.new("Body")
+    mat.name = "Body"
+    me.materials.append(mat)
     ob.parent = rig
     mod = ob.modifiers.new("Armature", 'ARMATURE')
     mod.object = rig
@@ -583,6 +609,9 @@ def hd_face():
         return x * kk, (pz + (z - pz) * CHIBI) * CHIBI_S
     e1, e2, (mx, mz) = grown(*e1), grown(*e2), grown(mx, mz)
     erx, erz, mrx, mrz = erx * kk, erz * kk, mrx * kk, mrz * kk
+    if PROJ:
+        # the face is now the concept art's: lids cover its eyes (lashes may peek out, like closed eyes do)
+        erx, erz = max(erx, PROJ["eye_half"][0]), max(erz, PROJ["eye_half"][1])
     E = {-1: (Vector((e1[0], front_y, e1[1])), erx * 1.15, erz * 1.15),
          1: (Vector((e2[0], front_y, e2[1])), erx * 1.15, erz * 1.15)}
     M = (Vector((mx, front_y, mz)), mrx, mrz)
@@ -596,11 +625,63 @@ def hd_face():
             return Vector((x, front_y, z)), Vector((0, -1, 0))
         return hit, n.normalized()
 
+    def skin_normal(index, at_):
+        """The smooth (vertex-interpolated) normal of the body surface at a ray hit."""
+        poly = hd.data.polygons[index]
+        vs = [hd.data.vertices[i] for i in poly.vertices[:3]]
+        a, b, c = (v.co for v in vs)
+        area = (b - a).cross(c - a).length or 1e-9
+        wa = (b - at_).cross(c - at_).length / area
+        wb = (c - at_).cross(a - at_).length / area
+        wc = max(0.0, 1.0 - wa - wb)
+        nn = vs[0].normal * wa + vs[1].normal * wb + vs[2].normal * wc
+        return nn.normalized() if nn.length > 1e-6 else poly.normal.copy()
+
+    def skin_uvs(ob):
+        """Every corner of the overlay samples the plain skin patch of the body texture (see hd_body), so
+        lids and patches are exactly the skin colour under the game's lighting."""
+        me_ = ob.data
+        layer = me_.uv_layers.active or me_.uv_layers.new(name="UVMap")
+        for d in layer.data:
+            d.uv = SKIN_UV
+
     def place(part, name, x, z, lift):
-        ob = part.build(name)
+        ob = part.build(name) if isinstance(part, Part) else part
+        if SKIN_UV is not None:
+            skin_uvs(ob)
         at, n = on_face(x, z)
         turn = Vector((0, -1, 0)).rotation_difference(n).to_matrix().to_4x4()
         ob.matrix_world = Matrix.Translation(at + n * lift) @ turn
+        # Lay it onto the face: each vertex moves along the normal by how far the surface under it stands out
+        # from (or falls back behind) the surface at the centre, so nothing sinks into cheeks or lips.
+        mw = ob.matrix_world.copy()
+        inv = mw.inverted()
+        under = {}
+        for v in ob.data.vertices:
+            p_ = mw @ v.co
+            hit, _, index, _ = bvh.ray_cast(p_ + n * 0.06, -n, 0.3)
+            if hit is not None:
+                shift = max(-0.025, min(0.025, (hit - at).dot(n)))
+                v.co = inv @ (p_ + n * shift)
+                under[v.index] = skin_normal(index, hit)
+        # Skin parts (lids, patches) take the normals of the face under them, so they light exactly like the
+        # skin they cover instead of showing as a little dome.
+        me_ = ob.data
+        skin_slots = {i for i, m in enumerate(me_.materials) if m is not None and m.name.startswith("SkinFlat")}
+        if skin_slots and under:
+            turn_back = inv.to_3x3()
+            normals = []
+            for poly in me_.polygons:
+                skin = poly.material_index in skin_slots
+                if skin:
+                    poly.use_smooth = True
+                for li in poly.loop_indices:
+                    vi = me_.loops[li].vertex_index
+                    if skin and vi in under:
+                        normals.append((turn_back @ under[vi]).normalized())
+                    else:
+                        normals.append(me_.corner_normals[li].vector.copy())
+            me_.normals_split_custom_set(normals)
         world = ob.matrix_world.copy()
         ob.parent = rig
         ob.parent_type = 'BONE'
@@ -616,10 +697,10 @@ def hd_face():
         p.torus((0, -0.011, -rz * 0.25), rx * 0.75, max(0.008, rz * 0.13), "EyeDark", seg=12, ring=6, arc=(25, 155), rot=(90, 0, 0))
         place(p, "EyesClosed_%s" % ("L" if side > 0 else "R"), c.x, c.z, 0.004)
     mc, mrx, mrz = M
-    p = Part()   # open, laughing mouth
-    p.ellipsoid((0, 0, 0), (max(mrx, 0.045), 0.012, max(mrz, 0.035) * 1.1), "MouthIn", seg=16, rings=8)
-    p.ellipsoid((0, -0.006, -max(mrz, 0.035) * 0.45), (max(mrx, 0.045) * 0.55, 0.008, max(mrz, 0.035) * 0.4), "Mouth", seg=12, rings=6)
-    place(p, "MouthOpen", mc.x, mc.z, 0.004)
+    # open, laughing mouth: a wide D (flat, slightly smiling top, round bottom) with teeth and a tongue, as
+    # the conductor laughs in the 2D art
+    half_w = max(mrx * 1.25, 0.05)
+    place(hdface.open_smile("MouthOpen", half_w, half_w * 1.05, MATS), "MouthOpen", mc.x, mc.z - half_w * 0.25, 0.004)
     p = Part()   # frown over a skin patch that hides the painted smile
     p.ellipsoid((0, 0, 0), (max(mrx, 0.035) * 1.2 + 0.01, 0.012, max(mrz, 0.02) * 1.4 + 0.014), "SkinFlat", seg=16, rings=8)
     fr = max(mrx, 0.035)
@@ -642,59 +723,111 @@ if HD:
 
 
 # ---------------------------------------------------------------- line hats (one silhouette per line)
-p = Part()  # 0 red: baseball cap
-p.ellipsoid((0, 0.03, 1.37), (0.375, 0.365, 0.215), "Hat", seg=24, rings=12)
-p.ellipsoid((0, -0.33, 1.375), (0.22, 0.14, 0.028), "Hat", seg=18, rings=6, rot=(14, 0, 0))
-p.ellipsoid((0, 0.03, 1.585), (0.045, 0.045, 0.025), "White", seg=10, rings=6)
-p.outline(INK * 0.8)
-p.ellipsoid((0, -0.318, 1.455), (0.075, 0.03, 0.06), "White", seg=14, rings=8, rot=(-18, 0, 0))   # front badge
-p.ellipsoid((0, -0.340, 1.455), (0.040, 0.02, 0.032), "Gold", seg=10, rings=6, rot=(-18, 0, 0))
+def seam(p, points, radius, mat):
+    """A thin piped line through a list of points (stitching, braid, stripes)."""
+    for p0, p1 in zip(points, points[1:]):
+        p.capsule(p0, p1, radius, mat, seg=8, rings=3)
+
+
+def dome_line(cx, cy, cz, rx, ry, rz, azimuth, steps=10):
+    """Points over the top of an ellipsoidal dome, from the front rim to the back rim, turned by azimuth."""
+    pts = []
+    for i in range(steps + 1):
+        th = math.pi * i / steps                       # 0 = front rim, pi = back rim
+        u, w = -math.cos(th), math.sin(th)              # along the line, and height
+        ca, sa = math.cos(math.radians(azimuth)), math.sin(math.radians(azimuth))
+        pts.append((cx + u * rx * sa * 1.01, cy + u * ry * ca * 1.01, cz + w * rz * 1.01))
+    return pts
+
+
+# Hat slots: "Hat" wears the line colour, "HatShade" a deeper shade of it (bands, panels, undersides),
+# "White", "Gold", "EyeDark" (glossy black) and "Pink" are fixed. No ink hull: the soft clay look has none.
+
+p = Part()  # 0 red: baseball cap with six stitched panels, a shaded peak and a metro roundel
+p.ellipsoid((0, 0.03, 1.37), (0.375, 0.365, 0.225), "Hat", seg=32, rings=16)
+for az in (0, 60, 120):
+    seam(p, dome_line(0, 0.03, 1.37, 0.375, 0.365, 0.225, az), 0.007, "HatShade")
+p.ellipsoid((0, 0.03, 1.598), (0.042, 0.042, 0.03), "HatShade", seg=12, rings=8)          # top button
+p.cone((0, 0.03, 1.165), 0.37, 0.37, 0.05, "HatShade", seg=32, bevel=0.012)            # sweatband rim
+p.ellipsoid((0, -0.36, 1.385), (0.25, 0.18, 0.03), "Hat", seg=28, rings=8, rot=(13, 0, 0))   # peak
+p.ellipsoid((0, -0.355, 1.372), (0.245, 0.175, 0.024), "HatShade", seg=28, rings=8, rot=(13, 0, 0))
+seam(p, [(math.sin(math.radians(a)) * 0.215, -0.36 - math.cos(math.radians(a)) * 0.155, 1.405 - 0.035 * math.cos(math.radians(a)))
+         for a in range(-70, 71, 14)], 0.006, "White")                                   # stitching on the peak
+p.cone((0, -0.33, 1.47), 0.085, 0.085, 0.02, "White", seg=24, bevel=0.006, rot=(70, 0, 0))   # roundel
+p.torus((0, -0.336, 1.47), 0.072, 0.014, "Gold", seg=20, ring=6, rot=(70, 0, 0))
+p.box((0, -0.343, 1.468), (0.15, 0.02, 0.032), "HatShade", bevel=0.008, rot=(-20, 0, 0))
 attach(p.build("Hat0"), "Hat")
 
-p = Part()  # 1 blue: square conductor hat
-p.box((0, 0.03, 1.56), (0.50, 0.50, 0.24), "Hat", bevel=0.05)
-p.box((0, 0.03, 1.455), (0.53, 0.53, 0.06), "White", bevel=0.025)
-p.outline(INK * 0.8)
-p.ellipsoid((0, -0.228, 1.57), (0.075, 0.02, 0.075), "Gold", seg=14, rings=8)                     # cap badge
-p.box((0, -0.262, 1.428), (0.34, 0.11, 0.022), "EyeDark", bevel=0.01, rot=(12, 0, 0))             # shiny peak
+p = Part()  # 1 blue: conductor's peaked cap with a flared crown, gold cord and a winged badge
+p.cone((0, 0.03, 1.56), 0.275, 0.335, 0.22, "Hat", seg=32, bevel=0.03)
+p.ellipsoid((0, 0.03, 1.668), (0.335, 0.335, 0.045), "Hat", seg=32, rings=8)              # soft top
+p.cone((0, 0.03, 1.475), 0.282, 0.285, 0.085, "HatShade", seg=32, bevel=0.015)        # band
+p.ellipsoid((0, -0.255, 1.44), (0.25, 0.17, 0.026), "EyeDark", seg=28, rings=8, rot=(16, 0, 0))   # glossy visor
+seam(p, [(-0.24, -0.215, 1.485), (-0.12, -0.268, 1.49), (0.0, -0.283, 1.492), (0.12, -0.268, 1.49), (0.24, -0.215, 1.485)], 0.013, "Gold")
+for side in (-1, 1):
+    p.ellipsoid((side * 0.245, -0.205, 1.486), (0.024, 0.02, 0.024), "Gold", seg=10, rings=6)
+p.ellipsoid((0, -0.286, 1.585), (0.055, 0.02, 0.06), "Gold", seg=14, rings=8)          # badge
+for side in (-1, 1):
+    p.ellipsoid((side * 0.075, -0.282, 1.59), (0.05, 0.014, 0.024), "Gold", seg=12, rings=6, rot=(0, side * -20, 0))   # wings
+p.ellipsoid((0, -0.3, 1.585), (0.028, 0.012, 0.03), "Hat", seg=10, rings=6)
 attach(p.build("Hat1"), "Hat")
 
-p = Part()  # 2 green: top hat
-p.cone((0, 0.05, 1.455), 0.38, 0.38, 0.04, "Hat", bevel=0.015)
-p.cone((0, 0.03, 1.63), 0.26, 0.29, 0.32, "Hat", bevel=0.03)
-p.cone((0, 0.03, 1.51), 0.272, 0.272, 0.055, "White", bevel=0.01)
-p.outline(INK * 0.8)
-p.box((0, -0.245, 1.51), (0.085, 0.03, 0.07), "Gold", bevel=0.012)                                # buckle
+p = Part()  # 2 green: top hat with a rolled brim, a gently waisted crown, a satin band and a gold buckle
+p.cone((0, 0.04, 1.462), 0.36, 0.36, 0.035, "Hat", seg=36, bevel=0.012)
+p.torus((0, 0.04, 1.47), 0.365, 0.03, "HatShade", seg=36, ring=8)                     # rolled edge
+p.cone((0, 0.03, 1.56), 0.265, 0.25, 0.17, "Hat", seg=32, bevel=0.0)
+p.cone((0, 0.03, 1.72), 0.25, 0.285, 0.16, "Hat", seg=32, bevel=0.0)
+p.cone((0, 0.03, 1.80), 0.285, 0.28, 0.02, "Hat", seg=32, bevel=0.015)                # flat top
+p.cone((0, 0.03, 1.52), 0.27, 0.268, 0.075, "HatShade", seg=32, bevel=0.008)          # band
+p.box((0, -0.235, 1.52), (0.11, 0.03, 0.09), "Gold", bevel=0.012)                       # buckle frame
+p.box((0, -0.245, 1.52), (0.055, 0.02, 0.04), "HatShade", bevel=0.006)
+p.ellipsoid((0.17, -0.18, 1.56), (0.03, 0.02, 0.09), "White", seg=10, rings=8, rot=(0, -30, 0))   # little feather
 attach(p.build("Hat2"), "Hat")
 
-p = Part()  # 3 yellow: party cone with a pompom
-p.cone((0, 0.03, 1.67), 0.24, 0.03, 0.46, "Hat", bevel=0.0)
-p.torus((0, 0.03, 1.455), 0.235, 0.035, "White", seg=20, ring=8)
-p.ellipsoid((0, 0.03, 1.92), (0.075, 0.075, 0.075), "White", seg=12, rings=8)
-p.outline(INK * 0.8)
-for row, (z, n) in enumerate(((1.54, 6), (1.66, 5), (1.77, 4))):                                  # polka dots
-    r = 0.24 - 0.21 * (z - 1.44) / 0.46
-    for i in range(n):
-        a = 2 * math.pi * (i + row * 0.5) / n
-        p.ellipsoid((math.sin(a) * r, 0.03 - math.cos(a) * r, z), (0.034, 0.034, 0.034), "White", seg=8, rings=6)
+p = Part()  # 3 yellow: party cone with spiral stripes, a frilly collar and a fluffy pompom
+p.cone((0, 0.03, 1.67), 0.25, 0.035, 0.46, "Hat", seg=32, bevel=0.0)
+for k in range(3):                                                                     # spiral stripes
+    pts = []
+    for i in range(13):
+        f = i / 12
+        z = 1.46 + 0.42 * f
+        r = 0.25 - 0.215 * (z - 1.44) / 0.46 + 0.006
+        a = math.radians(k * 120 + f * 300)
+        pts.append((math.sin(a) * r, 0.03 - math.cos(a) * r, z))
+    seam(p, pts, 0.016, "White")
+for i in range(16):                                                                    # frilly collar
+    a = 2 * math.pi * i / 16
+    p.ellipsoid((math.sin(a) * 0.255, 0.03 - math.cos(a) * 0.255, 1.455), (0.055, 0.055, 0.04), "White", seg=10, rings=6)
+for (dx, dy, dz) in ((0, 0, 0), (0.045, 0, 0.02), (-0.045, 0, 0.02), (0, 0.045, 0.02), (0, -0.045, 0.02), (0, 0, 0.055)):
+    p.ellipsoid((dx, 0.03 + dy, 1.915 + dz), (0.055, 0.055, 0.055), "White", seg=10, rings=6)
 attach(p.build("Hat3"), "Hat")
 
-p = Part()  # 4 purple: round ears on a band
-p.torus((0, 0.03, 1.19), 0.37, 0.035, "Hat", seg=24, ring=8, arc=(-5, 185), rot=(90, 0, 0))
-for side in (1, -1):
-    p.ellipsoid((side * 0.25, 0.03, 1.56), (0.16, 0.075, 0.16), "Hat", seg=18, rings=10)
-    p.ellipsoid((side * 0.25, -0.03, 1.56), (0.09, 0.03, 0.09), "White", seg=12, rings=6)
-p.outline(INK * 0.8)
+p = Part()  # 4 purple: knitted bobble beanie with a turned-up ribbed cuff and a big pompom
+p.ellipsoid((0, 0.03, 1.40), (0.36, 0.355, 0.27), "Hat", seg=32, rings=16)
+p.cone((0, 0.03, 1.215), 0.372, 0.37, 0.13, "HatShade", seg=40, bevel=0.03)
+for i in range(44):                                                                    # ribbing on the cuff
+    a = 2 * math.pi * i / 44
+    p.capsule((math.sin(a) * 0.371, 0.03 - math.cos(a) * 0.371, 1.172), (math.sin(a) * 0.371, 0.03 - math.cos(a) * 0.371, 1.258), 0.019, "HatShade", seg=6, rings=3)
+for az in range(0, 180, 30):                                                           # knit ridges over the crown
+    seam(p, dome_line(0, 0.03, 1.40, 0.36, 0.355, 0.27, az, steps=12)[2:-2], 0.006, "HatShade")
+for (dx, dy, dz, r) in ((0, 0, 0, 0.11), (0.06, 0.02, 0.03, 0.08), (-0.06, -0.01, 0.03, 0.08), (0.0, -0.06, 0.04, 0.075), (0.0, 0.06, 0.05, 0.075), (0.02, 0.0, 0.09, 0.07)):
+    p.ellipsoid((dx, 0.03 + dy, 1.70 + dz), (r, r, r * 0.92), "White", seg=12, rings=8)
 attach(p.build("Hat4"), "Hat")
 
-p = Part()  # 5 orange: wide sun hat
-p.cone((0, 0.07, 1.44), 0.45, 0.44, 0.035, "Hat", seg=28, bevel=0.014, rot=(-8, 0, 0))
-p.ellipsoid((0, 0.03, 1.44), (0.33, 0.33, 0.20), "Hat", seg=24, rings=12)
-p.cone((0, 0.03, 1.475), 0.325, 0.31, 0.05, "White", bevel=0.01)
-p.outline(INK * 0.8)
-for side in (1, -1):                                                                              # ribbon bow
-    p.ellipsoid((side * 0.07, -0.325, 1.48), (0.07, 0.03, 0.045), "White", seg=12, rings=6, rot=(0, side * 20, 0))
-p.ellipsoid((0, -0.335, 1.48), (0.03, 0.03, 0.03), "Gold", seg=8, rings=6)
+p = Part()  # 5 orange: straw sun hat with a wavy brim, woven ridges, a ribbon band and a flower
+for i in range(18):                                                                    # wavy brim from overlapping petals
+    a = 2 * math.pi * i / 18
+    p.ellipsoid((math.sin(a) * 0.33, 0.06 - math.cos(a) * 0.33, 1.435 + 0.012 * math.sin(a * 3)), (0.15, 0.15, 0.025), "Hat", seg=12, rings=6,
+                rot=(0, 0, -math.degrees(a)))
+p.cone((0, 0.07, 1.43), 0.43, 0.42, 0.03, "Hat", seg=40, bevel=0.012, rot=(-6, 0, 0))
+p.ellipsoid((0, 0.03, 1.45), (0.32, 0.32, 0.21), "Hat", seg=32, rings=14)
+for z, r in ((1.53, 0.305), (1.58, 0.28), (1.62, 0.24)):                               # woven ridges
+    p.torus((0, 0.03, z), r, 0.008, "HatShade", seg=32, ring=6)
+p.cone((0, 0.03, 1.485), 0.322, 0.31, 0.055, "White", seg=32, bevel=0.01)              # ribbon band
+for k in range(5):                                                                     # flower on the side
+    a = 2 * math.pi * k / 5
+    p.ellipsoid((0.20 + math.sin(a) * 0.045, -0.25, 1.495 + math.cos(a) * 0.045), (0.035, 0.018, 0.035), "Pink", seg=10, rings=6)
+p.ellipsoid((0.20, -0.262, 1.495), (0.025, 0.015, 0.025), "Gold", seg=8, rings=6)
 attach(p.build("Hat5"), "Hat")
 
 p = Part()  # mystery passenger: grey cap with a floating question mark

@@ -223,6 +223,13 @@ namespace MetroSort.Utilities
             return def;
         }
 
+        public static long Long(Dictionary<string, object> d, string key, long def)
+        {
+            object v;
+            if (d != null && d.TryGetValue(key, out v) && v is double) return (long)Math.Round((double)v);
+            return def;
+        }
+
         public static float Float(Dictionary<string, object> d, string key, float def)
         {
             object v;

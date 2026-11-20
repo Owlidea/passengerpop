@@ -28,11 +28,17 @@ namespace MetroSort.Persistence
         public int LevelsSinceInterstitial;
         /// <summary>"" = follow the device language; otherwise a language code such as "en" or "tr".</summary>
         public string Language = "";
+        /// <summary>Lives left, and when (UTC unix seconds) the timer for the next one started.</summary>
+        public int Lives = 5;
+        public long LivesTimerStart;
+        /// <summary>Stars collected towards the next star chest (new stars only; replays add nothing).</summary>
+        public int ChestStars;
 
         public static SaveData CreateNew(EconomyConfig config)
         {
             var d = new SaveData();
             d.Coins = config.StartingCoins;
+            d.Lives = config.MaxLives;
             Array.Copy(config.StartingBoosters, d.Boosters, Math.Min(4, config.StartingBoosters.Length));
             return d;
         }
@@ -60,6 +66,9 @@ namespace MetroSort.Persistence
             root["processedTransactions"] = ToObjects(ProcessedTransactions);
             root["levelsSinceInterstitial"] = LevelsSinceInterstitial;
             root["language"] = Language;
+            root["lives"] = Lives;
+            root["livesTimerStart"] = (double)LivesTimerStart;
+            root["chestStars"] = ChestStars;
             return MiniJson.Serialize(root);
         }
 
@@ -97,6 +106,9 @@ namespace MetroSort.Persistence
             d.ProcessedTransactions = ToStrings(JsonRead.List(root, "processedTransactions"));
             d.LevelsSinceInterstitial = JsonRead.Int(root, "levelsSinceInterstitial", 0);
             d.Language = JsonRead.Str(root, "language", "");
+            d.Lives = JsonRead.Int(root, "lives", 5);
+            d.LivesTimerStart = JsonRead.Long(root, "livesTimerStart", 0);
+            d.ChestStars = Math.Max(0, JsonRead.Int(root, "chestStars", 0));
             Migrate(d);
             return d;
         }

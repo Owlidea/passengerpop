@@ -93,6 +93,8 @@ namespace MetroSort.Game
 
         private Vector3 _from, _to;
         private float _t = 1f, _duration = 0.3f, _hop, _delay, _walkDistance;
+        private float _windup, _flight;
+        private const float WindupTime = 0.08f;
         private Action _onArrive;
         private bool _boarding;
         private float _bounce, _shake, _celebrate, _lift, _yaw, _lean;
@@ -267,10 +269,16 @@ namespace MetroSort.Game
             if (_playing == clip) _playing = null;
         }
 
+        private bool _mouthApplied;
+
         private void ShowMouth(GameObject mouth)
         {
             if (mouth == null) mouth = _mouthSmile;
-            if (mouth == _mouthShown) return;
+            // HD models have no smile part (the smile is painted), so "nothing shown yet" and "the smile" are
+            // both null: without the flag the first call returned early and the open and sad mouths, active in
+            // the imported model, stayed on together (a pink "o" over every face).
+            if (_mouthApplied && mouth == _mouthShown) return;
+            _mouthApplied = true;
             _mouthShown = mouth;
             Show(_mouthSmile, mouth == _mouthSmile);
             Show(_mouthOpen, mouth == _mouthOpen);
@@ -307,6 +315,10 @@ namespace MetroSort.Game
                 Material m = null;
                 switch (slot)
                 {
+                    // Current models: one body in its designed colours, the jacket tinted per texel; lids and
+                    // patches on the face sample the skin swatch of the same texture.
+                    case "Body":
+                    case "SkinFlat": m = MaterialLibrary.GetCharacterMasked(_hdAlbedo, JacketColor()); break;
                     case "Jacket": m = MaterialLibrary.GetCharacter(_hdAlbedo, JacketColor(), 2f, 1f); break;
                     case "Hair": m = MaterialLibrary.GetCharacter(_hdAlbedo, _hair, 2f, 0f); break;
                     case "Skin": m = MaterialLibrary.GetCharacter(_hdAlbedo, _skin, 2f, 0f); break;
@@ -319,6 +331,9 @@ namespace MetroSort.Game
             {
                 case "Jacket": return Mat(JacketColor(), false, true);
                 case "Hat": return Mat(Palette.Lines[Mathf.Clamp(hat, 0, Palette.Lines.Length - 1)], false, true);
+                // A deeper shade of the line colour for bands, panels and undersides of the hats.
+                case "HatShade": return Mat(Color.Lerp(Palette.Lines[Mathf.Clamp(hat, 0, Palette.Lines.Length - 1)], new Color(0.10f, 0.05f, 0.12f), 0.32f), false, true);
+                case "Pink": return Mat(new Color(1f, 0.58f, 0.70f));
                 case "Skin": return Mat(_skin);
                 case "SkinFlat": return Mat(_skin); // eyelids and patches laid over a painted face
                 case "Hair": return Mat(_hair, false, true);
@@ -401,6 +416,7 @@ namespace MetroSort.Game
             Show(_eyesOpen, true);
             Show(_eyesClosed, false);
             _mouthShown = null;
+            _mouthApplied = false;   // pooled: apply the smile again even if it was the last mouth shown
             ShowMouth(_mouthSmile);
             _cheering = false;
             _entering = false;
@@ -525,6 +541,8 @@ namespace MetroSort.Game
             _duration = Mathf.Max(0.01f, duration);
             _hop = GameSettings.ReducedMotion ? 0f : hop;
             _delay = GameSettings.ReducedMotion ? 0f : delay;
+            // A proper hop (to a platform or the bench) starts with a quick crouch, like gathering for the jump.
+            _windup = _hop > 0.2f ? WindupTime : 0f;
             _walkDistance = Vector3.Distance(_from, _to);
             _t = 0f;
             _onArrive = onArrive;
@@ -635,12 +653,15 @@ namespace MetroSort.Game
             if (_t < 1f && !Held)
             {
                 if (_delay > 0f) _delay -= dt;
+                else if (_windup > 0f) _windup -= dt;
                 else
                 {
                     _t = Mathf.Min(1f, _t + dt / _duration);
                     float e = Ease.Smooth(_t);
                     Vector3 p = Vector3.LerpUnclamped(_from, _to, e);
                     p.y += Mathf.Sin(e * Mathf.PI) * _hop;
+                    // Stretched on the way up, squashed coming down: +1 at take-off, -1 at landing.
+                    _flight = _hop > 0.2f ? Mathf.Cos(e * Mathf.PI) : 0f;
                     transform.position = p;
                     walking = _t < 1f;
                     dir = _to - _from;
@@ -648,6 +669,7 @@ namespace MetroSort.Game
                     if (dir.sqrMagnitude > 0.0001f) dir.Normalize();
                     if (_t >= 1f)
                     {
+                        _flight = 0f;
                         _entering = false;
                         _whirl = 0f;
                         if (!_boarding)
@@ -694,6 +716,12 @@ namespace MetroSort.Game
             float time = Time.time;
             float bob = calm ? 0f : Mathf.Sin(time * (Selected ? 7f : 2.2f) + _phase) * (Selected ? 0.05f : 0.025f);
             float squash = bob + Mathf.Sin(_bounce * Mathf.PI) * 0.20f;
+            if (!calm)
+            {
+                // Crouch before take-off, stretch while rising, a touch of squash as it comes down.
+                if (_windup > 0f && _delay <= 0f) squash -= 0.16f * Mathf.Sin((1f - _windup / WindupTime) * Mathf.PI * 0.5f);
+                else if (_t < 1f) squash += 0.09f * _flight;
+            }
             // The cheer clip jumps by itself; the procedural hop only covers a model without one.
             float jump = calm || _clipCheer != null ? 0f : Mathf.Abs(Mathf.Sin(_celebrate * Mathf.PI * 2f)) * 0.35f * _celebrate;
             float boardScale = _boarding ? Mathf.Lerp(1f, 0.40f, Ease.Smooth(_t)) : 1f;
