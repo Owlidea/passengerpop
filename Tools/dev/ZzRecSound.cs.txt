@@ -1,0 +1,118 @@
+using System.Collections;
+using System.IO;
+using MetroSort.Game;
+using MetroSort.Persistence;
+using MetroSort.Puzzle;
+using Unity.Collections;
+using UnityEngine;
+using UnityEngine.TestTools;
+
+namespace MetroSort.Tests
+{
+    // Development helper: records the timetable levels being played (540x960 RGB24, bottom-up, 20 fps) into
+    // Logs/rec_trains/*.rgb. Copy into Assets/MetroSort/Tests/PlayMode as .cs, run PlayMode filtered to
+    // ZzRecTrains, then: ffmpeg -f rawvideo -pix_fmt rgb24 -s 540x960 -r 20 -i X.rgb -vf vflip X.mp4
+    public class ZzRecSound
+    {
+        private const int W = 540, H = 960;
+        private const string Dir = "Logs/rec_sound";
+
+        private sealed class Recorder : MonoBehaviour
+        {
+            public FileStream Out, Snd;
+            private RenderTexture _rt;
+            private Texture2D _tex;
+
+            private void LateUpdate()
+            {
+                if (Out == null || GameApp.Instance == null) return;
+                Camera cam = GameApp.Instance.Station.Cam;
+                foreach (Canvas c in Object.FindObjectsByType<Canvas>())
+                {
+                    if (c.renderMode == RenderMode.ScreenSpaceCamera) continue;
+                    c.renderMode = RenderMode.ScreenSpaceCamera;
+                    c.worldCamera = cam;
+                    c.planeDistance = 1f;
+                }
+                if (_rt == null) { _rt = new RenderTexture(W, H, 24); _tex = new Texture2D(W, H, TextureFormat.RGB24, false); }
+                cam.targetTexture = _rt;
+                cam.Render();
+                RenderTexture.active = _rt;
+                _tex.ReadPixels(new Rect(0, 0, W, H), 0, 0);
+                RenderTexture.active = null;
+                cam.targetTexture = null;
+                byte[] data = _tex.GetRawTextureData();
+                Out.Write(data, 0, data.Length);
+                if (Snd != null)
+                {
+                    int n = AudioRenderer.GetSampleCountForCaptureFrame();
+                    int ch = AudioSettings.speakerMode == AudioSpeakerMode.Mono ? 1 : 2;
+                    var buf = new NativeArray<float>(n * ch, Allocator.Temp);
+                    AudioRenderer.Render(buf);
+                    var bytes = new byte[buf.Length * 4];
+                    System.Buffer.BlockCopy(buf.ToArray(), 0, bytes, 0, bytes.Length);
+                    Snd.Write(bytes, 0, bytes.Length);
+                    buf.Dispose();
+                }
+            }
+        }
+
+        private Recorder _rec;
+
+        private void Begin(string clip)
+        {
+            End();
+            Directory.CreateDirectory(Dir);
+            _rec.Out = new FileStream(Dir + "/" + clip + ".rgb", FileMode.Create);
+            _rec.Snd = new FileStream(Dir + "/" + clip + ".f32", FileMode.Create);
+            Debug.Log("SOUNDREC rate=" + AudioSettings.outputSampleRate + " mode=" + AudioSettings.speakerMode);
+        }
+
+        private void End()
+        {
+            if (_rec.Out != null) { _rec.Out.Dispose(); _rec.Out = null; }
+            if (_rec.Snd != null) { _rec.Snd.Dispose(); _rec.Snd = null; }
+        }
+
+        /// <summary>Plays the level with one-tap moves along the solver's best line, at a human pace.</summary>
+        private static IEnumerator Play(GameApp app, int level, float pace, int maxTaps = 200)
+        {
+            app.Game.StartLevel(level);
+            yield return new WaitForSeconds(1.4f);
+            for (int i = 0; i < maxTaps && app.States.Current == AppState.Playing; i++)
+            {
+                Move m;
+                if (app.Tutorial.IsGuiding) m = app.Tutorial.Expected;
+                else if (!PuzzleSolver.TryGetHint(app.Game.Board.State, out m, 60000)) break;
+                for (int w = 0; w < 400 && app.Game.TryMove(m) == MoveError.PlatformBusy; w++) yield return null;
+                yield return new WaitForSeconds(pace);
+            }
+            yield return new WaitForSeconds(3.0f);
+        }
+
+        [UnityTest]
+        public IEnumerator Record()
+        {
+            Time.captureFramerate = 20;
+            GameApp app = GameApp.Create(new InMemoryFileStore());
+            GameSettings.FastTrains = false;
+            app.Services.Save.Data.HighestUnlocked = 9999;
+            _rec = new GameObject("Recorder").AddComponent<Recorder>();
+            yield return null; yield return null;
+
+            AudioRenderer.Start();
+            app.Audio.MusicVolume = 0.35f;
+            Begin("ses_seviye3");
+            yield return Play(app, 3, 0.5f);
+            Begin("ses_seviye10");
+            yield return Play(app, 10, 0.42f);
+            End();
+
+            AudioRenderer.Stop();
+            Time.captureFramerate = 0;
+            Object.Destroy(_rec.gameObject);
+            Object.Destroy(app.gameObject);
+            yield return null;
+        }
+    }
+}

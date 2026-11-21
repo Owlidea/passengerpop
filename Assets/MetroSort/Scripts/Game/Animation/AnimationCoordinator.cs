@@ -142,7 +142,8 @@ namespace MetroSort.Game
                         v.WalkTo(target, WalkTime, 0.35f, () =>
                         {
                             if (epoch != _epoch) return;
-                            _audio.Play(e.Move.IsToBench ? Sfx.BenchSit : Sfx.Step);
+                            if (e.Move.IsToBench) _audio.Play(Sfx.BenchSit, AudioManager.PanAt(target.x), 0f);
+                            else _audio.PlayBoarding(AudioManager.PanAt(target.x), departs);
                             Haptics.Tap();
                             if (!GameSettings.ReducedMotion) Puff.Burst(_pool, target + new Vector3(0f, 0.05f, 0f), 2, 0.12f);
                             _active--;
@@ -284,7 +285,7 @@ namespace MetroSort.Game
             Vector3 from = stop + Vector3.right * (18f * SideOf(platform));
             train.transform.position = from;
             float scale = TrainScale;
-            _audio.Play(Sfx.TrainArrive);
+            _audio.PlaySweep(Sfx.TrainArrive, 0.85f * SideOf(platform), AudioManager.PanAt(stop.x), 0.55f * scale);
             DepartureBoard.Flip();
             for (float t = 0f; t < 1f; t += Time.deltaTime / (0.55f * scale))
             {
@@ -307,7 +308,7 @@ namespace MetroSort.Game
                 train.transform.position = stop;
             }
             train.Humming = true;
-            _audio.Play(Sfx.Doors);
+            _audio.Play(Sfx.Doors, AudioManager.PanAt(stop.x), 0f);
             for (float t = 0f; t < 1f; t += Time.deltaTime / (0.12f * scale))
             {
                 if (epoch != _epoch) yield break;
@@ -377,7 +378,7 @@ namespace MetroSort.Game
             float waited = 0f;
             while (waited < 1.5f && AnyMoving(riders)) { waited += Time.deltaTime; yield return null; }
 
-            _audio.Play(Sfx.Match);
+            _audio.Play(Sfx.Match, AudioManager.PanAt(platform.transform.position.x), 0f);
             _audio.Play(Sfx.Cheer);
             platform.Pulse();
             Praise(platform.transform.position + Vector3.up * 1.6f, true);
@@ -420,7 +421,7 @@ namespace MetroSort.Game
             train.Configure(e.Color, platform.Capacity);
             Vector3 from = stop + Vector3.right * 18f;
             train.transform.position = from;
-            _audio.Play(Sfx.TrainArrive);
+            _audio.PlaySweep(Sfx.TrainArrive, 0.85f, AudioManager.PanAt(stop.x), 0.40f * scale);
             Sway.Gust(-1f);
             DepartureBoard.Flip();
             for (float t = 0f; t < 1f; t += Time.deltaTime / (0.40f * scale))
@@ -449,7 +450,7 @@ namespace MetroSort.Game
             }
 
             train.Humming = true;
-            _audio.Play(Sfx.Doors);
+            _audio.Play(Sfx.Doors, AudioManager.PanAt(stop.x), 0f);
             for (float t = 0f; t < 1f; t += Time.deltaTime / (0.12f * scale)) { train.SetDoors(Ease.OutCubic(t)); yield return null; }
             train.SetDoors(1f);
             }
@@ -487,7 +488,7 @@ namespace MetroSort.Game
             for (float t = 0f; t < 1f; t += Time.deltaTime / (0.09f * scale)) { train.SetDoors(1f - Ease.Smooth(t)); yield return null; }
             train.SetDoors(0f);
 
-            _audio.Play(Sfx.TrainDepart);
+            _audio.PlaySweep(Sfx.TrainDepart, AudioManager.PanAt(stop.x), to.x > stop.x ? 0.85f : -0.85f, 0.5f * scale + 0.3f);
             if (TrainDeparted != null) TrainDeparted();
             // The riders count on the HUD only now, flying up from the train to the boarding bar.
             if (epoch == _epoch && GameApp.Instance != null && GameApp.Instance.UI != null)
