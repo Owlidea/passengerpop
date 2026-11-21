@@ -4,12 +4,12 @@
   "group": "Intro",
   "stages": [
     [
-      "BBBBB",
-      "RRBGB",
-      "BRGGB"
+      "BRRGG",
+      "GBGR",
+      "GGGGGB"
     ]
   ],
-  "trains": "RBGBB",
+  "trains": "GBGRG",
   "platforms": [
     {
       "cap": 3
@@ -23,5 +23,6 @@
   "extraPlatforms": 1,
   "tutorial": "",
   "par": 15,
-  "difficulty": 0.8
+  "difficulty": 0.0,
+  "tier": 0
 }

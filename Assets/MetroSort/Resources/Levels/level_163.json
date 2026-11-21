@@ -4,21 +4,21 @@
   "group": "Polar",
   "stages": [
     [
-      "PBPO",
-      "PPOB",
-      "GPBB",
-      "PBO",
-      "PPO"
+      "PPORR",
+      "YPR",
+      "YOPPR",
+      "PPPR",
+      "PO"
     ],
     [
-      "ROOOO",
-      "GGYP",
-      "RYP",
-      "BYP",
-      "ROP"
+      "GYORP",
+      "PBBRGG",
+      "BPO",
+      "YOY",
+      "YRR"
     ]
   ],
-  "trains": "PPBOPBOYRGOP",
+  "trains": "YPPOPRRBYOPGR",
   "platforms": [
     {
       "cap": 3
@@ -27,10 +27,11 @@
       "cap": 3
     }
   ],
-  "bench": 5,
+  "bench": 3,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 39,
-  "difficulty": 21.7
+  "par": 41,
+  "difficulty": 60.0,
+  "tier": 0
 }

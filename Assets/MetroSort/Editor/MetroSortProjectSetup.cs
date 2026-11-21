@@ -77,14 +77,22 @@ namespace MetroSort.EditorTools
             PlayerSettings.allowedAutorotateToLandscapeRight = false;
             PlayerSettings.colorSpace = ColorSpace.Linear;
 
-            PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.Android, "com.metrosort.game");
-            PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.iOS, "com.metrosort.game");
+            PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.Android, "com.owlidea.metrosort");
+            PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.iOS, "com.owlidea.metrosort");
             PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.iOS, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.Android.minSdkVersion = (AndroidSdkVersions)26; // Android 8.0
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
             PlayerSettings.Android.bundleVersionCode = 1;
+            // The project had an empty format list, which shipped every "compressed" texture as raw RGBA (the art
+            // alone was 182 MB). ASTC runs on every OpenGL ES 3.2 / Vulkan phone; older GPUs get it decoded.
+            PlayerSettings.Android.textureCompressionFormats = new[] { TextureCompressionFormat.ASTC };
+            // No "Made with Unity" screen (optional since Unity 6): the game opens on the StagFunny studio intro
+            // (BrandIntro). White behind it, like the intro, so the hand-over from the launch screen does not flash.
+            PlayerSettings.SplashScreen.show = false;
+            PlayerSettings.SplashScreen.showUnityLogo = false;
+            PlayerSettings.SplashScreen.backgroundColor = Color.white;
             EditorUserBuildSettings.buildAppBundle = true;
             PlayerSettings.iOS.targetOSVersionString = "15.0";
             PlayerSettings.iOS.buildNumber = "1";
@@ -282,7 +290,9 @@ namespace MetroSort.EditorTools
         public static void BuildAndroid()
         {
             MetroSortProjectSetup.RunSetup();
-            Build(BuildTarget.Android, "Builds/Android/MetroSort.aab");
+            ApplyAdMobAppId();
+            // The bundle goes to Google Play: real ad units, whatever useTestAds says (MonetizationConfig.StoreBuild).
+            Build(BuildTarget.Android, "Builds/Android/MetroSort.aab", "METROSORT_STORE_BUILD");
         }
 
         /// <summary>An APK can be installed straight onto a phone or emulator (an AAB cannot); for testing only.</summary>
@@ -290,15 +300,64 @@ namespace MetroSort.EditorTools
         public static void BuildAndroidApk()
         {
             MetroSortProjectSetup.RunSetup();
+            ApplyAdMobAppId();
             EditorUserBuildSettings.buildAppBundle = false;
             try { Build(BuildTarget.Android, "Builds/Android/MetroSort.apk"); }
             finally { EditorUserBuildSettings.buildAppBundle = true; }
+        }
+
+        /// <summary>
+        /// Copies the AdMob app ids from Resources/monetization.json into the Google Mobile Ads settings asset, which
+        /// writes them into the Android manifest and the iOS Info.plist (the Android app stops at launch without one,
+        /// and the plugin refuses to build for iOS without one). There is no iOS AdMob app yet, and the iOS game uses
+        /// the development ad stand-in, so iOS gets Google's sample app id until admobIosAppId is filled in. The
+        /// settings class is internal to the plugin, so the fields are set through the asset's serialized data.
+        /// </summary>
+        public static void ApplyAdMobAppId()
+        {
+#if METROSORT_ADMOB
+            var json = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/MetroSort/Resources/monetization.json");
+            MonetizationConfig config = json != null ? MonetizationConfig.Parse(json.text) : null;
+            string appId = config != null && !string.IsNullOrEmpty(config.AdMobAndroidAppId) ? config.AdMobAndroidAppId : MonetizationConfig.GoogleTestAppId;
+            string iosAppId = config != null && !string.IsNullOrEmpty(config.AdMobIosAppId) ? config.AdMobIosAppId : MonetizationConfig.GoogleTestIosAppId;
+            const string path = "Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset";
+            var settings = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
+            if (settings == null)
+            {
+                Type type = Type.GetType("GoogleMobileAds.Editor.GoogleMobileAdsSettings, GoogleMobileAds.Editor");
+                var load = type != null ? type.GetMethod("LoadInstance", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public) : null;
+                settings = load != null ? load.Invoke(null, null) as ScriptableObject : null;
+            }
+            if (settings == null)
+            {
+                Debug.LogError("Metro Sort build: Google Mobile Ads settings asset not found");
+                return;
+            }
+            var so = new SerializedObject(settings);
+            bool changed = false;
+            foreach (var pair in new[] { new[] { "adMobAndroidAppId", appId }, new[] { "adMobIOSAppId", iosAppId } })
+            {
+                SerializedProperty id = so.FindProperty(pair[0]);
+                if (id == null || id.stringValue == pair[1]) continue;
+                id.stringValue = pair[1];
+                changed = true;
+            }
+            if (changed)
+            {
+                so.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(settings);
+                AssetDatabase.SaveAssets();
+            }
+            Debug.Log("Metro Sort build: AdMob app id " + appId + (appId == MonetizationConfig.GoogleTestAppId ? " (Google test app)" : "")
+                + ", iOS " + iosAppId + (iosAppId == MonetizationConfig.GoogleTestIosAppId ? " (Google test app)" : ""));
+#endif
         }
 
         [MenuItem("Metro Sort/Build/iOS Xcode Project")]
         public static void BuildIOS()
         {
             MetroSortProjectSetup.RunSetup();
+            ApplyAdMobAppId();
             // Always state the SDK: a simulator build must never leave the device export pointing at the simulator.
             PlayerSettings.iOS.sdkVersion = iOSSdkVersion.DeviceSDK;
             Build(BuildTarget.iOS, "Builds/iOS");
@@ -309,12 +368,13 @@ namespace MetroSort.EditorTools
         public static void BuildIOSSimulator()
         {
             MetroSortProjectSetup.RunSetup();
+            ApplyAdMobAppId();
             PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;
             try { Build(BuildTarget.iOS, "Builds/iOSSimulator"); }
             finally { PlayerSettings.iOS.sdkVersion = iOSSdkVersion.DeviceSDK; }
         }
 
-        private static void Build(BuildTarget target, string output)
+        private static void Build(BuildTarget target, string output, params string[] defines)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output)));
             var options = new BuildPlayerOptions
@@ -322,7 +382,8 @@ namespace MetroSort.EditorTools
                 scenes = new[] { "Assets/MetroSort/Scenes/Bootstrap/Bootstrap.unity" },
                 locationPathName = output,
                 target = target,
-                options = BuildOptions.None
+                options = BuildOptions.None,
+                extraScriptingDefines = defines
             };
             UnityEditor.Build.Reporting.BuildReport report = BuildPipeline.BuildPlayer(options);
             Debug.Log("Metro Sort build " + target + ": " + report.summary.result + " -> " + output);

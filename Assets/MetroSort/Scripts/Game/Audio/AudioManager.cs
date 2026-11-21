@@ -160,6 +160,9 @@ namespace MetroSort.Game
             _music.volume = _musicVolume * 0.9f * _fade * duck;
         }
 
+        /// <summary>While true no new track starts (the studio intro plays in silence); released, it fades in.</summary>
+        public bool MusicHeld;
+
         private void Update()
         {
             if (_music == null) return;
@@ -167,7 +170,7 @@ namespace MetroSort.Game
             if (_music.clip != _wanted)
             {
                 _fade = Mathf.Max(0f, _fade - step);
-                if (_fade <= 0f)
+                if (_fade <= 0f && !MusicHeld)
                 {
                     _music.clip = _wanted;
                     _music.Play();

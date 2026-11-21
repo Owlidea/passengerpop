@@ -4,21 +4,21 @@
   "group": "Grand",
   "stages": [
     [
-      "RYRBB",
-      "RBBG",
-      "YYGP",
-      "YOY",
-      "YRG"
+      "GGOP",
+      "PPGOY",
+      "GGPB",
+      "OGGO",
+      "PGGP"
     ],
     [
-      "BGBGG",
-      "RPRPP",
-      "OOP",
-      "BBPO",
-      "OOB"
+      "PBOP",
+      "YOB",
+      "RRPYYRR",
+      "BYY",
+      "RBBR"
     ]
   ],
-  "trains": "YRYBGBORBPOPG",
+  "trains": "GPGGOOPBYYBPRR",
   "platforms": [
     {
       "cap": 3
@@ -27,10 +27,11 @@
       "cap": 3
     }
   ],
-  "bench": 5,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 43,
-  "difficulty": 19.2
+  "par": 47,
+  "difficulty": 55.7,
+  "tier": 0
 }

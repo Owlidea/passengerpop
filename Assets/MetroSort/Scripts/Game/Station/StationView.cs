@@ -26,6 +26,12 @@ namespace MetroSort.Game
         private string _signature;
         private Vector3[] _queueFront = new Vector3[0];
         private float _queueStep = 0.9f;
+        /// <summary>
+        /// How many passengers of a queue are on screen. Deeper queues show a "+N" tag at the back instead of a
+        /// crowd of hats, so the faces stay big and the board stays readable on long levels.
+        /// </summary>
+        public const int MaxShown = 7;
+        private int[] _hiddenCount = new int[0];
         private float _turnstileZ;
         private readonly List<GateFlaps> _flaps = new List<GateFlaps>();
         private Vector3 _benchCenter;
@@ -102,8 +108,9 @@ namespace MetroSort.Game
                 {
                     PassengerView view = Spawn(state.Queues[q][i], QueueSlot(q, i), i == 0 && state.GateRemaining(q) == 0);
                     view.SetMystery(IsHidden(i), false);
+                    ShowInQueue(view, i);
                     // Level intro: each lane files in through its ticket gate, front of the queue first.
-                    if (intro && !GameSettings.ReducedMotion)
+                    if (intro && !GameSettings.ReducedMotion && i < MaxShown)
                     {
                         Vector3 slot = QueueSlot(q, i);
                         var from = new Vector3(slot.x, 0f, _turnstileZ - 2.6f);
@@ -113,6 +120,7 @@ namespace MetroSort.Game
                 if (intro && q < _flaps.Count && state.Queues[q].Count > 0)
                     _flaps[q].Open(0.05f + q * 0.05f + 0.12f, state.Queues[q].Count * 0.09f + 0.30f);
             }
+            CountHidden(state);
             for (int b = 0; b < state.Bench.Count; b++) Spawn(state.Bench[b], BenchSlot(b), true).SetSeated(true);
             for (int p = 0; p < state.Platforms.Count && p < Platforms.Count; p++)
             {
@@ -263,7 +271,7 @@ namespace MetroSort.Game
             Color red = color >= 0 ? Palette.Lines[color] : new Color(0.17f, 0.18f, 0.22f);
             Color stripe = color >= 0 ? Color.white : new Color(1.00f, 0.82f, 0.10f);
             // The lane is "switched off" while its turnstile is closed.
-            float laneLength = (depth - 1) * _queueStep + 1.0f;
+            float laneLength = (Mathf.Min(depth, MaxShown) - 1) * _queueStep + 1.0f;
             Prims.NoShadow(Prims.Make(PrimitiveType.Cube, root.transform, new Vector3(0f, 0.014f, -laneLength * 0.5f + 0.5f), new Vector3(0.96f, 0.02f, laneLength), new Color(0.56f, 0.58f, 0.64f), "ClosedLane"));
             // Barrier across the lane, far enough ahead that the front passenger does not hide it.
             const float z = GateOffset;
@@ -288,11 +296,13 @@ namespace MetroSort.Game
                 {
                     PassengerView v;
                     if (!_passengers.TryGetValue(state.Queues[q][i].Id, out v)) continue;
+                    ShowInQueue(v, i);
                     v.SetAccessible(i == 0 && state.GateRemaining(q) == 0);
                     v.SetMystery(IsHidden(i), animate);
-                    MoveView(v, QueueSlot(q, i), animate, i * 0.04f);
+                    MoveView(v, QueueSlot(q, i), animate, Mathf.Min(i, MaxShown) * 0.04f);
                 }
             }
+            CountHidden(state);
             for (int b = 0; b < state.Bench.Count; b++)
             {
                 PassengerView v;
@@ -323,6 +333,8 @@ namespace MetroSort.Game
                     Vector3 slot = QueueSlot(q, i);
                     PassengerView fresh = Spawn(p, slot, i == 0);
                     fresh.SetMystery(IsHidden(i), false);
+                    ShowInQueue(fresh, i);
+                    if (i >= MaxShown) continue;
                     if (GameSettings.ReducedMotion) { fresh.Bounce(); continue; }
                     // The next stage files in through the ticket gates, like the level intro.
                     var from = new Vector3(slot.x, 0f, _turnstileZ - 2.6f);
@@ -330,6 +342,7 @@ namespace MetroSort.Game
                     if (q < _flaps.Count) _flaps[q].Open(0.15f, state.Queues[q].Count * 0.09f + 0.30f);
                 }
             }
+            CountHidden(state);
         }
 
         private PassengerView Spawn(Passenger p, Vector3 position, bool accessible)
@@ -386,12 +399,39 @@ namespace MetroSort.Game
             return bench < state.Bench.Count ? GetPassenger(state.Bench[bench].Id) : null;
         }
 
+        /// <summary>Passengers past MaxShown wait off-screen behind the last visible one.</summary>
+        private void ShowInQueue(PassengerView view, int index)
+        {
+            bool shown = index < MaxShown;
+            if (view.gameObject.activeSelf != shown) view.gameObject.SetActive(shown);
+        }
+
+        private void CountHidden(BoardState state)
+        {
+            if (_hiddenCount.Length != state.Queues.Length) _hiddenCount = new int[state.Queues.Length];
+            for (int q = 0; q < state.Queues.Length; q++) _hiddenCount[q] = Mathf.Max(0, state.Queues[q].Count - MaxShown);
+        }
+
+        public int TailLaneCount { get { return Mathf.Min(_hiddenCount.Length, _queueFront.Length); } }
+
+        /// <summary>"+N" for a queue longer than the screen shows, or null.</summary>
+        public string TailLabel(int queue)
+        {
+            int n = queue < _hiddenCount.Length ? _hiddenCount[queue] : 0;
+            return n > 0 ? "+" + n : null;
+        }
+
+        public Vector3 TailAnchor(int queue)
+        {
+            return QueueSlot(queue, MaxShown - 1) + new Vector3(0f, 0.05f, -1.05f);
+        }
+
         // ------------------------------------------------------------------ positions
 
         public Vector3 QueueSlot(int queue, int index)
         {
             Vector3 front = queue < _queueFront.Length ? _queueFront[queue] : Vector3.zero;
-            return new Vector3(front.x, 0f, front.z - index * _queueStep);
+            return new Vector3(front.x, 0f, front.z - Mathf.Min(index, MaxShown) * _queueStep);
         }
 
         public Vector3 BenchSlot(int index)
@@ -534,6 +574,7 @@ namespace MetroSort.Game
 
             int maxQueues, maxDepth;
             Measure(state, out maxQueues, out maxDepth);
+            maxDepth = Mathf.Min(maxDepth, MaxShown);
             _benchCapacity = state.BenchCapacity;
 
             // Platforms: one row for up to two, two rows beyond that. A narrower station lets the portrait
@@ -660,12 +701,16 @@ namespace MetroSort.Game
             BuildBackWall(wallZ);
             BuildTurnstiles(maxQueues, spacing, laneEndZ - 0.40f);
 
+            BuildConcourse(maxQueues, spacing, frontZ, laneEndZ);
+
             // Decoration kept to the sides so it never hides gameplay.
             float sideX = halfWidth + 0.9f;
             for (int side = -1; side <= 1; side += 2)
             {
                 BuildPlant(new Vector3(side * sideX, 0f, 2.6f));
                 BuildLamp(new Vector3(side * (sideX + 0.2f), 0f, 0.6f));
+                // Each lamp throws a warm pool of light on the floor.
+                LightPool(new Vector3(side * (sideX + 0.2f), 0.02f, 0.6f), 3.6f, new Color(1f, 0.74f, 0.30f, 0.55f));
                 if (_benchCapacity == 0) Prop("Bench", new Vector3(side * (sideX + 0.1f), 0f, -1.0f));
                 Prop("Bin", new Vector3(side * (sideX + 0.15f), 0f, -2.6f));
             }
@@ -678,9 +723,82 @@ namespace MetroSort.Game
             FitCamera();
         }
 
+        /// <summary>
+        /// The waiting area: a deep-coloured carpet with gold trim under the queues, so the play area reads as a
+        /// framed stage instead of bare tiles, and a soft overhead light pooling on it.
+        /// </summary>
+        private void BuildConcourse(int queues, float spacing, float frontZ, float laneEndZ)
+        {
+            float halfW = (queues - 1) * spacing * 0.5f + 1.05f;
+            float z0 = laneEndZ - 0.15f, z1 = frontZ + 0.85f;
+            float cz = (z0 + z1) * 0.5f, depth = z1 - z0;
+            Color rug = Color.Lerp(Theme.Dado, new Color(0.10f, 0.08f, 0.16f), 0.45f);
+            Color gold = new Color(0.98f, 0.78f, 0.30f);
+            Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 0.004f, cz), new Vector3(halfW * 2f, 0.008f, depth), rug, "Concourse"));
+            // Gold trim, and an inner pinstripe a little inside it.
+            foreach (float inset in new[] { 0f, 0.22f })
+            {
+                float t = inset == 0f ? 0.10f : 0.04f;
+                float w = halfW * 2f - inset * 2f, d = depth - inset * 2f;
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 0.0095f, z0 + inset), new Vector3(w, 0.006f, t), gold, "Trim"));
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(0f, 0.0095f, z1 - inset), new Vector3(w, 0.006f, t), gold, "Trim"));
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(-halfW + inset, 0.0095f, cz), new Vector3(t, 0.006f, d), gold, "Trim"));
+                Prims.NoShadow(Prims.Make(PrimitiveType.Cube, _env, new Vector3(halfW - inset, 0.0095f, cz), new Vector3(t, 0.006f, d), gold, "Trim"));
+            }
+            LightPool(new Vector3(0f, 0.013f, cz + depth * 0.1f), Mathf.Max(halfW * 2.4f, depth * 1.2f), new Color(1f, 0.88f, 0.55f, 0.28f));
+        }
+
+        private static Texture2D _poolTexture;
+        private static readonly Dictionary<Color, Material> _poolMaterials = new Dictionary<Color, Material>();
+
+        /// <summary>A soft round light pool lying on the floor (a transparent decal, not a real light).</summary>
+        private void LightPool(Vector3 at, float size, Color color)
+        {
+            if (_poolTexture == null)
+            {
+                const int N = 128;
+                _poolTexture = new Texture2D(N, N, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, name = "LightPool" };
+                var px = new Color32[N * N];
+                for (int y = 0; y < N; y++)
+                    for (int x = 0; x < N; x++)
+                    {
+                        float dx = (x + 0.5f) / N * 2f - 1f, dy = (y + 0.5f) / N * 2f - 1f;
+                        float r = Mathf.Sqrt(dx * dx + dy * dy);
+                        float a = Mathf.Clamp01(1f - r);
+                        px[y * N + x] = new Color32(255, 255, 255, (byte)(255f * a * a * (3f - 2f * a)));
+                    }
+                _poolTexture.SetPixels32(px);
+                _poolTexture.Apply();
+            }
+            Shader shader = Shader.Find("Sprites/Default");
+            if (shader == null) return;
+            GameObject quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            quad.name = "LightPool";
+            Destroy(quad.GetComponent<Collider>());
+            quad.transform.SetParent(_props, false);
+            quad.transform.localPosition = at;
+            quad.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            quad.transform.localScale = new Vector3(size, size * 0.8f, 1f);
+            Material mat;
+            if (!_poolMaterials.TryGetValue(color, out mat) || mat == null)
+                _poolMaterials[color] = mat = new Material(shader) { mainTexture = _poolTexture, color = color, name = "LightPool" };
+            var r0 = quad.GetComponent<MeshRenderer>();
+            r0.sharedMaterial = mat;
+            r0.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            r0.receiveShadows = false;
+        }
+
         private float LayoutRow(BoardState state, int first, int count, float z)
         {
-            const float gap = 0.75f;
+            // Platforms side by side share a track. On timetable levels their trains wait there together, so the
+            // platforms stand far enough apart that two trains never touch and read as one long train.
+            float gap = 0.75f;
+            if (state.HasSchedule && count > 1)
+                for (int i = 0; i < count; i++)
+                {
+                    int cap = state.Platforms[first + i].Capacity;
+                    gap = Mathf.Max(gap, TrainView.LengthFor(cap) - PlatformView.WidthFor(cap) + 0.45f);
+                }
             float total = -gap;
             for (int i = 0; i < count; i++) total += PlatformView.WidthFor(state.Platforms[first + i].Capacity) + gap;
             float x = -total * 0.5f;

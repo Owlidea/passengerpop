@@ -31,6 +31,8 @@ namespace MetroSort.Persistence
         /// <summary>Lives left, and when (UTC unix seconds) the timer for the next one started.</summary>
         public int Lives = 5;
         public long LivesTimerStart;
+        /// <summary>Unlimited lives run until this time (UTC unix seconds); 0 when none.</summary>
+        public long UnlimitedLivesUntil;
         /// <summary>Stars collected towards the next star chest (new stars only; replays add nothing).</summary>
         public int ChestStars;
 
@@ -68,6 +70,7 @@ namespace MetroSort.Persistence
             root["language"] = Language;
             root["lives"] = Lives;
             root["livesTimerStart"] = (double)LivesTimerStart;
+            root["unlimitedLivesUntil"] = (double)UnlimitedLivesUntil;
             root["chestStars"] = ChestStars;
             return MiniJson.Serialize(root);
         }
@@ -108,6 +111,7 @@ namespace MetroSort.Persistence
             d.Language = JsonRead.Str(root, "language", "");
             d.Lives = JsonRead.Int(root, "lives", 5);
             d.LivesTimerStart = JsonRead.Long(root, "livesTimerStart", 0);
+            d.UnlimitedLivesUntil = JsonRead.Long(root, "unlimitedLivesUntil", 0);
             d.ChestStars = Math.Max(0, JsonRead.Int(root, "chestStars", 0));
             Migrate(d);
             return d;

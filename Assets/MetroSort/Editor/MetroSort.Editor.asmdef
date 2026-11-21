@@ -21,6 +21,11 @@
             "name": "com.unity.render-pipelines.universal",
             "expression": "12.0.0",
             "define": "METROSORT_URP"
+        },
+        {
+            "name": "com.google.ads.mobile",
+            "expression": "9.0.0",
+            "define": "METROSORT_ADMOB"
         }
     ],
     "noEngineReferences": false

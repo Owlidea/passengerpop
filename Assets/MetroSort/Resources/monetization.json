@@ -1,0 +1,11 @@
+{
+  "_note": "Metro Sort's real AdMob app and ad units (created 2026-11-21). The test APK (Metro Sort > Build > Android APK) follows useTestAds: while it is true it requests Google's test ad units, so testing on your own phone never clicks a real ad (that can get the AdMob account suspended). The Google Play build (Android App Bundle) always requests the real units, whatever useTestAds says; add your phone as a test device in AdMob before installing that one. revenueCatGoogleApiKey is the public SDK key of the RevenueCat project Metro Sort (Play Store app); it is meant to ship inside the app. The privacy policy is the StagFunny studio policy that covers all its games.",
+  "admobAndroidAppId": "ca-app-pub-6048334063594634~6964306001",
+  "admobAndroidRewardedId": "ca-app-pub-6048334063594634/1383182979",
+  "admobAndroidInterstitialId": "ca-app-pub-6048334063594634/7270980659",
+  "useTestAds": true,
+  "revenueCatGoogleApiKey": "goog_WRZIeOeukjgMCfJDnLwQdKwNbJE",
+  "removeAdsEntitlement": "no_ads",
+  "privacyPolicyUrl": "https://stagfunny.com/privacy",
+  "privacyPolicyUrlTr": "https://stagfunny.com/tr/privacy"
+}

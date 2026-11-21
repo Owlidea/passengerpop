@@ -4,14 +4,14 @@
   "group": "Crimson",
   "stages": [
     [
-      "GRPBPYGYYGBR",
-      "PPOGYPBGRYOOY",
-      "PGPRGOYROBYR",
-      "GRPBGOOBYYOR",
-      "GBPBOBYGGYR"
+      "OBGYYBBYYPGP",
+      "OBORGOOOOOPP",
+      "YGGORRRBYYP",
+      "ROOOBBRRPBP",
+      "YGRGPPBRYGPPGP"
     ]
   ],
-  "trains": "GPRGPBPOBYGYGORYBYOR",
+  "trains": "OYBGROGYROBPRYOPBPGP",
   "platforms": [
     {
       "cap": 3
@@ -22,5 +22,6 @@
   "extraPlatforms": 1,
   "tutorial": "",
   "par": 69,
-  "difficulty": 95.7
+  "difficulty": 98.6,
+  "tier": 0
 }

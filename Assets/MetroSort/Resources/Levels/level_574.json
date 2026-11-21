@@ -4,14 +4,14 @@
   "group": "Western",
   "stages": [
     [
-      "YYGPRGRYOOO",
-      "BYPOBPGRYOY",
-      "YPOROGRGOB",
-      "BYPYRRRGOB",
-      "OOOPGGGRB"
+      "BOBBBGGPYYPOR",
+      "OOYGYPRRBPOO",
+      "GYPGRROORBBO",
+      "GBBOGBGPOOO",
+      "BYGOOBOOORRR"
     ]
   ],
-  "trains": "YBYOOPPGRRRGGYBOO",
+  "trains": "BOGGBBPYGYOBROOPROOR",
   "platforms": [
     {
       "cap": 3
@@ -20,10 +20,11 @@
       "cap": 3
     }
   ],
-  "bench": 6,
+  "bench": 5,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 55,
-  "difficulty": 41.4
+  "par": 64,
+  "difficulty": 78.6,
+  "tier": 0
 }

@@ -4,14 +4,14 @@
   "group": "Autumn",
   "stages": [
     [
-      "BORBRBBYPOPO",
-      "OOBGOBGRYRPR",
-      "RRORBBOYPPPR",
-      "BROBBBOPYORR",
-      "GORBBBRPYPYR"
+      "GBBGRGOGOPBO",
+      "PBBRGGRORPBBP",
+      "PGOGRGRPBPPYB",
+      "BRBPPRPRBPY",
+      "PBPBBPRRROY"
     ]
   ],
-  "trains": "ROORBBGBRBOBYPPYPORR",
+  "trains": "GPBBGPBORGRRBPRPPOYB",
   "platforms": [
     {
       "cap": 3
@@ -20,17 +20,18 @@
       "cap": 3
     }
   ],
-  "bench": 5,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 63,
-  "difficulty": 54.3,
+  "par": 65,
+  "difficulty": 85.7,
+  "tier": 0,
   "gates": [
+    4,
     0,
     0,
     0,
-    6,
     0
   ]
 }

@@ -41,6 +41,35 @@ namespace MetroSort.Economy
 
         public bool IsFull(long now) { return Count(now) >= Max; }
 
+        public int UnlimitedCost { get { return _config.UnlimitedLivesCost; } }
+        public int UnlimitedSeconds { get { return _config.UnlimitedLivesSeconds; } }
+
+        /// <summary>True while unlimited lives are running: losing a level costs nothing.</summary>
+        public bool IsUnlimited(long now) { return _save.Data.UnlimitedLivesUntil > now; }
+
+        public long UnlimitedSecondsLeft(long now) { return Math.Max(0, _save.Data.UnlimitedLivesUntil - now); }
+
+        /// <summary>A level can be started with a life in hand or during unlimited lives.</summary>
+        public bool CanPlay(long now) { return IsUnlimited(now) || Count(now) > 0; }
+
+        /// <summary>Adds unlimited time; it stacks on any that is still running.</summary>
+        public void GrantUnlimited(long seconds, long now)
+        {
+            if (seconds <= 0) return;
+            SaveData d = _save.Data;
+            d.UnlimitedLivesUntil = Math.Max(d.UnlimitedLivesUntil, now) + seconds;
+            _save.Save();
+            Notify();
+        }
+
+        /// <summary>Buys the configured stretch of unlimited lives with coins. False when the coins are not there.</summary>
+        public bool BuyUnlimited(long now)
+        {
+            if (!_economy.TrySpend(_config.UnlimitedLivesCost)) return false;
+            GrantUnlimited(_config.UnlimitedLivesSeconds, now);
+            return true;
+        }
+
         /// <summary>Seconds until the next life comes back; 0 when full.</summary>
         public long SecondsToNext(long now)
         {
@@ -54,7 +83,7 @@ namespace MetroSort.Economy
         {
             Regenerate(now);
             SaveData d = _save.Data;
-            if (d.Lives <= 0) return false;
+            if (IsUnlimited(now) || d.Lives <= 0) return false;
             // The refill clock starts when the first life goes missing.
             if (d.Lives >= Max) d.LivesTimerStart = now;
             d.Lives--;

@@ -4,21 +4,21 @@
   "group": "Advanced",
   "stages": [
     [
-      "RRPY",
-      "BGR",
-      "BBPB",
-      "GY",
-      "GYB"
+      "YPGP",
+      "PBBRP",
+      "BPP",
+      "PBP",
+      "PBY"
     ],
     [
-      "PRP",
-      "RPPB",
-      "RPP",
-      "PPPB",
-      "PBB"
+      "GBBPP",
+      "BRGP",
+      "GBG",
+      "GRG",
+      "YGG"
     ]
   ],
-  "trains": "GRBBPYPRBPP",
+  "trains": "PPBBPYGBGRGP",
   "platforms": [
     {
       "cap": 3
@@ -27,10 +27,11 @@
       "cap": 3
     }
   ],
-  "bench": 5,
+  "bench": 3,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 37,
-  "difficulty": 30.8
+  "par": 39,
+  "difficulty": 68.6,
+  "tier": 1
 }

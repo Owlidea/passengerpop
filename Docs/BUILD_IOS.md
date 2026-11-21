@@ -14,7 +14,7 @@
 
 | Setting | Value |
 |---------|-------|
-| Bundle identifier | `com.metrosort.game` (change to one you own) |
+| Bundle identifier | `com.owlidea.metrosort` |
 | Scripting backend | IL2CPP |
 | Architecture | ARM64 |
 | Target device | iPhone |
@@ -44,10 +44,15 @@ Command line:
 To run in the Simulator instead, use *Metro Sort > Build > iOS Simulator Xcode Project*, then:
 
 ```bash
-xcodebuild -project Builds/iOSSimulator/Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Release -sdk iphonesimulator -derivedDataPath Builds/iOSSimDerived CODE_SIGNING_ALLOWED=NO build
+xcodebuild -workspace Builds/iOSSimulator/Unity-iPhone.xcworkspace -scheme Unity-iPhone -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath Builds/iOSSimDerived ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build
 ```
 
 and install `Builds/iOSSimDerived/Build/Products/Release-iphonesimulator/MetroSort.app` on a booted simulator.
+
+Since AdMob and RevenueCat were added the export uses CocoaPods (`pod` must be installed) and opens as a
+*workspace*. `IosPodfileFix` lifts the ad pods to iOS 15 (Xcode 27 refuses their declared 12.0). There is no
+iOS AdMob app yet: iOS builds carry Google's sample app id and the game uses its development ad and purchase
+stand-ins on iOS.
 
 ## Before submitting to the App Store
 

@@ -16,6 +16,10 @@ namespace MetroSort.Ads
         void ShowRewardedAd(Action<AdResult> onFinished);
         bool IsInterstitialReady();
         void ShowInterstitialAd(Action onClosed);
+        /// <summary>True where players must be able to reopen their ad consent choices (EEA, UK, ...).</summary>
+        bool PrivacyOptionsRequired { get; }
+        /// <summary>Reopens the consent choices; onClosed gets an error message, or null when all went well.</summary>
+        void ShowPrivacyOptions(Action<string> onClosed);
     }
 
     /// <summary>Development stand-in. Completes immediately with a configurable outcome.</summary>
@@ -46,6 +50,13 @@ namespace MetroSort.Ads
         {
             if (InterstitialReady) InterstitialsShown++;
             if (onClosed != null) onClosed();
+        }
+
+        public bool PrivacyOptionsRequired { get { return false; } }
+
+        public void ShowPrivacyOptions(Action<string> onClosed)
+        {
+            if (onClosed != null) onClosed(null);
         }
     }
 
@@ -204,12 +215,22 @@ namespace MetroSort.Purchases
         public const string CoinsLarge = "com.metrosort.coins.large";
         public const string RemoveAds = "com.metrosort.removeads";
 
+        // Kept low on purpose (2026-11-21). The labels are fallbacks: on a device the store's own prices, in the
+        // player's currency, replace them (RevenueCatPurchaseService); set the real prices in Google Play Console.
         public static readonly StoreProduct[] Products =
         {
-            new StoreProduct { Id = CoinsSmall, Title = "Pocket of Coins", PriceLabel = "$1.99", Coins = 500, Consumable = true },
-            new StoreProduct { Id = CoinsLarge, Title = "Vault of Coins", PriceLabel = "$4.99", Coins = 1500, Consumable = true },
-            new StoreProduct { Id = RemoveAds, Title = "Remove Ads", PriceLabel = "$2.99", Coins = 0, Consumable = false }
+            new StoreProduct { Id = CoinsSmall, Title = "Pocket of Coins", PriceLabel = "$0.99", Coins = 500, Consumable = true },
+            new StoreProduct { Id = CoinsLarge, Title = "Vault of Coins", PriceLabel = "$2.99", Coins = 1800, Consumable = true },
+            new StoreProduct { Id = RemoveAds, Title = "Remove Ads", PriceLabel = "$1.99", Coins = 0, Consumable = false }
         };
+
+        /// <summary>Raised when the store's prices have replaced the fallback labels.</summary>
+        public static event Action PricesChanged;
+
+        public static void NotifyPricesChanged()
+        {
+            if (PricesChanged != null) PricesChanged();
+        }
 
         public static StoreProduct Find(string id)
         {
@@ -267,6 +288,15 @@ namespace MetroSort.Purchases
             _analytics.Track(AnalyticsEvents.PurchaseCompleted, p);
             if (Changed != null) Changed();
             return true;
+        }
+
+        /// <summary>The store says a non-consumable is owned (bought on another device, or before a reinstall).</summary>
+        public void MarkOwned(string productId)
+        {
+            if (productId != StoreCatalog.RemoveAds || _save.Data.RemoveAds) return;
+            _save.Data.RemoveAds = true;
+            _save.Save();
+            if (Changed != null) Changed();
         }
 
         public void Restore(Action<bool> onDone)

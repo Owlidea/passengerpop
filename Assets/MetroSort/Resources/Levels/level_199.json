@@ -4,21 +4,21 @@
   "group": "Capital",
   "stages": [
     [
-      "OGGPB",
-      "BGPP",
-      "ORRGO",
-      "RROR",
-      "BGRP"
+      "BBGRG",
+      "BBBBP",
+      "BBGG",
+      "BRBRPR",
+      "RRRR"
     ],
     [
-      "OGPOO",
-      "POYO",
-      "POOP",
-      "POPO",
-      "POPOYY"
+      "BPPPB",
+      "BOGPYB",
+      "RRGOB",
+      "ORYP",
+      "YRPP"
     ]
   ],
-  "trains": "ROBRPGPGOPPOOOY",
+  "trains": "RBBRBGBROPGBPRYP",
   "platforms": [
     {
       "cap": 3
@@ -27,10 +27,11 @@
       "cap": 3
     }
   ],
-  "bench": 5,
+  "bench": 3,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 49,
-  "difficulty": 23.3
+  "par": 53,
+  "difficulty": 54.3,
+  "tier": 0
 }

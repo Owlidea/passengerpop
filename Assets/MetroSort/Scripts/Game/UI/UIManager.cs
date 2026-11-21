@@ -31,8 +31,19 @@ namespace MetroSort.Game
         private GameObject _menuBackdrop, _menu, _hud, _settings, _win, _lose, _shop, _levels, _tutorialBanner;
         private Text _menuCoins, _menuLevel, _hudCoins, _hudTitle, _hudProgress, _tutorialText, _toastText;
         private Text _winCoins, _loseTitle, _loseReason, _shopCoins;
-        private Button _dailyButton, _winAdButton, _loseUndo, _losePlatform, _removeAdsButton;
-        private Button _resumeButton, _restartButton, _quitButton, _restoreButton;
+        private Button _dailyButton, _winAdButton, _loseUndo, _loseContinue, _loseAd, _loseHome, _removeAdsButton;
+        private Text _loseLeft, _losePrice;
+        // Coin pack buy buttons by product id: their labels follow the store's own prices (StoreCatalog.PricesChanged).
+        private readonly Dictionary<string, Button> _priceButtons = new Dictionary<string, Button>();
+        private GameObject _losePriceCoin;
+        // Pause card (separate from settings): level, progress, resume / restart / menu and quick sound toggles.
+        private GameObject _pause;
+        private Text _pauseLevel, _pauseProgress;
+        private Button _pauseMusic, _pauseSound;
+        private float _musicBeforeMute = 0.6f, _soundBeforeMute = 0.9f;
+        private Slider _musicSlider, _soundSlider;
+        private Button _resumeButton, _restartButton, _quitButton, _restoreButton, _privacyButton, _creditsButton;
+        private GameObject _linksRow, _credits;
         private readonly Button[] _boosterButtons = new Button[4];
         private readonly Text[] _boosterBadges = new Text[4];
         private readonly Button[] _shopBoosterButtons = new Button[4];
@@ -50,13 +61,22 @@ namespace MetroSort.Game
         private object _progressBoard;
         private Text _menuLives, _menuLivesTimer, _noLivesTimer, _noLivesCount;
         private GameObject _noLives;
-        private Button _refillButton;
+        private Button _refillButton, _livesAdButton, _livesPlayButton, _livesUnlimitedButton;
+        private Image[] _lifePips;
+        private Image _menuInfinity, _noLivesInfinity;
+        private int _livesShown = -1;
+        private Coroutine _livesFill;
         private readonly Image[] _winStars = new Image[3];
         private readonly FlipBook[] _winStarSpins = new FlipBook[3];
         // Star chest row on the win card (see ProgressionManager.CompleteLevel).
-        private RectTransform _chestFill, _chestIcon, _chestTrack;
-        private Text _chestText;
-        private const float ChestFillMin = 44f, ChestFillMax = 592f;
+        private RectTransform _chestIcon;
+        private Image[] _chestStars;
+        private Text _chestNote, _chestPrize;
+        private ChestIdle _chestIdle;
+        private Image _winChip;
+        private Button _winHome, _playButton;
+        private static readonly Color HardRed = new Color(0.90f, 0.22f, 0.24f);
+        private static readonly Color SuperPurple = new Color(0.58f, 0.32f, 0.88f);
         private FlipBook _winCoinSpin;
         private readonly List<Text> _labels = new List<Text>();
         private CanvasGroup _toastGroup;
@@ -91,6 +111,8 @@ namespace MetroSort.Game
             BuildMenu();
             BuildPointer(canvas.transform);
             BuildSettings();
+            BuildCredits();
+            BuildPause();
             BuildShop();
             BuildLevels();
             BuildWin();
@@ -100,8 +122,10 @@ namespace MetroSort.Game
 
             GameServices s = app.Services;
             app.States.Changed += OnStateChanged;
+            StoreCatalog.PricesChanged += Refresh;
             s.Economy.Changed += Refresh;
             s.Boosters.Changed += Refresh;
+            s.Lives.Changed += RefreshLives;
             s.Store.Changed += Refresh;
             s.Achievements.Unlocked += OnAchievement;
             app.Game.BoardChanged += Refresh;
@@ -122,6 +146,7 @@ namespace MetroSort.Game
         {
             GameServices s = _app.Services;
             _app.States.Changed -= OnStateChanged;
+            StoreCatalog.PricesChanged -= Refresh;
             s.Economy.Changed -= Refresh;
             s.Boosters.Changed -= Refresh;
             s.Store.Changed -= Refresh;
@@ -237,6 +262,7 @@ namespace MetroSort.Game
 
             Button play = Btn(menu, "PLAY", Palette.UiGreen, OnPlay, 640f, 190f, 92);
             UiKit.Place((RectTransform)play.transform, 0.5f, 0f, 0f, 330f, 640f, 190f);
+            _playButton = play;
 
             Button levels = Btn(menu, "Levels", Palette.UiPrimary, OpenLevels, 300f, 130f);
             UiKit.Place((RectTransform)levels.transform, 0.5f, 0f, -330f, 150f, 300f, 130f);
@@ -258,10 +284,63 @@ namespace MetroSort.Game
             }
         }
 
+        /// <summary>
+        /// Behind the HUD, over the station: a soft vignette that darkens the corners and draws the eye to the
+        /// middle, and a few faint sunbeams slanting in from the top left that sway very slowly.
+        /// </summary>
+        private void BuildAtmosphere(RectTransform hud)
+        {
+            const int N = 128;
+            var tex = new Texture2D(N, N, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, name = "Vignette" };
+            var px = new Color32[N * N];
+            for (int y = 0; y < N; y++)
+                for (int x = 0; x < N; x++)
+                {
+                    float dx = (x + 0.5f) / N * 2f - 1f, dy = (y + 0.5f) / N * 2f - 1f;
+                    float r = Mathf.Sqrt(dx * dx * 0.8f + dy * dy * 0.55f);
+                    float a = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.45f, 1.2f, r));
+                    px[y * N + x] = new Color32(10, 14, 40, (byte)(255f * 0.62f * a));
+                }
+            tex.SetPixels32(px);
+            tex.Apply();
+            var vignette = UiKit.MakeRect("Vignette", hud).gameObject.AddComponent<RawImage>();
+            vignette.texture = tex;
+            vignette.raycastTarget = false;
+            UiKit.Stretch(vignette.rectTransform, -60f, -60f, -60f, -60f);
+
+            // Sunbeams: long soft bars, brighter in the middle of their width, fading along their length.
+            var beam = new Texture2D(16, 64, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, name = "Beam" };
+            var bp = new Color32[16 * 64];
+            for (int y = 0; y < 64; y++)
+                for (int x = 0; x < 16; x++)
+                {
+                    float across = 1f - Mathf.Abs((x + 0.5f) / 16f * 2f - 1f);
+                    float along = Mathf.Clamp01((y + 0.5f) / 64f);
+                    bp[y * 16 + x] = new Color32(255, 246, 220, (byte)(255f * across * across * along * along));
+                }
+            beam.SetPixels32(bp);
+            beam.Apply();
+            float[] xs = { -380f, -170f, 60f };
+            float[] widths = { 150f, 90f, 120f };
+            for (int i = 0; i < xs.Length; i++)
+            {
+                var ray = UiKit.MakeRect("Sunbeam", hud).gameObject.AddComponent<RawImage>();
+                ray.texture = beam;
+                ray.raycastTarget = false;
+                ray.color = new Color(1f, 1f, 1f, 0.17f);
+                RectTransform rt = UiKit.Place(ray.rectTransform, 0.5f, 1f, xs[i], 40f, widths[i], 1500f);
+                rt.pivot = new Vector2(0.5f, 1f);
+                rt.localRotation = Quaternion.Euler(0f, 0f, 28f);
+                var sway = ray.gameObject.AddComponent<Sway2D>();
+                sway.Phase = i * 1.7f;
+            }
+        }
+
         private void BuildHud()
         {
             RectTransform hud = UiKit.Stretch(UiKit.MakeRect("Hud", _root));
             _hud = hud.gameObject;
+            BuildAtmosphere(hud);
 
             // Top bar: the same gold-rimmed navy board as the timetable below it.
             RectTransform bar = UiKit.Place(UiKit.MakeRect("TopBar", hud), 0.5f, 1f, 0f, -26f, 1024f, 158f);
@@ -599,8 +678,8 @@ namespace MetroSort.Game
             _settings = UiPremium.Modal(_root, "Settings", "Settings", 940f, 1300f, () => { _app.Audio.Play(Sfx.Click); CloseSettings(); }, out body);
             SaveData data = _app.Services.Save.Data;
             float y = -10f;
-            SliderRow(body, "Music", data.MusicVolume, v => { data.MusicVolume = v; _app.Audio.MusicVolume = v; }, ref y);
-            SliderRow(body, "Sound", data.SfxVolume, v => { data.SfxVolume = v; _app.Audio.SfxVolume = v; }, ref y);
+            _musicSlider = SliderRow(body, "Music", data.MusicVolume, v => { data.MusicVolume = v; _app.Audio.MusicVolume = v; }, ref y);
+            _soundSlider = SliderRow(body, "Sound", data.SfxVolume, v => { data.SfxVolume = v; _app.Audio.SfxVolume = v; }, ref y);
             _assistSwitch = SwitchRow(body, "Assisted taps", () => { data.AssistedMode = !data.AssistedMode; ApplySettings(); }, ref y);
             _motionSwitch = SwitchRow(body, "Reduced motion", () => { data.ReducedMotion = !data.ReducedMotion; ApplySettings(); }, ref y);
             _fastSwitch = SwitchRow(body, "Fast trains", () => { data.FastTrains = !data.FastTrains; ApplySettings(); }, ref y);
@@ -631,6 +710,89 @@ namespace MetroSort.Game
             UiKit.Place((RectTransform)_quitButton.transform, 1f, 0f, 0f, 0f, 420f, 110f);
             _restoreButton = Btn(body, "Restore Purchases", UiPremium.Blue, () => _app.Services.Store.Restore(ok => Toast(ok ? "Purchases restored" : "Nothing to restore")), 620f, 110f, 40);
             UiKit.Place((RectTransform)_restoreButton.transform, 0.5f, 1f, 0f, y - 40f, 620f, 110f);
+
+            // Under it: the privacy policy (or, where the law asks for it, the ad consent choices) and the credits.
+            RectTransform links = UiKit.Place(UiKit.MakeRect("Links", body), 0.5f, 1f, 0f, y - 176f, 860f, 100f);
+            _linksRow = links.gameObject;
+            _privacyButton = Btn(links, "Privacy", UiPremium.DeepBlue, OpenPrivacy, 415f, 100f, 38);
+            UiKit.Place((RectTransform)_privacyButton.transform, 0f, 0.5f, 0f, 0f, 415f, 100f);
+            _creditsButton = Btn(links, "Credits", UiPremium.DeepBlue, () => _credits.SetActive(true), 415f, 100f, 38);
+            UiKit.Place((RectTransform)_creditsButton.transform, 1f, 0.5f, 0f, 0f, 415f, 100f);
+        }
+
+        /// <summary>The studio's privacy page for the current language; empty when none is configured.</summary>
+        private string PrivacyPage
+        {
+            get
+            {
+                MonetizationConfig money = _app.Services.Monetization;
+                return money != null ? money.PrivacyPolicyFor(Loc.Language) : "";
+            }
+        }
+
+        /// <summary>
+        /// Where the ad consent law applies (EEA, UK), the consent choices can be changed here, as Google requires;
+        /// their form links the privacy policy. Everywhere else the button opens the policy page itself.
+        /// </summary>
+        private void OpenPrivacy()
+        {
+            var ads = _app.Services.Ads;
+            if (ads.PrivacyOptionsRequired)
+            {
+                ads.ShowPrivacyOptions(error => { if (error != null) Toast("Privacy options are not available right now"); });
+                return;
+            }
+            string page = PrivacyPage;
+            if (!string.IsNullOrEmpty(page)) Application.OpenURL(page);
+        }
+
+        // ------------------------------------------------------------------ credits
+
+        private void BuildCredits()
+        {
+            RectTransform body;
+            // As wide as the settings panel it opens over, so that panel's close button does not peek out beside this one.
+            _credits = UiPremium.Modal(_root, "Credits", "Credits", 940f, 1300f, () => { _app.Audio.Play(Sfx.Click); _credits.SetActive(false); }, out body);
+            Image sheet = UiPremium.MakeTile(body, "Sheet", 0.5f, 0.5f, 0f, 0f, 820f, 1120f);
+            UiKit.Stretch(sheet.rectTransform, 4f, 6f, 4f, 4f);
+            Text text = UiKit.MakeText(sheet.transform, "", 30, UiPremium.Ink, TextAnchor.MiddleCenter, FontStyle.Normal);
+            UiKit.Stretch(text.rectTransform, 28f, 24f, 28f, 24f);
+            text.lineSpacing = 0.9f;
+            text.supportRichText = true;
+            text.text = CreditsText();
+        }
+
+        /// <summary>
+        /// Who made what. The train sounds are CC BY 4.0, which requires naming the recordist, the licence and that
+        /// they were edited (sources: MetroSort-Media/Ses/commons/KAYNAKLAR.md). Kenney's sounds are CC0 and need no
+        /// credit, but get one. The font and SDK licences travel in Resources/Fonts and Resources/Legal.
+        /// </summary>
+        private static string CreditsText()
+        {
+            const string heading = "<size=36><color=#B23A2B>{0}</color></size>";
+            var lines = new[]
+            {
+                "<size=50><color=#1D3F86>Metro Sort</color></size>",
+                Loc.T("A StagFunny game"),
+                "",
+                string.Format(heading, Loc.T("Train sounds")),
+                Loc.T("London Underground recordings by Philt3r"),
+                Loc.T("Wikimedia Commons, CC BY 4.0, edited"),
+                "creativecommons.org/licenses/by/4.0",
+                "",
+                string.Format(heading, Loc.T("Sound effects")),
+                "Kenney (kenney.nl), CC0",
+                "",
+                string.Format(heading, Loc.T("Font")),
+                "Baloo 2, The Baloo 2 Project Authors",
+                "SIL Open Font License 1.1",
+                "",
+                string.Format(heading, Loc.T("Software")),
+                "Google Mobile Ads Unity plugin, Apache 2.0",
+                "RevenueCat Purchases SDK, MIT",
+                Loc.T("Made with Unity"),
+            };
+            return string.Join("\n", lines);
         }
 
         // Settings rows: label on the left, behind its icon when the artwork is there.
@@ -649,7 +811,7 @@ namespace MetroSort.Game
             return 128f;
         }
 
-        private void SliderRow(RectTransform body, string label, float value, Action<float> onChanged, ref float y)
+        private Slider SliderRow(RectTransform body, string label, float value, Action<float> onChanged, ref float y)
         {
             Image tile = UiPremium.MakeTile(body, label + "Row", 0.5f, 1f, 0f, y, 872f, 118f);
             float left = RowIconFor(tile.transform, label);
@@ -659,6 +821,7 @@ namespace MetroSort.Game
             Slider slider = UiKit.MakeSlider(tile.transform, value, v => onChanged(v), width);
             UiKit.Place((RectTransform)slider.transform, 1f, 0.5f, -36f, 4f, width, 70f);
             y -= 136f;
+            return slider;
         }
 
         private ToggleSwitch SwitchRow(RectTransform body, string label, Action onClick, ref float y)
@@ -689,7 +852,7 @@ namespace MetroSort.Game
             Transform plus = _shopCoins.transform.parent.Find("RoundButton");
             if (plus != null) plus.gameObject.SetActive(false);
 
-            // Coin packs: big cards with the artwork on turning rays, the amount and a green price button.
+            // The biggest coin pack is the featured offer across the top; the others share a row with the free coins.
             var packs = new List<StoreProduct>();
             StoreProduct removeAds = null;
             foreach (StoreProduct product in StoreCatalog.Products)
@@ -697,51 +860,26 @@ namespace MetroSort.Game
                 if (product.Consumable) packs.Add(product);
                 else removeAds = product;
             }
-            int biggest = 0;
-            foreach (StoreProduct p in packs) biggest = Mathf.Max(biggest, p.Coins);
-            float cardW = (932f - (packs.Count - 1) * 22f) / Mathf.Max(1, packs.Count);
-            for (int i = 0; i < packs.Count; i++)
-            {
-                StoreProduct p = packs[i];
-                float x = -466f + cardW * 0.5f + i * (cardW + 22f);
-                Image card = UiPremium.MakeTile(body, "Pack", 0.5f, 1f, x, -116f, cardW, 520f);
-                bool best = p.Coins >= biggest;
-                UiPremium.Rays(card.transform, 440f, 0f, 70f, best ? 0.85f : 0.6f);
-                Image art = UiKit.MakeImage(card.transform, "Art", UiKit.Icon(best ? "chest" : "coins"), Color.white);
-                art.preserveAspect = true;
-                UiKit.Place(art.rectTransform, 0.5f, 0.5f, 0f, 70f, 250f, 250f);
-                art.gameObject.AddComponent<Bob>().Height = 6f;
-                Text title = UiKit.MakeText(card.transform, p.Title, 36, UiPremium.Ink);
-                UiKit.Place(title.rectTransform, 0.5f, 1f, 0f, -30f, cardW - 40f, 50f);
-                Text amount = UiPremium.Heading(card.transform, "+" + p.Coins, 74, UiPremium.Gold, new Color(0.48f, 0.24f, 0.02f, 1f));
-                UiKit.Place(amount.rectTransform, 0.5f, 0f, 0f, 150f, cardW, 90f);
-                Button buy = UiPremium.PriceButton(card.transform, p.PriceLabel, UiPremium.Green, () => BuyProduct(p), cardW - 70f, 108f, false);
-                UiKit.Place((RectTransform)buy.transform, 0.5f, 0f, 0f, 26f, cardW - 70f, 108f);
-                if (best) UiPremium.Flag(card.transform, "BEST VALUE", UiPremium.Red, 0.5f, 1f, 0f, 22f, 300f);
-            }
+            packs.Sort((a, b) => b.Coins.CompareTo(a.Coins));
+            if (packs.Count > 0) ShopFeatured(body, packs[0], packs);
+            int cards = Mathf.Max(1, packs.Count);
+            float cardW = (932f - (cards - 1) * 22f) / cards;
+            for (int i = 1; i < packs.Count; i++) ShopPack(body, packs[i], -466f + cardW * 0.5f + (i - 1) * (cardW + 22f), cardW);
+            ShopFreeCoins(body, -466f + cardW * 0.5f + (cards - 1) * (cardW + 22f), cardW);
 
-            // Free coins for watching an ad.
-            Image free = UiPremium.MakeTile(body, "FreeCoins", 0.5f, 1f, 0f, -664f, 932f, 150f);
-            Image gift = UiKit.AddIcon(free.transform, UiKit.Art("video_coins") != null ? "video_coins" : "gift", 136f, 0f, 0.5f, 90f, 6f);
-            gift.gameObject.AddComponent<Bob>().Height = 4f;
-            Text freeTitle = UiKit.MakeText(free.transform, Loc.F("Free +{0} coins", s.Config.RewardedAdCoins), 44, UiPremium.Ink, TextAnchor.MiddleLeft);
-            UiKit.Stretch(freeTitle.rectTransform, 176f, 62f, 290f, 14f);
-            Text freeSub = UiKit.MakeText(free.transform, "Watch a short video", 30, new Color(0.55f, 0.38f, 0.22f), TextAnchor.MiddleLeft);
-            UiKit.Stretch(freeSub.rectTransform, 176f, 18f, 290f, 82f);
-            Button watch = Btn(free.transform, "Watch", UiPremium.Orange, WatchAdForCoins, 240f, 100f, 44);
-            UiKit.Place((RectTransform)watch.transform, 1f, 0.5f, -26f, 4f, 240f, 100f);
-
-            // Boosters: four small cards with the owned count and a coin price.
+            // Boosters: each on a disc of its own colour, with the owned count and a coin price.
             Text boosterHead = UiPremium.Heading(body, "Boosters", 44, Color.white, UiPremium.DeepBlue);
-            UiKit.Place(boosterHead.rectTransform, 0.5f, 1f, 0f, -834f, 600f, 60f);
+            UiKit.Place(boosterHead.rectTransform, 0.5f, 1f, 0f, -812f, 600f, 60f);
             for (int i = 0; i < 4; i++)
             {
                 var type = (BoosterType)i;
                 float x = -351f + i * 234f;
-                Image card = UiPremium.MakeTile(body, "Booster" + i, 0.5f, 1f, x, -902f, 216f, 316f);
-                UiKit.AddIcon(card.transform, BoosterIcons[i], 124f, 0.5f, 1f, 0f, -78f);
+                Image card = UiPremium.MakeTile(body, "Booster" + i, 0.5f, 1f, x, -884f, 216f, 316f);
+                Image disc = UiKit.MakeImage(card.transform, "Disc", UiPremium.Round, BoosterColors[i]);
+                UiKit.Place(disc.rectTransform, 0.5f, 1f, 0f, -18f, 140f, 140f);
+                UiKit.AddIcon(disc.transform, BoosterIcons[i], 100f, 0.5f, 0.5f, 0f, 4f);
                 Text name = UiKit.MakeText(card.transform, BoosterNames[i], 30, UiPremium.Ink);
-                UiKit.Place(name.rectTransform, 0.5f, 1f, 0f, -150f, 200f, 44f);
+                UiKit.Place(name.rectTransform, 0.5f, 1f, 0f, -164f, 200f, 44f);
                 name.resizeTextForBestFit = true;
                 name.resizeTextMinSize = 18;
                 name.resizeTextMaxSize = 30;
@@ -762,7 +900,7 @@ namespace MetroSort.Game
             if (removeAds != null)
             {
                 StoreProduct p = removeAds;
-                Image tile = UiPremium.MakeTile(body, "RemoveAds", 0.5f, 1f, 0f, -1244f, 932f, 150f);
+                Image tile = UiPremium.MakeTile(body, "RemoveAds", 0.5f, 1f, 0f, -1216f, 932f, 150f);
                 if (UiKit.Art("no_ads") != null) UiKit.AddIcon(tile.transform, "no_ads", 136f, 0f, 0.5f, 86f, 4f);
                 else
                 {
@@ -780,6 +918,91 @@ namespace MetroSort.Game
                 UiKit.Place((RectTransform)_removeAdsButton.transform, 1f, 0.5f, -26f, 4f, 240f, 100f);
             }
             Mascot((RectTransform)body.parent, "thumbs", 220f, -390f, -14f);
+        }
+
+        /// <summary>The featured coin pack: a wide gold-rimmed navy card, the art on turning rays, the value flags.</summary>
+        private void ShopFeatured(RectTransform body, StoreProduct p, List<StoreProduct> packs)
+        {
+            RectTransform card = UiKit.Place(UiKit.MakeRect("Featured", body), 0.5f, 1f, 0f, -114f, 932f, 330f);
+            Image rim = UiKit.MakeImage(card, "Rim", UiKit.Rounded, new Color(1f, 0.76f, 0.22f));
+            UiKit.Stretch(rim.rectTransform);
+            rim.pixelsPerUnitMultiplier = 0.5f;
+            var drop = rim.gameObject.AddComponent<Shadow>();
+            drop.effectColor = new Color(0.02f, 0.06f, 0.20f, 0.4f);
+            drop.effectDistance = new Vector2(0f, -8f);
+            Image board = UiKit.MakeImage(card, "Board", UiKit.Rounded, new Color(0.13f, 0.22f, 0.50f));
+            UiKit.Stretch(board.rectTransform, 9f, 9f, 9f, 9f);
+            board.pixelsPerUnitMultiplier = 0.55f;
+            Image sheen = UiKit.MakeImage(card, "Sheen", UiKit.Rounded, new Color(0.45f, 0.62f, 1f, 0.30f));
+            UiKit.Place(sheen.rectTransform, 0.5f, 1f, 0f, -9f, 914f, 150f);
+            sheen.pixelsPerUnitMultiplier = 0.55f;
+            UiPremium.Rays(card, 560f, -262f, 0f, 0.85f);
+            Sprite bag = UiKit.Art("coin_bag");
+            Image art = UiKit.MakeImage(card, "Art", bag != null ? bag : UiKit.Icon("chest"), Color.white);
+            art.preserveAspect = true;
+            UiKit.Place(art.rectTransform, 0.5f, 0.5f, -262f, 4f, 290f, 290f);
+            art.gameObject.AddComponent<Bob>().Height = 7f;
+            Text title = UiPremium.Heading(card, p.Title, 42, Color.white, UiPremium.DeepBlue);
+            UiKit.Place(title.rectTransform, 0.5f, 1f, 150f, -34f, 560f, 56f);
+            UiKit.AddIcon(card, "coin", 92f, 0.5f, 0.5f, 6f, 20f);
+            Text amount = UiPremium.Heading(card, "+" + p.Coins, 96, UiPremium.Gold, new Color(0.48f, 0.24f, 0.02f, 1f));
+            UiKit.Place(amount.rectTransform, 0.5f, 0.5f, 222f, 20f, 330f, 110f);
+            amount.alignment = TextAnchor.MiddleLeft;
+            Button buy = UiPremium.PriceButton(card, p.PriceLabel, UiPremium.Green, () => BuyProduct(p), 330f, 110f, false);
+            UiKit.Place((RectTransform)buy.transform, 0.5f, 0f, 150f, 30f, 330f, 110f);
+            _priceButtons[p.Id] = buy;
+            ShineSweep.Add(buy, 0.4f);
+            UiPremium.Flag(card, "BEST VALUE", UiPremium.Red, 0f, 1f, 26f, 26f, 300f);
+            int bonus = ValueBonus(p, packs);
+            if (bonus >= 5) UiPremium.Flag(card, Loc.F("+{0}% more", bonus), UiPremium.Green, 1f, 1f, -26f, 26f, 340f);
+        }
+
+        /// <summary>How many percent more coins per money the pack gives than the smallest one (0 if unknown).</summary>
+        private static int ValueBonus(StoreProduct p, List<StoreProduct> packs)
+        {
+            StoreProduct smallest = packs[packs.Count - 1];
+            float price, basePrice;
+            if (smallest == p || !TryPrice(p.PriceLabel, out price) || !TryPrice(smallest.PriceLabel, out basePrice)) return 0;
+            if (price <= 0f || basePrice <= 0f || smallest.Coins <= 0) return 0;
+            float ratio = (p.Coins / price) / (smallest.Coins / basePrice);
+            return Mathf.RoundToInt((ratio - 1f) * 20f) * 5;
+        }
+
+        private static bool TryPrice(string label, out float price)
+        {
+            var digits = new System.Text.StringBuilder();
+            foreach (char c in label ?? "") if (char.IsDigit(c) || c == '.' || c == ',') digits.Append(c == ',' ? '.' : c);
+            return float.TryParse(digits.ToString(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out price);
+        }
+
+        private void ShopPack(RectTransform body, StoreProduct p, float x, float w)
+        {
+            // The name rides on a flag over the top edge, so art, amount and button each get their own band.
+            Image card = UiPremium.MakeTile(body, "Pack", 0.5f, 1f, x, -466f, w, 330f);
+            UiPremium.Rays(card.transform, 300f, 0f, 68f, 0.6f);
+            Image art = UiKit.MakeImage(card.transform, "Art", UiKit.Icon("coins"), Color.white);
+            art.preserveAspect = true;
+            UiKit.Place(art.rectTransform, 0.5f, 0.5f, 0f, 68f, 140f, 130f);
+            art.gameObject.AddComponent<Bob>().Height = 4f;
+            UiPremium.Flag(card.transform, p.Title, UiPremium.Blue, 0.5f, 1f, 0f, 26f, w - 70f);
+            Text amount = UiPremium.Heading(card.transform, "+" + p.Coins, 58, UiPremium.Gold, new Color(0.48f, 0.24f, 0.02f, 1f));
+            UiKit.Place(amount.rectTransform, 0.5f, 0f, 0f, 108f, w, 62f);
+            Button buy = UiPremium.PriceButton(card.transform, p.PriceLabel, UiPremium.Green, () => BuyProduct(p), w - 60f, 92f, false);
+            UiKit.Place((RectTransform)buy.transform, 0.5f, 0f, 0f, 16f, w - 60f, 92f);
+            _priceButtons[p.Id] = buy;
+        }
+
+        private void ShopFreeCoins(RectTransform body, float x, float w)
+        {
+            Image card = UiPremium.MakeTile(body, "FreeCoins", 0.5f, 1f, x, -466f, w, 330f);
+            UiPremium.Rays(card.transform, 300f, 0f, 68f, 0.6f);
+            Image art = UiKit.AddIcon(card.transform, UiKit.Art("video_coins") != null ? "video_coins" : "gift", 140f, 0.5f, 0.5f, 0f, 68f);
+            art.gameObject.AddComponent<Bob>().Height = 4f;
+            UiPremium.Flag(card.transform, "FREE", UiPremium.Green, 0.5f, 1f, 0f, 26f, w - 70f);
+            Text amount = UiPremium.Heading(card.transform, "+" + _app.Services.Config.RewardedAdCoins, 58, UiPremium.Gold, new Color(0.48f, 0.24f, 0.02f, 1f));
+            UiKit.Place(amount.rectTransform, 0.5f, 0f, 0f, 108f, w, 62f);
+            Button watch = Btn(card.transform, "Watch", UiPremium.Orange, WatchAdForCoins, w - 60f, 92f, 44);
+            UiKit.Place((RectTransform)watch.transform, 0.5f, 0f, 0f, 16f, w - 60f, 92f);
         }
 
         private void BuyProduct(StoreProduct p)
@@ -893,39 +1116,92 @@ namespace MetroSort.Game
                 _winStarSpins[i] = UiKit.MakeFlipBook(_winStars[i].transform, "star_spin", starSize * 1.15f);
                 if (_winStarSpins[i] != null) _winStarSpins[i].Interval = 3.5f + i * 0.6f;
             }
-            _winCoins = UiPremium.Heading(content, "", 56, UiPremium.Gold, new Color(0.40f, 0.18f, 0.0f, 1f));
-            _winCoins.rectTransform.sizeDelta = new Vector2(780f, 80f);
-            _winCoinSpin = UiKit.MakeFlipBook(_winCoins.transform, "coin_spin", 84f);
+            // The reward: a navy chip with the turning coin and the amount in gold.
+            RectTransform reward = UiKit.MakeRect("Reward", content);
+            reward.sizeDelta = new Vector2(780f, 96f);
+            _winChip = UiKit.MakeImage(reward, "Chip", UiPremium.Pill, new Color(0.10f, 0.18f, 0.42f, 0.95f));
+            UiKit.Place(_winChip.rectTransform, 0.5f, 0.5f, 0f, 0f, 340f, 90f);
+            _winCoins = UiPremium.Heading(reward, "", 60, UiPremium.Gold, new Color(0.40f, 0.18f, 0.0f, 1f));
+            UiKit.Place(_winCoins.rectTransform, 0.5f, 0.5f, 34f, 2f, 600f, 90f);
+            _winCoins.horizontalOverflow = HorizontalWrapMode.Overflow;
+            _winCoinSpin = UiKit.MakeFlipBook(reward, "coin_spin", 96f);
             if (_winCoinSpin != null) _winCoinSpin.Loop = true;
 
-            // Star chest: the new stars of a level fly into this bar; when it is full the chest opens.
+            // Star chest: every new star of a level flies into a slot; a full row opens the chest.
             RectTransform chestRow = UiKit.MakeRect("StarChest", content);
-            chestRow.sizeDelta = new Vector2(780f, 116f);
-            Text chestLabel = UiPremium.Heading(chestRow, Loc.T("Star Chest"), 30, new Color(1f, 0.90f, 0.50f), new Color(0.03f, 0.06f, 0.20f, 0.95f));
-            UiKit.Place(chestLabel.rectTransform, 0f, 1f, 30f, 0f, 520f, 42f);
-            chestLabel.alignment = TextAnchor.MiddleLeft;
-            _chestTrack = UiKit.Place(UiKit.MakeRect("Track", chestRow), 0f, 0f, 20f, 8f, 600f, 54f);
-            Image chestBack = UiKit.MakeImage(_chestTrack, "Back", UiPremium.Pill, new Color(0.03f, 0.06f, 0.16f, 0.95f));
-            UiKit.Stretch(chestBack.rectTransform);
-            Image chestFill = UiKit.MakeImage(_chestTrack, "Fill", UiPremium.Pill, new Color(1f, 0.76f, 0.18f));
-            _chestFill = UiKit.Place(chestFill.rectTransform, 0f, 0.5f, 4f, 0f, ChestFillMin, 46f);
-            Image chestStar = UiKit.AddIcon(_chestTrack, "star", 70f, 0f, 0.5f, -8f, 2f);
-            chestStar.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-            _chestText = UiPremium.Heading(_chestTrack, "", 32, Color.white, new Color(0.03f, 0.06f, 0.20f, 0.95f));
-            UiKit.Stretch(_chestText.rectTransform, 30f, 2f, 10f, 2f);
+            chestRow.sizeDelta = new Vector2(780f, 212f);
+            Image well = UiKit.MakeImage(chestRow, "Well", UiPremium.Well, Color.white);
+            UiKit.Stretch(well.rectTransform);
+            // Soft turning rays behind the chest, as behind the offers in the shop.
+            RectTransform raysHolder = UiKit.Place(UiKit.MakeRect("Glow", chestRow), 0f, 0.5f, 118f, 6f, 10f, 10f);
+            raysHolder.pivot = new Vector2(0.5f, 0.5f);
+            UiPremium.Rays(raysHolder, 250f, 0f, 0f, 0.7f);
             Sprite chestArt = UiKit.Art("chest");
             Image chestIcon = UiKit.MakeImage(chestRow, "Chest", chestArt != null ? chestArt : UiKit.Icon("gift"), Color.white);
             chestIcon.preserveAspect = true;
-            _chestIcon = UiKit.Place(chestIcon.rectTransform, 1f, 0f, -70f, 34f, 150f, 150f);
+            _chestIcon = UiKit.Place(chestIcon.rectTransform, 0f, 0.5f, 118f, 10f, 196f, 196f);
             _chestIcon.pivot = new Vector2(0.5f, 0.5f);
-            Row(content, "Continue", Palette.UiGreen, OnContinue, 150f, 60);
-            _winAdButton = Row(content, Loc.F("Watch: +{0} coins", _app.Services.Config.RewardedAdCoins), UiPremium.Orange, () =>
+            _chestIdle = chestIcon.gameObject.AddComponent<ChestIdle>();
+            Text chestTitle = UiPremium.Heading(chestRow, "Star Chest", 38, new Color(1f, 0.90f, 0.50f), new Color(0.03f, 0.06f, 0.20f, 0.95f));
+            UiKit.Place(chestTitle.rectTransform, 0f, 1f, 236f, -12f, 330f, 52f);
+            chestTitle.alignment = TextAnchor.MiddleLeft;
+            _chestPrize = UiPremium.Heading(chestRow, "", 38, UiPremium.Gold, new Color(0.40f, 0.18f, 0.0f, 1f));
+            UiKit.Place(_chestPrize.rectTransform, 1f, 1f, -26f, -12f, 120f, 52f);
+            _chestPrize.alignment = TextAnchor.MiddleRight;
+            UiKit.AddIcon(chestRow, "coin", 56f, 1f, 1f, -138f, -37f);
+            _chestNote = UiKit.MakeText(chestRow, "", 28, new Color(0.90f, 0.95f, 1f), TextAnchor.MiddleLeft, FontStyle.Normal);
+            UiKit.Place(_chestNote.rectTransform, 0f, 1f, 236f, -64f, 520f, 40f);
+            UiKit.Emboss(_chestNote, new Color(0.03f, 0.08f, 0.24f, 0.7f));
+            int slots = Mathf.Clamp(_app.Services.Config.StarChestStars, 1, 12);
+            _chestStars = new Image[slots];
+            float slotW = 520f / slots;
+            for (int i = 0; i < slots; i++)
+            {
+                Image hole = UiKit.MakeImage(chestRow, "Slot" + i, UiKit.Circle, new Color(0.03f, 0.07f, 0.22f, 0.55f));
+                hole.type = Image.Type.Simple;
+                UiKit.Place(hole.rectTransform, 0f, 0f, 236f + slotW * (i + 0.5f), 54f, slotW - 6f, slotW - 6f).pivot = new Vector2(0.5f, 0.5f);
+                Image star = UiKit.AddIcon(hole.transform, "star_off", slotW + 4f, 0.5f, 0.5f, 0f, 2f);
+                star.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                _chestStars[i] = star;
+            }
+
+            // Continue is the big call to action; home and the coin video share the row under it.
+            Button next = Row(content, "Continue", Palette.UiGreen, OnContinue, 150f, 62);
+            ShineSweep.Add(next, 1.0f);
+            RectTransform actions = UiKit.MakeRect("Actions", content);
+            actions.sizeDelta = new Vector2(780f, 124f);
+            _winHome = UiPremium.MakeRoundButton(actions, UiPremium.Round, UiPremium.Blue, () => { _app.Audio.Play(Sfx.Click); _app.GoToMenu(); }, 122f);
+            _winHome.name = "Button_Home";
+            UiKit.AddIcon(_winHome.transform, "home", 70f, 0.5f, 0.5f, 0f, 4f);
+            _winAdButton = Btn(actions, Loc.F("Watch: +{0} coins", _app.Services.Config.RewardedAdCoins), UiPremium.Orange, () =>
             {
                 _winAdButton.gameObject.SetActive(false);
+                LayoutWinActions();
                 WatchAdForCoins();
-            }, 110f, 44);
+            }, 630f, 118f, 44);
             RowIcon(_winAdButton, UiKit.Art("video_coins") != null ? "video_coins" : "gift");
-            Row(content, "Menu", new Color(0.10f, 0.17f, 0.38f), () => _app.GoToMenu(), 100f, 40);
+            LayoutWinActions();
+        }
+
+        /// <summary>Recolours a button made by UiKit.MakeButton, its label's outline included.</summary>
+        private static void TintButton(Button b, Color c)
+        {
+            var img = b.targetGraphic as Image;
+            if (img == null || img.color == c) return;
+            img.color = c;
+            Text label = UiKit.LabelOf(b);
+            if (label == null) return;
+            var ink = new Color(c.r * 0.45f, c.g * 0.45f, c.b * 0.45f, 0.9f);
+            foreach (Shadow fx in label.GetComponents<Shadow>())
+                fx.effectColor = fx is Outline ? ink : new Color(ink.r, ink.g, ink.b, 0.55f);
+        }
+
+        /// <summary>Home sits left of the coin video, or alone in the middle once the video is gone.</summary>
+        private void LayoutWinActions()
+        {
+            bool ad = _winAdButton.gameObject.activeSelf;
+            UiKit.Place((RectTransform)_winHome.transform, ad ? 0f : 0.5f, 0.5f, 0f, 0f, 122f, 122f);
+            UiKit.Place((RectTransform)_winAdButton.transform, 1f, 0.5f, 0f, 0f, 630f, 118f);
         }
 
         private void BuildLose()
@@ -935,21 +1211,70 @@ namespace MetroSort.Game
             Mascot(content, "sad", 300f, 0f, -24f);
             _loseTitle = UiPremium.Heading(content, "", 66, Color.white, new Color(0.03f, 0.06f, 0.20f, 0.95f));
             _loseTitle.rectTransform.sizeDelta = new Vector2(800f, 96f);
-            _loseReason = UiKit.MakeText(content, "", 40, new Color(0.90f, 0.95f, 1f), TextAnchor.MiddleCenter, FontStyle.Normal);
+
+            // How close it was: the passengers still waiting, on a gold-rimmed pill.
+            RectTransform left = UiKit.MakeRect("Left", content);
+            left.sizeDelta = new Vector2(780f, 112f);
+            Image rim = UiKit.MakeImage(left, "Rim", UiPremium.Pill, new Color(1f, 0.74f, 0.20f));
+            UiKit.Place(rim.rectTransform, 0.5f, 0.5f, 0f, 0f, 580f, 108f);
+            Image plate = UiKit.MakeImage(rim.transform, "Board", UiPremium.Pill, new Color(0.10f, 0.17f, 0.38f, 0.97f));
+            UiKit.Stretch(plate.rectTransform, 6f, 6f, 6f, 6f);
+            Image token = UiKit.MakeImage(rim.transform, "Token", UiPremium.Round, UiPremium.Red);
+            UiKit.Place(token.rectTransform, 0f, 0.5f, 14f, 0f, 84f, 84f);
+            Image person = UiKit.MakeImage(token.transform, "Person", UiPremium.Rider, Color.white);
+            UiKit.Stretch(person.rectTransform, 14f, 12f, 14f, 16f);
+            _loseLeft = UiPremium.Heading(rim.transform, "", 46, Color.white, new Color(0.03f, 0.06f, 0.20f, 0.95f));
+            UiKit.Stretch(_loseLeft.rectTransform, 108f, 8f, 26f, 6f);
+            _loseLeft.resizeTextForBestFit = true;
+            _loseLeft.resizeTextMinSize = 24;
+            _loseLeft.resizeTextMaxSize = 46;
+            _loseReason = UiKit.MakeText(content, "", 32, new Color(0.90f, 0.95f, 1f), TextAnchor.MiddleCenter, FontStyle.Normal);
             UiKit.Emboss(_loseReason, new Color(0.03f, 0.08f, 0.24f, 0.7f));
-            _loseReason.rectTransform.sizeDelta = new Vector2(780f, 130f);
-            _loseUndo = UiKit.MakeButton(content, "", BoosterColors[0], () => _app.Game.UseUndo(), 780f, 120f, 42);
-            _losePlatform = UiKit.MakeButton(content, "", BoosterColors[2], () => _app.Game.UseExtraPlatform(), 780f, 120f, 42);
-            Button retry = Row(content, "Try Again", Palette.UiGreen, () => SpendLife(RestartChecked), 140f, 56);
+            _loseReason.rectTransform.sizeDelta = new Vector2(780f, 96f);
+
+            // The offer: carry on from here with one more platform (owned, for coins, or for a video).
+            _loseContinue = Row(content, "Continue  +1 platform", Palette.UiGreen, () => _app.Game.UseExtraPlatform(), 150f, 54);
+            ShineSweep.Add(_loseContinue, 0.6f);
+            RectTransform price = UiKit.Place(UiKit.MakeRect("Price", _loseContinue.transform), 1f, 0.5f, -22f, 6f, 196f, 94f);
+            Image chip = UiKit.MakeImage(price, "Chip", UiPremium.Pill, new Color(0.02f, 0.26f, 0.08f, 0.55f));
+            UiKit.Stretch(chip.rectTransform);
+            _losePriceCoin = UiKit.AddIcon(price, "coin", 64f, 0f, 0.5f, 12f, 0f).gameObject;
+            _losePrice = UiPremium.Heading(price, "", 44, Color.white, new Color(0.02f, 0.20f, 0.06f, 0.95f));
+            UiKit.Stretch(_losePrice.rectTransform, 72f, 4f, 12f, 4f);
+            UiKit.Stretch(UiKit.LabelOf(_loseContinue).rectTransform, 24f, 16f, 230f, 6f);
+            _loseAd = Btn(content, "Watch: free continue", UiPremium.Orange, ContinueWithAd, 780f, 112f, 40);
+            RowIcon(_loseAd, UiKit.Art("video_coins") != null ? "video_coins" : "gift");
+            _loseUndo = Btn(content, "", BoosterColors[0], () => _app.Game.UseUndo(), 780f, 104f, 38);
+
+            // Home and Try Again share the last row; both cost a life.
+            RectTransform actions = UiKit.MakeRect("Actions", content);
+            actions.sizeDelta = new Vector2(780f, 124f);
+            _loseHome = UiPremium.MakeRoundButton(actions, UiPremium.Round, UiPremium.Blue, () => { _app.Audio.Play(Sfx.Click); SpendLife(_app.GoToMenu); }, 122f);
+            _loseHome.name = "Button_Home";
+            UiKit.Place((RectTransform)_loseHome.transform, 0f, 0.5f, 0f, 0f, 122f, 122f);
+            UiKit.AddIcon(_loseHome.transform, "home", 70f, 0.5f, 0.5f, 0f, 4f);
+            Image homeCost = UiKit.AddIcon(_loseHome.transform, "heart", 54f, 1f, 1f, 14f, 14f);
+            Text homeMinus = UiPremium.Heading(homeCost.transform, "-1", 24, Color.white, new Color(0.40f, 0.0f, 0.04f, 0.95f));
+            UiKit.Stretch(homeMinus.rectTransform, 0f, 5f, 0f, 0f);
+            Button retry = Btn(actions, "Try Again", Palette.UiPrimary, () => SpendLife(RestartChecked), 630f, 118f, 50);
+            UiKit.Place((RectTransform)retry.transform, 1f, 0.5f, 0f, 0f, 630f, 118f);
             LifeCostTag(retry.transform);
-            Button menuButton = Row(content, "Menu", new Color(0.10f, 0.17f, 0.38f), () => SpendLife(_app.GoToMenu), 100f, 40);
-            LifeCostTag(menuButton.transform);
+        }
+
+        /// <summary>A rewarded video pays for the extra platform, which is then used straight away.</summary>
+        private void ContinueWithAd()
+        {
+            _app.Services.AdsCoordinator.RequestRewarded(() => _app.Services.Boosters.Grant(BoosterType.ExtraPlatform, 1), ok =>
+            {
+                if (ok) _app.Game.UseExtraPlatform();
+                else Toast("No ad available right now");
+            });
         }
 
         private void BuildToast()
         {
             Image toast = UiKit.MakeImage(_root, "Toast", UiKit.Rounded, new Color(0.13f, 0.16f, 0.24f, 0.94f));
-            UiKit.Place(toast.rectTransform, 0.5f, 1f, 0f, -225f, 940f, 96f);
+            UiKit.Place(toast.rectTransform, 0.5f, 0f, 0f, 330f, 900f, 90f);
             _toastText = UiKit.MakeText(toast.transform, "", 36, Color.white);
             UiKit.Stretch(_toastText.rectTransform, 24f, 6f, 24f, 6f);
             _toastText.resizeTextForBestFit = true;
@@ -978,6 +1303,7 @@ namespace MetroSort.Game
                 _levels.SetActive(false);
             }
             _labelLayer.gameObject.SetActive(inLevel);
+            if (state != AppState.Paused && _pause != null && _pause.activeSelf) _pause.SetActive(false);
             if (state != AppState.Playing && state != AppState.Paused && _intro != null)
             {
                 Destroy(_intro);
@@ -1002,7 +1328,19 @@ namespace MetroSort.Game
 
             int current = _app.CurrentLevelId;
             LevelData next = s.Levels.Get(current);
-            _menuLevel.text = Loc.F("Level {0}  -  {1}", next.Id, Loc.LevelName(next.Name));
+            // Hard levels say so before you start: the label names it and the Play button turns red (purple for
+            // Super Hard), as players of the genre expect.
+            if (next.Tier > 0)
+            {
+                _menuLevel.text = Loc.F("Level {0}  -  {1}", next.Id, Loc.T(next.Tier >= 2 ? "Super Hard Level" : "Hard Level"));
+                _menuLevel.color = next.Tier >= 2 ? SuperPurple : HardRed;
+            }
+            else
+            {
+                _menuLevel.text = Loc.F("Level {0}  -  {1}", next.Id, Loc.LevelName(next.Name));
+                _menuLevel.color = Palette.UiInk;
+            }
+            if (_playButton != null) TintButton(_playButton, next.Tier >= 2 ? SuperPurple : (next.Tier == 1 ? HardRed : Palette.UiGreen));
             RefreshDaily();
             RefreshLives();
 
@@ -1016,6 +1354,11 @@ namespace MetroSort.Game
                 _shopBoosterCounts[i].text = count.ToString();
             }
             UiKit.LabelOf(_removeAdsButton).text = s.Store.AdsRemoved ? Loc.T("Done") : StoreCatalog.Find(StoreCatalog.RemoveAds).PriceLabel;
+            foreach (KeyValuePair<string, Button> pb in _priceButtons)
+            {
+                StoreProduct product = StoreCatalog.Find(pb.Key);
+                if (product != null) UiKit.LabelOf(pb.Value).text = product.PriceLabel;
+            }
             _removeAdsButton.interactable = !s.Store.AdsRemoved;
 
             GameController game = _app.Game;
@@ -1041,9 +1384,13 @@ namespace MetroSort.Game
 
             int undoCount = s.Boosters.Count(BoosterType.Undo), platformCount = s.Boosters.Count(BoosterType.ExtraPlatform);
             UiKit.LabelOf(_loseUndo).text = Loc.F("Undo last move  ({0})", undoCount > 0 ? "x" + undoCount : Loc.F("{0} coins", s.Boosters.Cost(BoosterType.Undo)));
-            UiKit.LabelOf(_losePlatform).text = Loc.F("Add a platform  ({0})", platformCount > 0 ? "x" + platformCount : Loc.F("{0} coins", s.Boosters.Cost(BoosterType.ExtraPlatform)));
+            bool canContinue = game.Board.LoseReason == LoseReason.Deadlock && game.Board.CanAddExtraPlatform;
+            _loseContinue.gameObject.SetActive(canContinue);
+            _losePrice.text = platformCount > 0 ? "x" + platformCount : s.Boosters.Cost(BoosterType.ExtraPlatform).ToString();
+            _losePriceCoin.SetActive(platformCount <= 0);
+            _loseAd.gameObject.SetActive(canContinue && s.AdsCoordinator.IsRewardedReady);
             _loseUndo.gameObject.SetActive(game.Board.CanUndo);
-            _losePlatform.gameObject.SetActive(game.Board.LoseReason == LoseReason.Deadlock && game.Board.CanAddExtraPlatform);
+            _loseLeft.text = Loc.F("{0} passengers left!", Mathf.Max(0, game.Board.State.Total - game.Board.State.Boarded));
         }
 
         private void ApplySettings()
@@ -1068,17 +1415,25 @@ namespace MetroSort.Game
             // Pausing is refused once the final move is in: the win/fail screen is about to appear.
             if (_app.States.Current != AppState.Playing || _app.Game.Board == null || _app.Game.Board.Status != GameStatus.Playing) return;
             _app.States.Set(AppState.Paused);
-            OpenSettings(true);
+            OpenPause();
         }
 
         public void OpenSettings(bool inGame)
         {
             _settingsInGame = inGame;
-            _settingsGameRow.SetActive(inGame);
-            // On the menu there is only one button under the rows, so the panel is shorter.
+            // Resume, restart and menu live on the pause card now; settings is only settings.
+            _settingsGameRow.SetActive(false);
             var panel = (RectTransform)_settings.transform.Find("Panel");
-            if (panel != null) panel.sizeDelta = new Vector2(940f, inGame ? 1300f : 1150f);
+            // On the menu the panel also holds restore, privacy and credits.
+            if (panel != null) panel.sizeDelta = new Vector2(940f, inGame ? 1150f : 1290f);
             _restoreButton.gameObject.SetActive(!inGame);
+            _linksRow.SetActive(!inGame);
+            bool privacy = _app.Services.Ads.PrivacyOptionsRequired || !string.IsNullOrEmpty(PrivacyPage);
+            _privacyButton.gameObject.SetActive(privacy);
+            UiKit.Place((RectTransform)_creditsButton.transform, privacy ? 1f : 0.5f, 0.5f, 0f, 0f, 415f, 100f);
+            SaveData data = _app.Services.Save.Data;
+            if (_musicSlider != null) _musicSlider.SetValueWithoutNotify(data.MusicVolume);
+            if (_soundSlider != null) _soundSlider.SetValueWithoutNotify(data.SfxVolume);
             ApplySettings();
             _settings.SetActive(true);
         }
@@ -1087,7 +1442,99 @@ namespace MetroSort.Game
         {
             _settings.SetActive(false);
             _app.Services.Save.Save();
-            if (_settingsInGame && _app.States.Current == AppState.Paused) _app.States.Set(AppState.Playing);
+            // Opened from the pause card: back to it, the level stays paused.
+            if (_settingsInGame && _app.States.Current == AppState.Paused) OpenPause();
+        }
+
+        // ------------------------------------------------------------------ pause card
+
+        private void BuildPause()
+        {
+            RectTransform body;
+            _pause = UiPremium.Modal(_root, "Paused", "Paused", 880f, 790f, () => { _app.Audio.Play(Sfx.Click); ResumeFromPause(); }, out body);
+            _pauseLevel = UiPremium.Heading(body, "", 56, Color.white, UiPremium.DeepBlue);
+            UiKit.Place(_pauseLevel.rectTransform, 0.5f, 1f, 0f, -6f, 720f, 70f);
+            _pauseProgress = UiKit.MakeText(body, "", 34, new Color(0.90f, 0.95f, 1f), TextAnchor.MiddleCenter, FontStyle.Normal);
+            UiKit.Emboss(_pauseProgress, new Color(0.03f, 0.08f, 0.24f, 0.7f));
+            UiKit.Place(_pauseProgress.rectTransform, 0.5f, 1f, 0f, -78f, 720f, 46f);
+            Button resume = Btn(body, "Resume", UiPremium.Green, ResumeFromPause, 640f, 150f, 62);
+            UiKit.Place((RectTransform)resume.transform, 0.5f, 1f, 0f, -150f, 640f, 150f);
+            ShineSweep.Add(resume, 0.6f);
+            Button restart = Btn(body, "Restart", UiPremium.Orange, () => { _pause.SetActive(false); LeaveLevel(RestartChecked); }, 380f, 116f, 40);
+            UiKit.Place((RectTransform)restart.transform, 0.5f, 1f, -200f, -326f, 380f, 116f);
+            Button menu = Btn(body, "Menu", UiPremium.Red, () => { _pause.SetActive(false); LeaveLevel(_app.GoToMenu); }, 380f, 116f, 40);
+            UiKit.Place((RectTransform)menu.transform, 0.5f, 1f, 200f, -326f, 380f, 116f);
+            // Quick toggles: music, sound, and the full settings.
+            _pauseMusic = PauseToggle(body, "icon_music", -170f, ToggleMusic);
+            _pauseSound = PauseToggle(body, "icon_sound", 0f, ToggleSound);
+            Button gear = UiPremium.MakeRoundButton(body, UiPremium.Round, UiPremium.Blue, () =>
+            {
+                _app.Audio.Play(Sfx.Click);
+                _pause.SetActive(false);
+                OpenSettings(true);
+            }, 128f);
+            UiKit.Place((RectTransform)gear.transform, 0.5f, 1f, 170f, -478f, 128f, 128f);
+            UiKit.AddIcon(gear.transform, "gear", 84f, 0.5f, 0.5f, 0f, 3f);
+        }
+
+        private Button PauseToggle(RectTransform body, string icon, float x, Action onClick)
+        {
+            Button b = UiPremium.MakeRoundButton(body, UiPremium.Round, UiPremium.Blue, () => onClick(), 128f);
+            UiKit.Place((RectTransform)b.transform, 0.5f, 1f, x, -478f, 128f, 128f);
+            if (UiKit.Art(icon) != null) UiKit.AddIcon(b.transform, icon, 92f, 0.5f, 0.5f, 0f, 3f);
+            return b;
+        }
+
+        private void OpenPause()
+        {
+            GameController game = _app.Game;
+            if (game.Level != null) _pauseLevel.text = Loc.F("Level {0}", game.Level.Id);
+            if (game.Board != null) _pauseProgress.text = Loc.F("Boarded {0} / {1}", game.Board.State.Boarded, game.Board.State.Total);
+            RefreshPauseToggles();
+            _pause.SetActive(true);
+        }
+
+        private void ResumeFromPause()
+        {
+            _pause.SetActive(false);
+            if (_app.States.Current == AppState.Paused) _app.States.Set(AppState.Playing);
+        }
+
+        private void ToggleMusic()
+        {
+            _app.Audio.Play(Sfx.Click);
+            SaveData d = _app.Services.Save.Data;
+            if (d.MusicVolume > 0.01f) { _musicBeforeMute = d.MusicVolume; d.MusicVolume = 0f; }
+            else d.MusicVolume = _musicBeforeMute > 0.01f ? _musicBeforeMute : 0.6f;
+            _app.Audio.MusicVolume = d.MusicVolume;
+            _app.Services.Save.Save();
+            RefreshPauseToggles();
+        }
+
+        private void ToggleSound()
+        {
+            SaveData d = _app.Services.Save.Data;
+            if (d.SfxVolume > 0.01f) { _soundBeforeMute = d.SfxVolume; d.SfxVolume = 0f; }
+            else d.SfxVolume = _soundBeforeMute > 0.01f ? _soundBeforeMute : 0.9f;
+            _app.Audio.SfxVolume = d.SfxVolume;
+            _app.Audio.Play(Sfx.Click);
+            _app.Services.Save.Save();
+            RefreshPauseToggles();
+        }
+
+        /// <summary>A muted toggle turns grey with a dimmed icon.</summary>
+        private void RefreshPauseToggles()
+        {
+            SaveData d = _app.Services.Save.Data;
+            SetToggleLook(_pauseMusic, d.MusicVolume > 0.01f);
+            SetToggleLook(_pauseSound, d.SfxVolume > 0.01f);
+        }
+
+        private static void SetToggleLook(Button b, bool on)
+        {
+            ((Image)b.targetGraphic).color = on ? UiPremium.Blue : new Color(0.55f, 0.60f, 0.70f);
+            foreach (Image icon in b.GetComponentsInChildren<Image>(true))
+                if (icon != b.targetGraphic) icon.color = new Color(1f, 1f, 1f, on ? 1f : 0.45f);
         }
 
         private void OpenShop()
@@ -1143,9 +1590,12 @@ namespace MetroSort.Game
                 int stars = s.Progression.GetStars(id);
                 bool here = id == current;
                 float size = here ? 150f : 124f;
-                Color fill = !unlocked ? new Color(0.62f, 0.66f, 0.74f) : (here ? UiPremium.Gold : Color.white);
-                // A ring in the line colour around each station, like a metro map.
-                Image ring = UiKit.MakeImage(_levelsGrid, "Ring" + id, UiPremium.Round, unlocked ? line : new Color(0.48f, 0.52f, 0.60f));
+                int tier = s.Levels.Get(id).Tier;
+                Color fill = !unlocked ? new Color(0.62f, 0.66f, 0.74f) : (here ? UiPremium.Gold : (tier >= 2 ? new Color(0.88f, 0.80f, 1f) : (tier == 1 ? new Color(1f, 0.82f, 0.82f) : Color.white)));
+                // A ring in the line colour around each station, like a metro map; red and purple mark the
+                // Hard and Super Hard stations.
+                Color ringColor = tier >= 2 ? SuperPurple : (tier == 1 ? HardRed : line);
+                Image ring = UiKit.MakeImage(_levelsGrid, "Ring" + id, UiPremium.Round, unlocked ? ringColor : new Color(0.48f, 0.52f, 0.60f));
                 UiKit.Place(ring.rectTransform, 0.5f, 1f, at.x, at.y + size * 0.5f, size + 22f, size + 22f);
                 ring.rectTransform.pivot = new Vector2(0.5f, 1f);
                 ring.rectTransform.anchoredPosition = new Vector2(at.x, at.y + (size + 22f) * 0.5f);
@@ -1157,6 +1607,14 @@ namespace MetroSort.Game
                 }, size);
                 UiKit.Place((RectTransform)b.transform, 0.5f, 0.5f, 0f, 0f, size, size);
                 b.interactable = unlocked;
+                if (tier > 0)
+                {
+                    // A small "!" (Hard) or "!!" (Super Hard) badge, shown on locked stations too.
+                    Image mark = UiKit.MakeImage(ring.transform, "Hard", UiPremium.Round, tier >= 2 ? SuperPurple : HardRed);
+                    UiKit.Place(mark.rectTransform, 1f, 1f, 8f, 8f, 56f, 56f);
+                    Text bang = UiPremium.Heading(mark.transform, tier >= 2 ? "!!" : "!", 34, Color.white, new Color(0.30f, 0.02f, 0.06f, 0.9f));
+                    UiKit.Stretch(bang.rectTransform, 0f, 4f, 0f, 0f);
+                }
                 if (!unlocked)
                 {
                     UiKit.AddIcon(b.transform, "lock", size * 0.62f, 0.5f, 0.5f, 0f, 4f);
@@ -1210,7 +1668,7 @@ namespace MetroSort.Game
             _flying.Add(_intro);
 
             Sprite ribbonArt = UiKit.Art("ribbon");
-            const float BandWidth = 900f, BandY = 330f, GoalY = 170f;
+            const float BandWidth = 900f, BandY = -250f, GoalY = -410f;
             float bandHeight = ribbonArt != null ? BandWidth * ribbonArt.rect.height / ribbonArt.rect.width : 150f;
             Image band = UiKit.MakeImage(root, "Ribbon", ribbonArt != null ? ribbonArt : UiPremium.Tag, ribbonArt != null ? Color.white : UiPremium.Red);
             band.preserveAspect = ribbonArt != null;
@@ -1221,6 +1679,9 @@ namespace MetroSort.Game
             title.resizeTextMinSize = 30;
             title.resizeTextMaxSize = 72;
             title.horizontalOverflow = HorizontalWrapMode.Overflow;
+            int tier = _app.Game.Level != null ? _app.Game.Level.Tier : 0;
+            if (tier > 0)
+                UiPremium.Flag(band.transform, tier >= 2 ? "Super Hard Level" : "Hard Level", tier >= 2 ? SuperPurple : HardRed, 0.5f, 1f, 0f, 6f, 420f);
 
             // The goal: a passenger token and how many have to board (and the move limit, if any).
             RectTransform goal = UiKit.Place(UiKit.MakeRect("Goal", root), 0.5f, 0.5f, 0f, GoalY, 580f, 116f);
@@ -1408,7 +1869,8 @@ namespace MetroSort.Game
             if (screen.z < 0f) yield break;
             Vector2 local;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_root, screen, UiCamera, out local);
-            local.x = Mathf.Clamp(local.x, -340f, 340f);
+            local.x = Mathf.Clamp(local.x, -300f, 300f) * 0.5f;
+            local.y = -60f;
             RectTransform holder = UiKit.Place(UiKit.MakeRect("Praise", _root), 0.5f, 0.5f, local.x, local.y, 600f, 160f);
             _flying.Add(holder.gameObject);
             Color[] fills = { new Color(1f, 0.92f, 0.45f), new Color(1f, 0.80f, 0.25f), new Color(1f, 0.62f, 0.30f), new Color(1f, 0.45f, 0.62f) };
@@ -1425,7 +1887,7 @@ namespace MetroSort.Game
                 float pop = GameSettings.ReducedMotion ? 1f : Ease.OutBack(Mathf.Min(1f, t / 0.22f));
                 holder.localScale = Vector3.one * pop;
                 holder.localRotation = Quaternion.Euler(0f, 0f, (level % 2 == 0 ? -1f : 1f) * 6f * (1f - Mathf.Min(1f, t / 0.3f)));
-                holder.anchoredPosition = local + new Vector2(0f, 90f * Ease.OutCubic(t));
+                holder.anchoredPosition = local + new Vector2(0f, 50f * Ease.OutCubic(t));
                 Color c = text.color;
                 c.a = t < 0.7f ? 1f : 1f - (t - 0.7f) / 0.3f;
                 text.color = c;
@@ -1460,6 +1922,8 @@ namespace MetroSort.Game
             }
             else UiKit.AddIcon(holder, "heart", 120f, 0f, 0.5f, 46f, 2f);
             // The count sits in the middle of the heart.
+            _menuInfinity = UiKit.AddIcon(holder, "infinity", 70f, 0f, 0.5f, 46f, 6f);
+            _menuInfinity.gameObject.SetActive(false);
             _menuLives = UiPremium.Heading(holder, "5", 46, Color.white, new Color(0.40f, 0.0f, 0.04f, 0.95f));
             UiKit.Place(_menuLives.rectTransform, 0f, 0.5f, 46f, 8f, 90f, 80f);
             _menuLives.rectTransform.pivot = new Vector2(0.5f, 0.5f);
@@ -1482,27 +1946,39 @@ namespace MetroSort.Game
             LivesManager lives = _app.Services.Lives;
             long now = Now();
             int count = lives.Count(now);
-            string clock = count >= lives.Max ? Loc.T("Full") : Clock(lives.SecondsToNext(now));
+            bool unlimited = lives.IsUnlimited(now);
+            string clock = unlimited ? Clock(lives.UnlimitedSecondsLeft(now)) : count >= lives.Max ? Loc.T("Full") : Clock(lives.SecondsToNext(now));
             _menuLives.text = count.ToString();
+            _menuLives.gameObject.SetActive(!unlimited);
+            if (_menuInfinity != null) _menuInfinity.gameObject.SetActive(unlimited);
             _menuLivesTimer.text = clock;
             if (_noLives != null && _noLives.activeSelf)
             {
-                _noLivesCount.text = count.ToString();
-                _noLivesTimer.text = count >= lives.Max ? Loc.T("All lives are full!") : Loc.F("Next life in {0}", clock);
-                _refillButton.interactable = count < lives.Max;
+                bool full = count >= lives.Max;
+                _noLivesCount.gameObject.SetActive(!unlimited);
+                _noLivesInfinity.gameObject.SetActive(unlimited);
+                _noLivesTimer.text = unlimited ? Loc.F("Unlimited lives: {0}", clock)
+                    : full ? Loc.T("All lives are full!") : Loc.F("Next life in {0}", clock);
+                bool offers = !full && !unlimited;
+                _refillButton.gameObject.SetActive(offers);
+                _livesUnlimitedButton.gameObject.SetActive(offers);
+                _livesAdButton.gameObject.SetActive(offers);
+                _livesPlayButton.gameObject.SetActive(!offers);
+                foreach (Image pip in _lifePips) pip.gameObject.SetActive(!unlimited);
+                ShowLifeCount(count);
             }
         }
 
         /// <summary>Starts a level when there is a life to play it with; otherwise offers ways to get one.</summary>
         private void StartLevelChecked(int levelId)
         {
-            if (_app.Services.Lives.Count(Now()) > 0) _app.Game.StartLevel(levelId);
+            if (_app.Services.Lives.CanPlay(Now())) _app.Game.StartLevel(levelId);
             else OpenNoLives();
         }
 
         private void RestartChecked()
         {
-            if (_app.Services.Lives.Count(Now()) > 0) _app.Game.Restart();
+            if (_app.Services.Lives.CanPlay(Now())) _app.Game.Restart();
             else
             {
                 _app.GoToMenu();
@@ -1559,19 +2035,40 @@ namespace MetroSort.Game
         private void BuildNoLives()
         {
             RectTransform body;
-            _noLives = UiPremium.Modal(_root, "Lives", "Lives", 900f, 920f, () => { _app.Audio.Play(Sfx.Click); _noLives.SetActive(false); }, out body);
-            UiPremium.Rays(body, 560f, 0f, -190f + 0f, 0.7f);
+            _noLives = UiPremium.Modal(_root, "Lives", "Lives", 900f, 1080f, () => { _app.Audio.Play(Sfx.Click); _noLives.SetActive(false); }, out body);
+            UiPremium.Rays(body, 620f, 0f, 0f, 0.75f);
             RectTransform rays = (RectTransform)body.Find("Rays");
-            if (rays != null) { rays.anchorMin = rays.anchorMax = new Vector2(0.5f, 1f); rays.anchoredPosition = new Vector2(0f, -200f); }
-            FlipBook heart = UiKit.MakeFlipBook(body, "heart_spin", 300f);
-            RectTransform heartRect = heart != null ? (RectTransform)heart.transform : UiKit.AddIcon(body, "heart", 300f).rectTransform;
+            if (rays != null) { rays.anchorMin = rays.anchorMax = new Vector2(0.5f, 1f); rays.anchoredPosition = new Vector2(0f, -195f); }
+            // The big glossy heart with the count on it.
+            FlipBook heart = UiKit.MakeFlipBook(body, "heart_spin", 320f);
+            RectTransform heartRect = heart != null ? (RectTransform)heart.transform : UiKit.AddIcon(body, "heart", 320f).rectTransform;
             heartRect.anchorMin = heartRect.anchorMax = new Vector2(0.5f, 1f);
-            heartRect.anchoredPosition = new Vector2(0f, -200f);
+            heartRect.anchoredPosition = new Vector2(0f, -195f);
             if (heart != null) heart.Interval = 2.5f;
-            _noLivesCount = UiPremium.Heading(heartRect, "0", 110, Color.white, new Color(0.40f, 0.0f, 0.04f, 0.95f));
-            UiKit.Stretch(_noLivesCount.rectTransform, 0f, 20f, 0f, 0f);
-            _noLivesTimer = UiPremium.Heading(body, "", 48, Color.white, UiPremium.DeepBlue);
-            UiKit.Place(_noLivesTimer.rectTransform, 0.5f, 1f, 0f, -380f, 800f, 70f);
+            heartRect.gameObject.AddComponent<Beat>();
+            _noLivesCount = UiPremium.Heading(heartRect, "0", 120, Color.white, new Color(0.36f, 0.0f, 0.05f, 0.95f));
+            UiKit.Stretch(_noLivesCount.rectTransform, 0f, 30f, 0f, 0f);
+            _noLivesInfinity = UiKit.AddIcon(heartRect, "infinity", 170f, 0.5f, 0.5f, 0f, 12f);
+            _noLivesInfinity.gameObject.SetActive(false);
+
+            // One small heart per life: full ones glossy, spent ones as hollow outlines.
+            int max = _app.Services.Lives.Max;
+            _lifePips = new Image[max];
+            const float Pip = 74f, PipGap = 14f;
+            for (int i = 0; i < max; i++)
+            {
+                float x = (i - (max - 1) * 0.5f) * (Pip + PipGap);
+                _lifePips[i] = UiKit.AddIcon(body, "heart", Pip, 0.5f, 1f, x, -405f);
+            }
+
+            // Status: "All lives are full!", the countdown to the next life, or unlimited time left, on a dark pill.
+            Image status = UiKit.MakeImage(body, "Status", UiPremium.Pill, new Color(0.07f, 0.16f, 0.40f, 0.92f));
+            UiKit.Place(status.rectTransform, 0.5f, 1f, 0f, -495f, 660f, 80f);
+            _noLivesTimer = UiPremium.Heading(status.transform, "", 42, Color.white, UiPremium.DeepBlue);
+            UiKit.Stretch(_noLivesTimer.rectTransform, 20f, 4f, 20f, 4f);
+            _noLivesTimer.resizeTextForBestFit = true;
+            _noLivesTimer.resizeTextMinSize = 24;
+            _noLivesTimer.resizeTextMaxSize = 42;
 
             GameServices s = _app.Services;
             _refillButton = UiPremium.PriceButton(body, Loc.F("Refill  {0}", s.Lives.RefillCost), UiPremium.Green, () =>
@@ -1579,9 +2076,22 @@ namespace MetroSort.Game
                 if (s.Lives.RefillWithCoins(Now())) { _app.Audio.Play(Sfx.Coins); Toast("Lives refilled!"); }
                 else { _app.Audio.Play(Sfx.Invalid); Toast("Not enough coins"); }
                 Refresh();
-            }, 620f, 130f, true);
-            UiKit.Place((RectTransform)_refillButton.transform, 0.5f, 1f, 0f, -490f, 620f, 130f);
-            Button ad = Btn(body, "Watch an ad: +1 life", UiPremium.Orange, () =>
+            }, 620f, 112f, true);
+            UiKit.Place((RectTransform)_refillButton.transform, 0.5f, 1f, 0f, -606f, 620f, 112f);
+            // The best offer: an hour of unlimited lives, in purple with the infinity sign.
+            _livesUnlimitedButton = UiPremium.PriceButton(body, Loc.F("1 h unlimited  {0}", s.Lives.UnlimitedCost), new Color(0.58f, 0.32f, 0.92f), () =>
+            {
+                if (s.Lives.BuyUnlimited(Now())) { _app.Audio.Play(Sfx.Achievement); Toast("Unlimited lives started!"); }
+                else { _app.Audio.Play(Sfx.Invalid); Toast("Not enough coins"); }
+                Refresh();
+            }, 620f, 104f, true);
+            UiKit.Place((RectTransform)_livesUnlimitedButton.transform, 0.5f, 1f, 0f, -724f, 620f, 104f);
+            Image inf = UiKit.AddIcon(_livesUnlimitedButton.transform, "infinity", 96f, 1f, 0.5f, -70f, 4f);
+            inf.name = "Infinity";
+            UiKit.Stretch(UiKit.LabelOf(_livesUnlimitedButton).rectTransform, 104f * 0.82f, 14f, 130f, 6f);
+            Image best = UiPremium.Flag(_livesUnlimitedButton.transform, Loc.T("BEST"), UiPremium.Red, 1f, 1f, -40f, 30f, 150f);
+            best.rectTransform.pivot = new Vector2(1f, 0.5f);
+            _livesAdButton = Btn(body, "Watch an ad: +1 life", UiPremium.Orange, () =>
             {
                 s.AdsCoordinator.RequestRewarded(() => s.Lives.Add(1, Now()), ok =>
                 {
@@ -1589,12 +2099,71 @@ namespace MetroSort.Game
                     else Toast("No ad available right now");
                     Refresh();
                 });
-            }, 620f, 120f, 40);
-            UiKit.Place((RectTransform)ad.transform, 0.5f, 1f, 0f, -650f, 620f, 120f);
+            }, 620f, 96f, 38);
+            UiKit.Place((RectTransform)_livesAdButton.transform, 0.5f, 1f, 0f, -836f, 620f, 96f);
+            UiKit.AddIcon(_livesAdButton.transform, "heart", 72f, 0f, 0.5f, 58f, 4f);
+            UiKit.Stretch(UiKit.LabelOf(_livesAdButton).rectTransform, 104f, 8f, 20f, 6f);
+            // With every life there (or unlimited lives running), the popup just invites the player back in.
+            _livesPlayButton = Btn(body, "PLAY", UiPremium.Green, () =>
+            {
+                _noLives.SetActive(false);
+                StartLevelChecked(_app.CurrentLevelId);
+            }, 620f, 136f, 60);
+            UiKit.Place((RectTransform)_livesPlayButton.transform, 0.5f, 1f, 0f, -660f, 620f, 136f);
+        }
+
+        /// <summary>
+        /// Shows the lives count on the popup. When it goes up (refill, ad, a life coming back) the new hearts pop
+        /// in one after another with a sparkle and the number counts up with them.
+        /// </summary>
+        private void ShowLifeCount(int count)
+        {
+            if (_lifePips == null) return;
+            if (_livesShown < 0 || count <= _livesShown || !_noLives.activeInHierarchy)
+            {
+                if (_livesFill != null) { StopCoroutine(_livesFill); _livesFill = null; }
+                _livesShown = count;
+                _noLivesCount.text = count.ToString();
+                for (int i = 0; i < _lifePips.Length; i++) SetPip(i, i < count);
+                return;
+            }
+            if (_livesFill != null) return;
+            _livesFill = StartCoroutine(FillLives(_livesShown, count));
+        }
+
+        private void SetPip(int i, bool full)
+        {
+            _lifePips[i].sprite = UiKit.Icon(full ? "heart" : "heart_empty");
+            _lifePips[i].color = Color.white;
+            _lifePips[i].rectTransform.localScale = Vector3.one;
+        }
+
+        private IEnumerator FillLives(int from, int to)
+        {
+            for (int i = from; i < to && i < _lifePips.Length; i++)
+            {
+                SetPip(i, true);
+                _livesShown = i + 1;
+                _noLivesCount.text = _livesShown.ToString();
+                _app.Audio.Play(Sfx.Star);
+                Haptics.Tap();
+                RectTransform pip = _lifePips[i].rectTransform;
+                RectTransform big = (RectTransform)_noLivesCount.transform.parent;
+                for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.28f)
+                {
+                    pip.localScale = Vector3.one * (GameSettings.ReducedMotion ? 1f : Ease.OutBack(t) * (1f + 0.25f * Mathf.Sin(t * Mathf.PI)));
+                    big.localScale = Vector3.one * (1f + 0.08f * Mathf.Sin(t * Mathf.PI));
+                    yield return null;
+                }
+                pip.localScale = Vector3.one;
+                big.localScale = Vector3.one;
+            }
+            _livesFill = null;
         }
 
         private void OpenNoLives()
         {
+            _livesShown = -1;
             _noLives.SetActive(true);
             _dailyTick = 0f;
             RefreshLives();
@@ -1678,15 +2247,16 @@ namespace MetroSort.Game
 
         private void ShowWin(LevelResult result)
         {
-            _winCoins.text = Loc.F("+{0} coins", result.CoinsAwarded);
-            if (_winCoinSpin != null)
-            {
-                // The turning coin sits just left of the reward text, whatever its length.
-                ((RectTransform)_winCoinSpin.transform).anchoredPosition = new Vector2(-_winCoins.preferredWidth * 0.5f - 56f, 4f);
-            }
+            _winCoins.text = "+" + result.CoinsAwarded;
+            // The chip fits the amount; the turning coin sits just left of it.
+            float textW = _winCoins.preferredWidth;
+            _winChip.rectTransform.sizeDelta = new Vector2(Mathf.Clamp(textW + 170f, 260f, 700f), 90f);
+            _winCoins.rectTransform.anchoredPosition = new Vector2(34f, 2f);
+            if (_winCoinSpin != null) ((RectTransform)_winCoinSpin.transform).anchoredPosition = new Vector2(34f - textW * 0.5f - 58f, 2f);
             foreach (GameObject stray in _flying) if (stray != null) Destroy(stray);
             _flying.Clear();
             _winAdButton.gameObject.SetActive(_app.Services.AdsCoordinator.IsRewardedReady);
+            LayoutWinActions();
             StopAllCoroutines();
             // Stopped coroutines leave no one to finish the boarded count or the bar bump: settle them here.
             _collecting = 0;
@@ -1706,8 +2276,17 @@ namespace MetroSort.Game
         {
             int size = ChestSize;
             stars = Mathf.Clamp(stars, 0, size);
-            _chestText.text = stars + "/" + size;
-            _chestFill.sizeDelta = new Vector2(Mathf.Lerp(ChestFillMin, ChestFillMax, (float)stars / size), _chestFill.sizeDelta.y);
+            for (int i = 0; i < _chestStars.Length; i++)
+            {
+                bool on = i < stars;
+                _chestStars[i].sprite = UiKit.Icon(on ? "star" : "star_off");
+                _chestStars[i].color = on ? Color.white : new Color(1f, 1f, 1f, 0.45f);
+                _chestStars[i].rectTransform.localScale = Vector3.one;
+            }
+            _chestPrize.text = "+" + _app.Services.Config.StarChestCoins;
+            _chestNote.text = stars >= size ? Loc.T("Ready to open!") : Loc.F("{0} more stars to open", size - stars);
+            _chestIdle.Ready = stars >= size;
+            _chestIdle.enabled = true;
             _chestIcon.localRotation = Quaternion.identity;
             _chestIcon.localScale = Vector3.one;
         }
@@ -1730,11 +2309,12 @@ namespace MetroSort.Game
                 Image star = Floating("star", from, 96f);
                 RectTransform rt = star.rectTransform;
                 Vector3 control = from + new Vector3(160f, 160f, 0f) * unit;
+                int slot = Mathf.Clamp(shown, 0, _chestStars.Length - 1);
                 _app.Audio.Play(Sfx.Select);
                 for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.5f)
                 {
                     if (rt == null) yield break;
-                    Vector3 to = _chestFill.TransformPoint(new Vector3(_chestFill.rect.xMax, 0f, 0f));
+                    Vector3 to = _chestStars[slot].rectTransform.position;
                     float e = Ease.Smooth(t);
                     rt.position = Vector3.Lerp(Vector3.Lerp(from, control, e), Vector3.Lerp(control, to, e), e);
                     rt.localScale = Vector3.one * Mathf.Lerp(1f, 0.55f, e);
@@ -1746,17 +2326,19 @@ namespace MetroSort.Game
                 ShowChest(Mathf.Min(shown, size));
                 _app.Audio.Play(Sfx.CoinTick);
                 Haptics.Tap();
-                for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.18f)
+                RectTransform landed = _chestStars[slot].rectTransform;
+                for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.26f)
                 {
-                    _chestTrack.localScale = Vector3.one * (1f + 0.08f * Mathf.Sin(t * Mathf.PI));
+                    landed.localScale = Vector3.one * (1f + 0.6f * Mathf.Sin(t * Mathf.PI) * (1f - 0.5f * t));
                     yield return null;
                 }
-                _chestTrack.localScale = Vector3.one;
+                landed.localScale = Vector3.one;
             }
             if (result.ChestCoins <= 0) yield break;
             if (_app.States.Current != AppState.LevelComplete) { _coinDisplay = -1; Refresh(); yield break; }
 
             // Full: the chest rattles, then bursts open in the reveal.
+            _chestIdle.enabled = false;
             for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.6f)
             {
                 _chestIcon.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * Mathf.PI * 8f) * 12f * (1f - t * 0.5f));
@@ -2009,8 +2591,48 @@ namespace MetroSort.Game
                     label.rectTransform.anchoredPosition = local;
                 }
             }
+            // Long queues: a badge with how many more wait behind the last passenger on screen.
+            int tails = 0;
+            if (_labelLayer.gameObject.activeSelf)
+            {
+                StationView station = _app.Station;
+                for (int q = 0; q < station.TailLaneCount; q++)
+                {
+                    string caption = station.TailLabel(q);
+                    if (caption == null || !WorldToCanvas(station.TailAnchor(q), out local)) continue;
+                    Text badge = tails < _tailBadges.Count ? _tailBadges[tails] : NewTailBadge();
+                    tails++;
+                    GameObject plate = badge.transform.parent.gameObject;
+                    if (!plate.activeSelf) plate.SetActive(true);
+                    if (badge.text != caption) badge.text = caption;
+                    ((RectTransform)plate.transform).anchoredPosition = local;
+                }
+            }
+            for (int i = tails; i < _tailBadges.Count; i++)
+            {
+                GameObject plate = _tailBadges[i].transform.parent.gameObject;
+                if (plate.activeSelf) plate.SetActive(false);
+            }
             for (int i = used; i < _labels.Count; i++)
                 if (_labels[i].gameObject.activeSelf) _labels[i].gameObject.SetActive(false);
+        }
+
+        private readonly List<Text> _tailBadges = new List<Text>();
+
+        /// <summary>A small dark pill ("+5") that sits at the back of a long queue.</summary>
+        private Text NewTailBadge()
+        {
+            Image plate = UiKit.MakeImage(_labelLayer, "QueueTail", UiPremium.Pill, new Color(0.10f, 0.17f, 0.38f, 0.92f));
+            UiKit.Place(plate.rectTransform, 0.5f, 0.5f, 0f, 0f, 104f, 58f);
+            var shadow = plate.gameObject.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0f, 0.02f, 0.10f, 0.35f);
+            shadow.effectDistance = new Vector2(0f, -4f);
+            Text text = UiPremium.Heading(plate.transform, "", 36, Color.white, new Color(0.03f, 0.06f, 0.20f, 0.95f));
+            UiKit.Stretch(text.rectTransform, 6f, 2f, 6f, 4f);
+            text.raycastTarget = false;
+            plate.raycastTarget = false;
+            _tailBadges.Add(text);
+            return text;
         }
 
         private Text NewLabel()

@@ -68,6 +68,8 @@ namespace MetroSort.Levels
         /// <summary>Minimum number of moves found by the solver; used for star rating.</summary>
         public int Par;
         public float Difficulty;
+        /// <summary>0 normal, 1 Hard, 2 Super Hard (Tools/train_levels.py); marked in the game and paid a bonus.</summary>
+        public int Tier;
 
         public int TotalPassengers
         {
@@ -119,7 +121,8 @@ namespace MetroSort.Levels
                 Tutorial = JsonRead.Str(root, "tutorial", ""),
                 Trains = JsonRead.Str(root, "trains", ""),
                 Par = JsonRead.Int(root, "par", 0),
-                Difficulty = JsonRead.Float(root, "difficulty", 0f)
+                Difficulty = JsonRead.Float(root, "difficulty", 0f),
+                Tier = JsonRead.Int(root, "tier", 0)
             };
             foreach (object stageObj in JsonRead.List(root, "stages"))
             {
@@ -214,6 +217,7 @@ namespace MetroSort.Levels
             root["tutorial"] = Tutorial;
             root["par"] = Par;
             root["difficulty"] = Difficulty;
+            if (Tier > 0) root["tier"] = Tier;
             return MiniJson.Serialize(root);
         }
     }

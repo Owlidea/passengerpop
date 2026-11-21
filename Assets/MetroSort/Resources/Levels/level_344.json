@@ -4,14 +4,14 @@
   "group": "Island",
   "stages": [
     [
-      "RGPOYROBGBRB",
-      "RYPRORGOGGBR",
-      "GGGGOOPGGRBGG",
-      "YGRPOROPOBRB",
-      "GOOROPBGBGG"
+      "BBPBYPYBYGGRR",
+      "RPYOBGBRRRR",
+      "BYRPPRGRGRYGR",
+      "ORRPGGGGYRR",
+      "BBBBGBOYYRGR"
     ]
   ],
-  "trains": "RGYPGOOROROPGGBBGGRB",
+  "trains": "BBPRYPGOBGBRRGRYRYRG",
   "platforms": [
     {
       "cap": 3
@@ -20,12 +20,13 @@
       "cap": 3
     }
   ],
-  "bench": 5,
+  "bench": 6,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 66,
-  "difficulty": 87.1,
+  "par": 65,
+  "difficulty": 68.6,
+  "tier": 0,
   "gates": [
     0,
     0,

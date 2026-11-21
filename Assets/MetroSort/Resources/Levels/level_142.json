@@ -4,14 +4,14 @@
   "group": "Grand",
   "stages": [
     [
-      "POGGOROY",
-      "YOGOBBBB",
-      "PGYPRYBRR",
-      "OGBGRGYR",
-      "PPPGYG"
+      "YYPYBYGBBG",
+      "BBROGOPO",
+      "ORPPPGPY",
+      "BPBGPPYO",
+      "RRORRBGB"
     ]
   ],
-  "trains": "OPYGPGRBGOYBR",
+  "trains": "RBYPOBRGPPYGOB",
   "platforms": [
     {
       "cap": 3
@@ -20,10 +20,11 @@
       "cap": 3
     }
   ],
-  "bench": 5,
+  "bench": 3,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 40,
-  "difficulty": 16.7
+  "par": 44,
+  "difficulty": 58.6,
+  "tier": 0
 }

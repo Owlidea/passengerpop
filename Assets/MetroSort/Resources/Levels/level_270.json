@@ -4,15 +4,18 @@
   "group": "Tropic",
   "stages": [
     [
-      "OGYYYYGYRPRB",
-      "ORYPPOBYGRBB",
-      "GRRPBOPPPPBB",
-      "YYYOOBRPPBBG",
-      "YYYYYPPRRGBB"
+      "PRBOORBBRYBY",
+      "ORORROOOGBPY",
+      "PGORORRBGPPY",
+      "PORBGRBBOOOGB",
+      "OBRPOBPGYPY"
     ]
   ],
-  "trains": "ROYGYYYPYBOPRPRPGBBB",
+  "trains": "POORBORRRGBOGBOYYBPP",
   "platforms": [
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     },
@@ -20,15 +23,16 @@
       "cap": 3
     }
   ],
-  "bench": 4,
+  "bench": 3,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 62,
-  "difficulty": 77.5,
+  "par": 63,
+  "difficulty": 90.0,
+  "tier": 2,
   "gates": [
-    2,
     0,
+    6,
     0,
     0,
     0

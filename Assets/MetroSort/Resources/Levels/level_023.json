@@ -4,12 +4,13 @@
   "group": "Basic",
   "stages": [
     [
-      "BBGYY",
-      "GBRR",
-      "RGGGGY"
+      "BRGGG",
+      "YYBBG",
+      "GBYB",
+      "BRRG"
     ]
   ],
-  "trains": "BGGRY",
+  "trains": "YRBBGG",
   "platforms": [
     {
       "cap": 3
@@ -18,10 +19,11 @@
       "cap": 3
     }
   ],
-  "bench": 4,
+  "bench": 3,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 16,
-  "difficulty": 13.3
+  "par": 20,
+  "difficulty": 54.3,
+  "tier": 0
 }

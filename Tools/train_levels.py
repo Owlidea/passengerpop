@@ -205,14 +205,16 @@ def random_win_rate(lv, rng, runs=120):
 # ----------------------------------------------------------------------------------------------- drafting
 
 def spec_for(level_id):
-    """Size and pressure of a level from its place on the curve. Chapters are 20 levels; within a chapter every
-    fifth level is a step up, the 10th is hard and the 20th is the boss."""
+    """Size and pressure of a level from its place on the curve (retuned 2026-11-21: random tapping used to win
+    most levels). Chapters are 20 levels. Levels 1-10 teach and stay easy; after that every level must be thought
+    through: a casual player wins about two in three, random tapping rarely. Within a chapter every fifth level is
+    Hard (tier 1) and the 10th and 20th are Super Hard (tier 2); the game marks both and pays a bonus."""
     ch = (level_id - 1) // 20
     k = (level_id - 1) % 20 + 1
-    beat = 0
-    if k % 5 == 0: beat = 1
-    if k == 10: beat = 2
-    if k == 20: beat = 3
+    tier = 0
+    if level_id > 10:
+        if k % 5 == 0: tier = 1
+        if k in (10, 20): tier = 2
 
     if level_id <= 5:
         table = {
@@ -223,33 +225,38 @@ def spec_for(level_id):
             5: dict(colors=3, trains=[2, 2, 1], queues=3, platforms=2, bench=3, target=(0.65, 0.95)),
         }
         s = table[level_id]
-        s.update(stages=1, gates=0)
+        s.update(stages=1, gates=0, tier=0, random_cap=1.0, noise=1.0)
         return s
 
-    colors = min(6, 3 + (level_id > 12) + (ch >= 2) + (ch >= 6) + (beat >= 2 and ch >= 4))
-    total_trains = min(20, 5 + level_id // 30 + ch // 3 + 2 * beat + (k % 3))
-    total_trains = max(total_trains, colors)
-    queues = min(5, 3 + (level_id > 25) + (ch >= 4))
-    platforms = 2 if (ch < 8 or beat < 3) else 3
-    if ch >= 15 and beat == 0 and k % 4 == 1:
-        platforms = 1
-    bench = 4 if ch < 3 else (5 if beat < 2 else 4)
-    if ch >= 10 and beat >= 2:
-        bench = 4
-    stages = 2 if ch >= 3 and (k % 4 == 3 or beat == 3) else 1
+    if level_id <= 10:
+        colors, total_trains, queues, platforms, bench = 3, 5 + level_id % 3, 3, 2, 4
+        target, random_cap, noise = (0.82, 1.0), 1.0, 1.0
+    else:
+        colors = min(6, 4 + (ch >= 2) + (ch >= 5) + (tier == 2 and ch >= 1))
+        total_trains = min(20, 6 + level_id // 30 + ch // 3 + 2 * tier + (k % 3))
+        queues = min(5, 3 + (level_id > 20) + (ch >= 4))
+        platforms = 2 if (ch < 8 or tier < 2) else 3
+        if ch >= 15 and tier == 0 and k % 4 == 1:
+            platforms = 1
+        bench = 4 if level_id <= 20 else 3
+        # Win rate wanted for the "casual" bot, which never looks ahead (people who do win clearly more often),
+        # and the most that random tapping may win, so that thinking matters.
+        lo, hi = [(0.42, 0.56), (0.24, 0.38), (0.10, 0.24)][tier]
+        squeeze = min(0.06, ch * 0.008)
+        target = (max(0.06, lo - squeeze), max(lo - squeeze + 0.10, hi - squeeze))
+        random_cap = [0.30, 0.15, 0.08][tier]
+        # passengers further from timetable order: the right queue to tap has to be found
+        noise = [1.5, 1.8, 2.1][tier]
+    stages = 2 if ch >= 3 and (k % 4 == 3 or k == 20) else 1
     gates = 1 if ch >= 5 and (k % 6 == 4) else 0
-    hard = [(0.75, 1.0), (0.45, 0.8), (0.25, 0.55), (0.12, 0.4)][beat]
-    # Later chapters squeeze the easy beats a little.
-    lo, hi = hard
-    squeeze = min(0.2, ch * 0.008)
-    target = (max(0.05, lo - squeeze), max(lo - squeeze + 0.15, hi - squeeze))
+    total_trains = max(total_trains, colors)
 
     rng = random.Random(level_id * 7919)
     per = [1] * colors
     for _ in range(total_trains - colors):
         per[rng.randrange(colors)] += 1
     return dict(colors=colors, trains=per, queues=queues, platforms=platforms, bench=bench,
-                stages=stages, gates=gates, target=target)
+                stages=stages, gates=gates, target=target, tier=tier, random_cap=random_cap, noise=noise)
 
 
 def draft(spec, rng):
@@ -263,7 +270,7 @@ def draft(spec, rng):
     pool = []
     for t, c in enumerate(schedule):
         for _ in range(3):
-            pool.append((t + rng.gauss(0, 1.6 + 0.25 * len(schedule) ** 0.5), c))
+            pool.append((t + rng.gauss(0, (1.6 + 0.25 * len(schedule) ** 0.5) * spec.get("noise", 1.0)), c))
     pool.sort()
     people = [c for _, c in pool]
     nq = spec["queues"]
@@ -288,13 +295,26 @@ def draft(spec, rng):
     return Level(stages, "".join(schedule), spec["platforms"], spec["bench"], gates)
 
 
-def make(level_id, attempts=48):
+def make(level_id, attempts=None, start=0):
     spec = spec_for(level_id)
-    for extra in range(4):
+    if attempts is None:
+        attempts = 48 if level_id <= 10 else (80 if level_id <= 150 else 40)
+    lo = spec["target"][0]
+    best = None
+    for extra in range(start, 4):
         try:
-            return make_with(level_id, dict(spec, bench=spec["bench"] + extra), attempts)
+            found = make_with(level_id, dict(spec, bench=spec["bench"] + extra), attempts)
         except RuntimeError:
             continue
+        rate = found[2]
+        # Too hard for its slot even at its best (long timetables, many lines): a bigger bench, then try again.
+        gap = max(0.0, lo - rate)
+        if best is None or gap < best[0]:
+            best = (gap, found)
+        if gap < 0.06 or extra >= start + 2:
+            return best[1]
+    if best is not None:
+        return best[1]
     # Too big for the solver budget (so the in-game hint could not prove it either): drop trains one by one.
     trains = list(spec["trains"])
     while sum(trains) > len(trains):
@@ -320,6 +340,12 @@ def make_with(level_id, spec, attempts):
             continue
         rate = greedy_win_rate(lv, rng)
         score = abs(rate - mid) if lo <= rate <= hi else 1 + min(abs(rate - lo), abs(rate - hi))
+        if score < 1 and spec["random_cap"] < 1.0:
+            # Thinking has to matter: random tapping winning often marks a level as too loose.
+            # (a soft preference: it never outweighs hitting the casual target)
+            over = random_win_rate(lv, random.Random(level_id * 31 + attempt), runs=80) - spec["random_cap"]
+            if over > 0:
+                score += 0.6 * over
         if best is None or score < best[0]:
             best = (score, lv, parks, rate, states, complete)
         if score < 1 and (attempt >= 6 or score < 0.12):
@@ -331,10 +357,10 @@ def make_with(level_id, spec, attempts):
     return lv, parks, rate, rrate, states, spec
 
 
-def run(level_id):
+def run(level_id, start=0):
     path = os.path.join(LEVELS, "level_%03d.json" % level_id)
     old = json.load(open(path)) if os.path.exists(path) else {"id": level_id, "name": "Level %d" % level_id, "group": ""}
-    lv, parks, rate, rrate, states, spec = make(level_id)
+    lv, parks, rate, rrate, states, spec = make(level_id, start=start)
     total = sum(len(q) for st in lv.stages for q in st)
     tutorial = {1: "board", 2: "next_train", 3: "bench_wait", 4: "bench_full", 5: "schedule"}.get(level_id, "")
     if level_id > 5 and old.get("tutorial") in ("stages", "gate", "gate_color"):
@@ -352,6 +378,7 @@ def run(level_id):
         "tutorial": tutorial,
         "par": total + parks,
         "difficulty": round(100 * (1 - rate), 1),
+        "tier": spec.get("tier", 0),
     }
     if lv.gates and any(lv.gates):
         out["gates"] = lv.gates
@@ -385,9 +412,15 @@ def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     first, last = (int(args[0]), int(args[1])) if len(args) >= 2 else (1, 700)
     ids = missing(first, last) if "--missing" in sys.argv else list(range(first, last + 1))
+    start = 0
+    if "--ids" in sys.argv:
+        # --ids FILE: only these levels (space separated); --wider starts them one bench seat up
+        ids = [int(x) for x in open(sys.argv[sys.argv.index("--ids") + 1]).read().split()]
+        first, last = 1, 700
+        start = 1 if "--wider" in sys.argv else 0
     with Pool() as pool:
         if "--report" not in sys.argv:
-            pool.map(run, ids, chunksize=1)
+            pool.starmap(run, [(i, start if i > 10 else 0) for i in ids], chunksize=1)
         rows = sorted(pool.map(stats, range(first, last + 1), chunksize=4))
     if first == 1 and last == 700:
         lines = ["# Level validation", "",

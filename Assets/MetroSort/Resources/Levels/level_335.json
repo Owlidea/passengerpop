@@ -4,21 +4,21 @@
   "group": "Canyon",
   "stages": [
     [
-      "ROOOYRBB",
-      "RRORRR",
-      "RBROGO",
-      "ROGBR",
-      "OGOGG"
+      "BOGGOO",
+      "GGBBPY",
+      "BROOO",
+      "GROORPPY",
+      "OOOGO"
     ],
     [
-      "BYPPP",
-      "GYRGBYR",
-      "GYYBP",
-      "BBGOOP",
-      "RPGGOGR"
+      "BBBBYOO",
+      "PRYYPR",
+      "RRBORY",
+      "RBYPYY",
+      "RBRRB"
     ]
   ],
-  "trains": "RROORBOGGBRYPYGBPOGR",
+  "trains": "BGOOORGOBYPRPBRRBYYO",
   "platforms": [
     {
       "cap": 3
@@ -27,10 +27,11 @@
       "cap": 3
     }
   ],
-  "bench": 5,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 65,
-  "difficulty": 61.4
+  "par": 67,
+  "difficulty": 78.6,
+  "tier": 1
 }

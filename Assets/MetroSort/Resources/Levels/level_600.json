@@ -4,21 +4,21 @@
   "group": "Uptown",
   "stages": [
     [
-      "BYPRORP",
-      "RPRBYPG",
-      "BROPR",
-      "OPRPR",
-      "OPPOYG"
+      "OYBOGPY",
+      "YRRPBB",
+      "RGRRRR",
+      "RRYBRR",
+      "BYRGP"
     ],
     [
-      "GGBROR",
-      "GRGGBB",
-      "ORGRRR",
-      "GGBBOG",
-      "GRRRBO"
+      "OBRBB",
+      "YPOOBR",
+      "RBRBO",
+      "OPYPYRR",
+      "OBPYPOP"
     ]
   ],
-  "trains": "OPBYPRPROGGRRRGBGORB",
+  "trains": "YROPRGRBBYRBPYOROPRB",
   "platforms": [
     {
       "cap": 3
@@ -30,10 +30,11 @@
       "cap": 3
     }
   ],
-  "bench": 4,
+  "bench": 3,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 64,
-  "difficulty": 47.1
+  "par": 65,
+  "difficulty": 87.1,
+  "tier": 2
 }

@@ -4,13 +4,13 @@
   "group": "Intermediate",
   "stages": [
     [
-      "GRYBGY",
-      "GRBRBBG",
-      "RGRGYB",
-      "YYYRB"
+      "RBYRYRB",
+      "GYGBYR",
+      "GYGRGB",
+      "RYGRBBRR"
     ]
   ],
-  "trains": "GYRRGBYB",
+  "trains": "RGYBBRYGR",
   "platforms": [
     {
       "cap": 3
@@ -19,10 +19,11 @@
       "cap": 3
     }
   ],
-  "bench": 4,
+  "bench": 3,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 26,
-  "difficulty": 31.7
+  "par": 30,
+  "difficulty": 71.4,
+  "tier": 1
 }

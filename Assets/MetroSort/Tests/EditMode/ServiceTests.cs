@@ -110,6 +110,36 @@ namespace MetroSort.Tests
         }
 
         [Test]
+        public void HardLevels_PayTheirBonusOnFirstClearOnly()
+        {
+            int token = _progression.BeginAttempt(1);
+            LevelResult first = _progression.CompleteLevel(token, 3, 2);
+            Assert.AreEqual(_config.CoinsPerLevel + 3 * _config.CoinsPerStar + _config.SuperHardLevelBonus, first.CoinsAwarded);
+            token = _progression.BeginAttempt(1);
+            LevelResult replay = _progression.CompleteLevel(token, 3, 2);
+            Assert.AreEqual(_config.ReplayCoins, replay.CoinsAwarded);
+        }
+
+        [Test]
+        public void StarChest_OpensWhenFull_AndKeepsTheRest()
+        {
+            _save.Data.ChestStars = 8;
+            int before = _economy.Coins;
+            int token = _progression.BeginAttempt(1);
+            LevelResult result = _progression.CompleteLevel(token, 3);
+            Assert.AreEqual(3, result.NewStars);
+            Assert.AreEqual(8, result.ChestBefore);
+            Assert.AreEqual(_config.StarChestCoins, result.ChestCoins);
+            Assert.AreEqual(1, _save.Data.ChestStars);
+            Assert.AreEqual(before + result.CoinsAwarded + result.ChestCoins, _economy.Coins);
+            // Replaying for the same stars adds nothing to the chest.
+            token = _progression.BeginAttempt(1);
+            LevelResult again = _progression.CompleteLevel(token, 3);
+            Assert.AreEqual(0, again.NewStars);
+            Assert.AreEqual(1, _save.Data.ChestStars);
+        }
+
+        [Test]
         public void Replay_PaysSmallReward_AndNeverLowersStars()
         {
             _progression.CompleteLevel(_progression.BeginAttempt(1), 3);

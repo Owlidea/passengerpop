@@ -370,6 +370,61 @@ namespace MetroSort.Game
         }
     }
 
+    /// <summary>A soft white streak that sweeps across a button every few seconds (for the main call to action).</summary>
+    public sealed class ShineSweep : MonoBehaviour
+    {
+        public float Interval = 3.4f;
+        private RectTransform _rt, _streak;
+        private float _t;
+
+        public static void Add(Component button, float delay = 0f)
+        {
+            var sweep = button.gameObject.AddComponent<ShineSweep>();
+            sweep._t = -delay;
+        }
+
+        private void Start()
+        {
+            _rt = (RectTransform)transform;
+            // Clip to the button's own rounded shape.
+            if (GetComponent<Mask>() == null) gameObject.AddComponent<Mask>().showMaskGraphic = true;
+            Image streak = UiKit.MakeImage(transform, "Shine", null, new Color(1f, 1f, 1f, 0.34f));
+            _streak = streak.rectTransform;
+            float h = _rt.rect.height;
+            UiKit.Place(_streak, 0.5f, 0.5f, -10000f, 0f, h * 0.42f, h * 2.6f);
+            _streak.localRotation = Quaternion.Euler(0f, 0f, -24f);
+            _streak.SetSiblingIndex(1);
+            _streak.gameObject.SetActive(false);
+        }
+
+        private void Update()
+        {
+            if (_streak == null) return;
+            _t += Time.unscaledDeltaTime;
+            float k = Mathf.Repeat(_t, Interval) / 0.75f;
+            bool on = _t > 0f && k < 1f && !GameSettings.ReducedMotion;
+            if (_streak.gameObject.activeSelf != on) _streak.gameObject.SetActive(on);
+            if (!on) return;
+            float w = _rt.rect.width;
+            _streak.anchoredPosition = new Vector2(Mathf.Lerp(-w * 0.5f - 90f, w * 0.5f + 90f, k * k * (3f - 2f * k)), 0f);
+        }
+    }
+
+    /// <summary>The star chest rocks a little while it waits, and eagerly once it is full.</summary>
+    public sealed class ChestIdle : MonoBehaviour
+    {
+        public bool Ready;
+        private float _t;
+
+        private void Update()
+        {
+            if (GameSettings.ReducedMotion) return;
+            _t += Time.unscaledDeltaTime;
+            float rock = Ready ? Mathf.Sin(_t * 10f) * 6f * (0.5f + 0.5f * Mathf.Sin(_t * 2f)) : Mathf.Sin(_t * 2.2f) * 2.5f;
+            transform.localRotation = Quaternion.Euler(0f, 0f, rock);
+        }
+    }
+
     /// <summary>An on/off switch: a pill that turns green with the knob sliding right.</summary>
     public sealed class ToggleSwitch : MonoBehaviour
     {

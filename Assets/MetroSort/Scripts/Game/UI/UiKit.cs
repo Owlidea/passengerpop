@@ -78,7 +78,7 @@ namespace MetroSort.Game
             tex.wrapMode = TextureWrapMode.Clamp;
             tex.filterMode = FilterMode.Bilinear;
             var pixels = new Color32[size * size];
-            float rim = button ? 3.6f : 3.2f, lip = button ? 9f : 5f;
+            float rim = button ? 3.6f : 3.2f, lip = button ? 11f : 5f;
             for (int y = 0; y < size; y++)
             {
                 for (int x = 0; x < size; x++)
@@ -95,7 +95,7 @@ namespace MetroSort.Game
                         float lum = Mathf.Lerp(0.82f, 0.95f, up);
                         float shine = Mathf.Clamp01(1f - Mathf.Abs(face - 5.5f) / 2.6f) * Mathf.Clamp01((up - 0.60f) * 6f);
                         lum = Mathf.Lerp(lum, 1f, shine * 0.9f);
-                        lum = Mathf.Lerp(0.62f, lum, Mathf.Clamp01(face + 0.5f));         // lip under the face
+                        lum = Mathf.Lerp(0.56f, lum, Mathf.Clamp01(face + 0.5f));         // lip under the face
                         lum = Mathf.Lerp(0.36f, lum, Mathf.Clamp01(body - rim + 0.5f));  // dark rim
                         c = new Color(lum, lum, lum, alpha);
                     }
@@ -254,6 +254,15 @@ namespace MetroSort.Game
             colors.fadeDuration = 0.06f;
             button.colors = colors;
             if (onClick != null) button.onClick.AddListener(onClick);
+            // A glassy highlight across the upper half, white so it reads on any colour, under the label.
+            Image gloss = MakeImage(img.transform, "Gloss", Rounded, new Color(1f, 1f, 1f, 0.22f));
+            RectTransform g = gloss.rectTransform;
+            g.anchorMin = new Vector2(0f, 0.5f);
+            g.anchorMax = new Vector2(1f, 1f);
+            float side = Mathf.Max(10f, height * 0.16f);
+            g.offsetMin = new Vector2(side, height * 0.05f);
+            g.offsetMax = new Vector2(-side, -height * 0.11f);
+            gloss.pixelsPerUnitMultiplier = 48f / Mathf.Max(8f, height * 0.34f);
             Text text = MakeText(img.transform, label, fontSize, Color.white);
             Stretch(text.rectTransform, 14f, Mathf.Min(16f, height * 0.12f), 14f, 6f);
             text.resizeTextForBestFit = true;
@@ -450,11 +459,26 @@ namespace MetroSort.Game
     public sealed class PopIn : MonoBehaviour
     {
         private float _t = 1f;
+        // Popups are built enabled and hidden straight after: only later showings make a sound.
+        private bool _armed;
 
         private void OnEnable()
         {
             _t = GameSettings.ReducedMotion ? 1f : 0f;
             Apply();
+            if (_armed) PlaySound(Sfx.PopupOpen);
+        }
+
+        private void OnDisable()
+        {
+            if (_armed) PlaySound(Sfx.PopupClose);
+            _armed = true;
+        }
+
+        private static void PlaySound(Sfx sfx)
+        {
+            GameApp app = GameApp.Instance;
+            if (app != null && app.isActiveAndEnabled && app.Audio != null) app.Audio.Play(sfx);
         }
 
         private void Update()
@@ -500,6 +524,56 @@ namespace MetroSort.Game
     }
 
     /// <summary>Gentle idle float and breathing scale, for the logo and the mascot.</summary>
+    /// <summary>A light shaft that sways a few degrees and breathes in brightness, very slowly.</summary>
+    public sealed class Sway2D : MonoBehaviour
+    {
+        public float Phase;
+        private RawImage _img;
+        private float _alpha, _angle;
+
+        private void Awake()
+        {
+            _img = GetComponent<RawImage>();
+            _alpha = _img != null ? _img.color.a : 0f;
+            _angle = transform.localEulerAngles.z;
+        }
+
+        private void Update()
+        {
+            if (GameSettings.ReducedMotion) return;
+            float t = Time.unscaledTime * 0.35f + Phase;
+            transform.localRotation = Quaternion.Euler(0f, 0f, _angle + Mathf.Sin(t) * 2.5f);
+            if (_img != null)
+            {
+                Color c = _img.color;
+                c.a = _alpha * (0.65f + 0.35f * Mathf.Sin(t * 1.3f + 1f));
+                _img.color = c;
+            }
+        }
+    }
+
+    /// <summary>A heartbeat: two quick swells ("lub-dub") then a rest, on the element's scale.</summary>
+    public sealed class Beat : MonoBehaviour
+    {
+        public float Period = 1.5f, Amount = 0.07f;
+
+        private void Update()
+        {
+            if (GameSettings.ReducedMotion) return;
+            float t = Mathf.Repeat(Time.unscaledTime, Period);
+            float s = 1f + Amount * Pulse(t, 0.0f) + Amount * 0.6f * Pulse(t, 0.2f);
+            transform.localScale = new Vector3(s, s, 1f);
+        }
+
+        private static float Pulse(float t, float at)
+        {
+            float u = (t - at) / 0.16f;
+            return u <= 0f || u >= 1f ? 0f : Mathf.Sin(u * Mathf.PI);
+        }
+
+        private void OnDisable() { transform.localScale = Vector3.one; }
+    }
+
     public sealed class Bob : MonoBehaviour
     {
         public float Height = 10f, Period = 2.6f, Squash = 0.015f;

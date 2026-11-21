@@ -108,6 +108,7 @@ namespace MetroSort.Game
         public BoosterManager Boosters;
         public AchievementManager Achievements;
         public IAnalyticsService Analytics;
+        public MonetizationConfig Monetization;
         public IAdsService Ads;
         public AdsCoordinator AdsCoordinator;
         public IPurchaseService Purchases;
@@ -128,13 +129,20 @@ namespace MetroSort.Game
             s.Boosters = new BoosterManager(s.Save, s.Economy);
             s.Achievements = new AchievementManager(s.Save, s.Economy);
             s.Analytics = new DebugLogAnalyticsService();
-            // Development stand-ins. Replace with real SDK adapters once store accounts and ad units exist.
-            s.Ads = new MockAdsService();
-            s.Ads.Initialize();
+            // AdMob and RevenueCat on an Android device (Resources/monetization.json); development stand-ins in the
+            // editor, in tests and while a key is missing.
+            MonetizationConfig money = MonetizationConfig.Load();
+            s.Monetization = money;
+            // Initialized by GameApp once the studio intro is over (the consent form must not cover it).
+            s.Ads = MonetizationServices.CreateAds(money);
             s.AdsCoordinator = new AdsCoordinator(s.Ads, s.Economy, s.Save, s.Analytics);
-            s.Purchases = new MockPurchaseService();
-            s.Purchases.Initialize();
+            s.Purchases = MonetizationServices.CreatePurchases(money);
             s.Store = new StoreManager(s.Purchases, new AcceptAllReceiptValidator(), s.Economy, s.Save, s.Analytics);
+#if METROSORT_REVENUECAT
+            var revenueCat = s.Purchases as RevenueCatPurchaseService;
+            if (revenueCat != null) revenueCat.RemoveAdsOwned += () => s.Store.MarkOwned(StoreCatalog.RemoveAds);
+#endif
+            s.Purchases.Initialize();
             s.Levels = new LevelManager();
             s.Levels.Load();
             return s;

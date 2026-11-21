@@ -94,6 +94,16 @@ namespace MetroSort.Game
 
             Services.Analytics.Track(AnalyticsEvents.GameLaunched, null);
             GoToMenu();
+            // The real game opens on the StagFunny studio intro (tests skip it). The menu is built underneath; the
+            // music waits for the intro, and so do the ads, so their consent form never covers the logo.
+            if (store == null && BrandIntro.Play(transform, data.ReducedMotion, AfterIntro)) Audio.MusicHeld = true;
+            else AfterIntro();
+        }
+
+        private void AfterIntro()
+        {
+            Audio.MusicHeld = false;
+            Services.Ads.Initialize();
             if (Services.Save.RecoveredFromBackup) UI.Toast("Your progress was restored from a backup");
         }
 

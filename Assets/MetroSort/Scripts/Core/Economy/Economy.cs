@@ -23,10 +23,17 @@ namespace MetroSort.Economy
         public int MaxLives = 5;
         public int LifeRefillSeconds = 30 * 60;
         public int LivesRefillCost = 120;
+        /// <summary>Unlimited lives: a stretch of time in which a lost level costs nothing (offer price in coins).</summary>
+        public int UnlimitedLivesSeconds = 60 * 60;
+        public int UnlimitedLivesCost = 350;
 
         // Star chest: every new star a level earns goes into the chest; it opens when full.
         public int StarChestStars = 10;
         public int StarChestCoins = 100;
+
+        // First clear of a Hard / Super Hard level pays this on top.
+        public int HardLevelBonus = 15;
+        public int SuperHardLevelBonus = 30;
     }
 
     public sealed class EconomyManager
@@ -143,7 +150,7 @@ namespace MetroSort.Economy
             return Math.Max(1, stars);
         }
 
-        public LevelResult CompleteLevel(int attemptToken, int stars)
+        public LevelResult CompleteLevel(int attemptToken, int stars, int tier = 0)
         {
             if (attemptToken != _activeToken || _activeToken == 0)
                 return new LevelResult { LevelId = _activeLevel, Duplicate = true };
@@ -154,7 +161,8 @@ namespace MetroSort.Economy
             EconomyConfig cfg = _economy.Config;
             int previous = GetStars(_activeLevel);
             bool first = previous == 0;
-            int coins = first ? cfg.CoinsPerLevel + cfg.CoinsPerStar * stars : cfg.ReplayCoins;
+            int bonus = tier >= 2 ? cfg.SuperHardLevelBonus : (tier == 1 ? cfg.HardLevelBonus : 0);
+            int coins = first ? cfg.CoinsPerLevel + cfg.CoinsPerStar * stars + bonus : cfg.ReplayCoins;
 
             if (stars > previous) _save.Data.Stars[_activeLevel] = stars;
             if (_activeLevel >= _save.Data.HighestUnlocked) _save.Data.HighestUnlocked = _activeLevel + 1;

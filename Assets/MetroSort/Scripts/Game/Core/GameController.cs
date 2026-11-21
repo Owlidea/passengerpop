@@ -95,7 +95,8 @@ namespace MetroSort.Game
                 _app.Audio.Play(Sfx.Invalid);
                 return MoveError.BadTarget;
             }
-            if (!move.IsToBench && _app.Anim.IsPlatformBusy(move.Target))
+            // Timetable levels never block: the passenger walks over and waits there for the next train.
+            if (!move.IsToBench && !Board.State.HasSchedule && _app.Anim.IsPlatformBusy(move.Target))
             {
                 // The previous group has not left yet; keep the platform clear until its train departs.
                 if (Board.Validate(move) == MoveError.None)
@@ -147,7 +148,7 @@ namespace MetroSort.Game
         {
             GameServices s = _app.Services;
             int stars = ProgressionManager.ComputeStars(Board.State.MovesUsed, Level.Par, _assists);
-            LevelResult result = s.Progression.CompleteLevel(_token, stars);
+            LevelResult result = s.Progression.CompleteLevel(_token, stars, Level.Tier);
             if (result.Duplicate) return;
             s.Achievements.EvaluateProgress(Level.Id, s.Save.Data.Stars);
             _app.Tutorial.OnLevelCompleted();

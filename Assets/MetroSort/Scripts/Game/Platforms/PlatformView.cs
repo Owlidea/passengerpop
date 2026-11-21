@@ -162,7 +162,7 @@ namespace MetroSort.Game
                 Label = (s.Express ? Loc.T("EXPRESS  ") : "") + Loc.F(s.UsesLeft == 1 ? "{0} use left" : "{0} uses left", s.UsesLeft);
             else if (s.Express)
                 Label = s.ReservedColor >= 0 ? Loc.F("EXPRESS\n{0} only", Loc.T(ColorCodes.Names[s.ReservedColor])) : Loc.T("EXPRESS");
-            else if (s.ReservedColor >= 0 && _scheduled) Label = Loc.F("{0} line train", Loc.T(ColorCodes.Names[s.ReservedColor]));
+            else if (s.ReservedColor >= 0 && _scheduled) Label = "";
             else if (s.ReservedColor >= 0 && !_scheduled) Label = Loc.F("{0} only", Loc.T(ColorCodes.Names[s.ReservedColor]));
             else if (s.IsExtra) Label = Loc.T("EXTRA");
             else Label = "";
@@ -443,6 +443,9 @@ namespace MetroSort.Game
         }
 
         public float HalfLength { get { return _capacity * Pitch * 0.5f + 0.5f; } }
+
+        /// <summary>Full length of a train serving a platform of this capacity, cabs included.</summary>
+        public static float LengthFor(int capacity) { return capacity * Pitch + 1.0f; }
 
         private float CarX(int index)
         {
