@@ -11,7 +11,9 @@ namespace MetroSort.Game
         // Recordings only (no synthesised stand-in): silent when the file is missing.
         BenchSit, GateFlap, Barrier, BoardFlip, ChestOpen, MascotPop, Reveal, StarStamp,
         // Synthesised musical note for the boarding chain (pitched per passenger).
-        Board
+        Board,
+        // Popups opening and closing (UiKit.PopIn; Tools/art/ui_sfx.py).
+        PopupOpen, PopupClose
     }
 
     /// <summary>
@@ -31,7 +33,8 @@ namespace MetroSort.Game
             "ui_tap", "passenger_select", "error", "footsteps", "passenger_land", "platform_full", "train_arriving", "train_doors", "train_departing",
             "win_jingle", "level_failed", "coins_drop", "booster", "achievement", "star_collect", "crowd_yay", "coin_tick",
             "bench_sit", "gate_flap", "barrier", "board_flip", "chest_open", "mascot_pop", "mystery_reveal", "star_stamp",
-            null
+            null,
+            "popup_open", "popup_close"
         };
 
         // The mix, indexed by the Sfx enum: the loudness (dBFS of the loudest 50 ms) every clip is brought to when
@@ -42,7 +45,8 @@ namespace MetroSort.Game
             -23f, -21f, -20f, -24f, -21f, -15f, -17f, -21f, -17f,
             -14f, -16f, -18f, -17f, -16f, -17f, -20f, -24f,
             -20f, -21f, -21f, -22f, -16f, -19f, -18f, -16f,
-            -19f
+            -19f,
+            -24f, -26f
         };
 
         // How much each play may wander in pitch (fraction) so repeated sounds never sound copy-pasted. Music-like
@@ -52,11 +56,12 @@ namespace MetroSort.Game
             0.03f, 0.05f, 0.03f, 0.08f, 0.06f, 0f, 0.03f, 0.04f, 0.03f,
             0f, 0f, 0.04f, 0.02f, 0f, 0.03f, 0.04f, 0.05f,
             0.07f, 0.05f, 0.04f, 0.03f, 0f, 0.05f, 0.02f, 0.03f,
-            0f
+            0f,
+            0.04f, 0.04f
         };
 
         // Clips with alternative takes in Resources/Audio (<file>_b, <file>_c): picked in turn, never twice in a row.
-        private static readonly Sfx[] WithTakes = { Sfx.Select, Sfx.Assign, Sfx.BenchSit, Sfx.Doors, Sfx.CoinTick };
+        private static readonly Sfx[] WithTakes = { Sfx.Click, Sfx.Select, Sfx.Invalid, Sfx.Step, Sfx.Assign, Sfx.BenchSit, Sfx.Doors, Sfx.CoinTick };
 
         // Major pentatonic steps: each passenger boarding in quick succession plays the next note up.
         private static readonly int[] Scale = { 0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24 };
@@ -218,8 +223,7 @@ namespace MetroSort.Game
             bool file = _fromFile[(int)sfx];
             if (sfx == Sfx.Step)
             {
-                // Several passengers can arrive in the same frame; one footstep is enough. The recording
-                // already holds a few steps, so it is not restarted until it has mostly played.
+                // Several passengers can arrive in the same frame; one footstep is enough.
                 if (Time.unscaledTime - _lastStepTime < (file ? takes[0].length * 0.7f : 0.05f)) return null;
                 _lastStepTime = Time.unscaledTime;
             }
