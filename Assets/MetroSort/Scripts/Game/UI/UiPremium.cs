@@ -40,6 +40,61 @@ namespace MetroSort.Game
         private static Sprite _rider;
         /// <summary>A white passenger silhouette (head and shoulders) to lay over a coloured Round.</summary>
         public static Sprite Rider { get { return _rider != null ? _rider : (_rider = MakeRider(96)); } }
+        private static Sprite _ring;
+        /// <summary>A thin white ring with soft edges (the ripple of a tap), tinted by the Image colour.</summary>
+        public static Sprite Ring { get { return _ring != null ? _ring : (_ring = MakeRing(128, 0.80f)); } }
+
+        private static Sprite MakeRing(int size, float inner)
+        {
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            var pixels = new Color32[size * size];
+            float c = (size - 1) * 0.5f, outer = c - 1f, hole = c * inner;
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float d = Mathf.Sqrt((x - c) * (x - c) + (y - c) * (y - c));
+                    float a = Mathf.Clamp01(outer - d) * Mathf.Clamp01((d - hole) / 1.5f);
+                    pixels[y * size + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(a * 255f));
+                }
+            }
+            tex.SetPixels32(pixels);
+            tex.Apply(false, true);
+            return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
+        }
+
+        /// <summary>
+        /// A solid white house for round buttons, in the style of the white gear on the settings button: a roof with
+        /// eaves and a chimney, walls, and a door cut in the button's own colour, over a soft shadow.
+        /// </summary>
+        public static RectTransform House(Transform parent, float size, Color door)
+        {
+            RectTransform root = UiKit.Place(UiKit.MakeRect("House", parent), 0.5f, 0.5f, 0f, size * 0.02f, size, size);
+            HouseShape(root, size, new Color(0.02f, 0.08f, 0.26f, 0.42f), new Vector2(0f, -size * 0.055f), null);
+            HouseShape(root, size, Color.white, Vector2.zero, door);
+            return root;
+        }
+
+        private static void HouseShape(RectTransform root, float s, Color color, Vector2 at, Color? door)
+        {
+            HousePart(root, "Chimney", color, at + new Vector2(s * 0.21f, s * 0.21f), s * 0.12f, s * 0.22f, s * 0.03f, 0f);
+            // A rounded square turned on its corner: the roof, its lower half hidden behind the walls.
+            HousePart(root, "Roof", color, at + new Vector2(0f, s * 0.06f), s * 0.60f, s * 0.60f, s * 0.07f, 45f);
+            HousePart(root, "Walls", color, at + new Vector2(0f, -s * 0.20f), s * 0.62f, s * 0.44f, s * 0.06f, 0f);
+            if (door.HasValue) HousePart(root, "Door", door.Value, at + new Vector2(0f, -s * 0.31f), s * 0.17f, s * 0.24f, s * 0.07f, 0f);
+        }
+
+        private static void HousePart(RectTransform root, string name, Color color, Vector2 at, float w, float h, float radius, float angle)
+        {
+            Image part = UiKit.MakeImage(root, name, UiKit.Rounded, color);
+            part.type = Image.Type.Sliced;
+            // Rounded's corners are 24 px: scale them to the wanted radius.
+            part.pixelsPerUnitMultiplier = 24f / Mathf.Max(0.5f, radius);
+            RectTransform rt = UiKit.Place(part.rectTransform, 0.5f, 0.5f, at.x, at.y, w, h);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = at;
+            rt.localRotation = Quaternion.Euler(0f, 0f, angle);
+        }
 
         // ------------------------------------------------------------------ sprites
 

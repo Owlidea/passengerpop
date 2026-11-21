@@ -94,13 +94,33 @@ def matte(a, bright=9):
     return out
 
 
-def cells(name, names, size, bright=9):
+def clean_halo(a, near=6, far=22, grey=40):
+    """Clears what the matte leaves around a figure: the studio floor shadow and white glow puffs, which show as
+    pale blotches on the game's dark reward backdrop. Grey pixels (chroma below `grey`) more than `near` pixels
+    from the strongly coloured figure fade out, gone by `far`; coloured bits (coins, confetti) are kept."""
+    rgb = a[..., :3] * 255.0
+    chroma = rgb.max(axis=2) - rgb.min(axis=2)
+    ring = (a[..., 3] > 0.5) & (chroma > 60)
+    dist = np.where(ring, 0.0, far + 1.0).astype(np.float32)
+    for d in range(1, far + 1):     # grow the figure one pixel ring at a time
+        grow = ring.copy()
+        grow[1:] |= ring[:-1]; grow[:-1] |= ring[1:]; grow[:, 1:] |= ring[:, :-1]; grow[:, :-1] |= ring[:, 1:]
+        dist[grow & ~ring] = d
+        ring = grow
+    keep = np.clip((far - dist) / float(far - near), 0, 1)
+    out = a.copy()
+    out[..., 3] = np.where(chroma < grey, a[..., 3] * keep, a[..., 3])
+    return out
+
+
+def cells(name, names, size, bright=9, clean=False):
     """Splits a sheet of equally spaced figures on a grey backdrop into one trimmed sprite each."""
     sheet = load(name)
     sheet = matte(fit(sheet, 2048), bright)
     step = sheet.shape[1] // len(names)
     for i, out in enumerate(names):
-        save(fit(trim(sheet[:, i * step:(i + 1) * step]), size), ART, out)
+        cell = sheet[:, i * step:(i + 1) * step]
+        save(fit(trim(clean_halo(cell) if clean else cell), size), ART, out)
 
 
 # Tiling surfaces for the 3D station and the wall posters.
@@ -128,6 +148,7 @@ for i, name in enumerate(("crimson", "emerald", "sapphire", "amber", "ivory", "n
     w = im.shape[1]
     save(resize(im[:w // 3], 1200, 400), ART, "chapter_%d" % (i + 5))
 
-cells("chest-states", ("chest_0", "chest_1", "chest_2"), 512, bright=90)
-cells("gift-states", ("gift_0", "gift_1", "gift_2"), 512, bright=90)
+# Reward boxes open on a dark backdrop (UIManager.RevealRoutine): clean_halo removes the pale floor shadow.
+cells("chest-states", ("chest_0", "chest_1", "chest_2"), 512, bright=90, clean=True)
+cells("gift-states", ("gift_0", "gift_1", "gift_2"), 512, bright=90, clean=True)
 cells("conductor-extra", ("conductor_think", "conductor_surprised", "conductor_thumbs", "conductor_idea"), 640)

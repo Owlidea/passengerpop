@@ -50,10 +50,16 @@ namespace MetroSort.Game
             label.resizeTextMinSize = 18;
             label.resizeTextMaxSize = 30;
 
-            // The rail the trains stand on: two thin steel lines on dark sleepers.
+            // The rail the trains stand on: two thin steel lines on wooden sleepers over a dark bed.
             Image bed = UiKit.MakeImage(root, "RailBed", UiKit.Rounded, new Color(0.04f, 0.08f, 0.20f, 0.85f));
             UiKit.Place(bed.rectTransform, 0f, 0.5f, 180f, RailY, 560f, 14f);
             bed.rectTransform.pivot = new Vector2(0f, 0.5f);
+            for (float x = 192f; x < 736f; x += 24f)
+            {
+                Image sleeper = UiKit.MakeImage(root, "Sleeper", UiKit.Rounded, new Color(0.55f, 0.36f, 0.22f, 0.95f));
+                sleeper.pixelsPerUnitMultiplier = 8f;
+                UiKit.Place(sleeper.rectTransform, 0f, 0.5f, x, RailY, 7f, 18f).pivot = new Vector2(0.5f, 0.5f);
+            }
             for (int r = 0; r < 2; r++)
             {
                 Image rail = UiKit.MakeImage(root, "Rail", UiKit.Rounded, new Color(0.70f, 0.76f, 0.90f, 0.9f));
@@ -61,10 +67,17 @@ namespace MetroSort.Game
                 rail.rectTransform.pivot = new Vector2(0f, 0.5f);
             }
 
-            Image glow = UiKit.MakeImage(root, "Glow", UiKit.Circle, new Color(1f, 0.86f, 0.40f, 0.30f));
-            glow.type = Image.Type.Simple;   // a full disc, not a 9-sliced rounded box
-            strip._glow = UiKit.Place(glow.rectTransform, 0f, 0.5f, FirstX, 2f, 112f, 112f);
+            // The next train waits in a gold-framed bay with a warm light in it; it is bigger and pokes out of the top.
+            Image bay = UiKit.MakeImage(root, "NextBay", UiKit.Rounded, new Color(1f, 0.78f, 0.28f));
+            bay.pixelsPerUnitMultiplier = 1.6f;
+            strip._glow = UiKit.Place(bay.rectTransform, 0f, 0.5f, FirstX, 0f, 128f, 88f);
             strip._glow.pivot = new Vector2(0.5f, 0.5f);
+            Image bayInside = UiKit.MakeImage(bay.transform, "Inside", UiKit.Rounded, new Color(0.20f, 0.30f, 0.62f));
+            bayInside.pixelsPerUnitMultiplier = 2f;
+            UiKit.Stretch(bayInside.rectTransform, 5f, 5f, 5f, 5f);
+            Image bayLight = UiKit.MakeImage(bayInside.transform, "Light", UiKit.Circle, new Color(1f, 0.86f, 0.42f, 0.35f));
+            bayLight.type = Image.Type.Simple;
+            UiKit.Place(bayLight.rectTransform, 0.5f, 0.5f, 0f, 0f, 104f, 74f).pivot = new Vector2(0.5f, 0.5f);
 
             strip._row = UiKit.Stretch(UiKit.MakeRect("Trains", root));
             for (int i = 0; i < Slots; i++)
@@ -165,7 +178,8 @@ namespace MetroSort.Game
                 float pop = i == Slots - 1 || (i == 0 && _slideDir < 0) ? 1f - 0.6f * _pop * _pop : 1f;
                 _slots[i].sizeDelta = new Vector2(size, size) * pop;
             }
-            float pulse = 1f + 0.08f * Mathf.Sin(_time * 3.2f);
+            // The bay breathes very slightly with the waiting train.
+            float pulse = 1f + 0.025f * Mathf.Sin(_time * 3.2f);
             _glow.localScale = Vector3.one * pulse;
         }
 

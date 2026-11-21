@@ -16,11 +16,12 @@ namespace MetroSort.Game
 
         static Loc() { Language = English; }
 
-        /// <summary>saved = "" means follow the device language.</summary>
+        /// <summary>
+        /// saved = "" (never chosen) opens in English whatever the device language; Turkish is picked in Settings.
+        /// </summary>
         public static void Init(string saved)
         {
-            if (saved == English || saved == Turkish) Language = saved;
-            else Language = Application.systemLanguage == SystemLanguage.Turkish ? Turkish : English;
+            Language = saved == Turkish ? Turkish : English;
         }
 
         public static string T(string english)
@@ -219,9 +220,6 @@ namespace MetroSort.Game
             { "Privacy options are not available right now", "Gizlilik seçenekleri şu an açılamıyor" },
             { "Credits", "Emeği Geçenler" },
             { "A StagFunny game", "Bir StagFunny oyunu" },
-            { "Train sounds", "Tren sesleri" },
-            { "London Underground recordings by Philt3r", "Londra Metrosu kayıtları: Philt3r" },
-            { "Wikimedia Commons, CC BY 4.0, edited", "Wikimedia Commons, CC BY 4.0, düzenlendi" },
             { "Sound effects", "Ses efektleri" },
             { "Font", "Yazı tipi" },
             { "Software", "Yazılım" },
@@ -235,6 +233,10 @@ namespace MetroSort.Game
             { "Try Again", "Tekrar Dene" },
             { "Out of Moves", "Hamle Kalmadı" },
             { "Station Jammed", "İstasyon Tıkandı" },
+            { "passengers left", "yolcu kaldı" },
+            { "Leaving the level also costs a life", "Seviyeden çıkmak da 1 can harcar" },
+            { "The bench is full and no front passenger has a train.", "Bank dolu ve öndeki yolcuların treni burada değil." },
+            { "No passenger can reach a platform.", "Hiçbir yolcu perona geçemiyor." },
             { "The move limit ran out before everyone boarded.", "Herkes binmeden hamle hakkı bitti." },
             { "No passenger can reach a platform. Undo a move or try again.", "Hiçbir yolcu perona geçemiyor. Bir hamleyi geri al ya da tekrar dene." },
             { "You cleared every station. More are on the way!", "Tüm istasyonları bitirdin. Yenileri yolda!" },

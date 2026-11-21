@@ -437,6 +437,9 @@ namespace MetroSort.Game
     {
         private float _target = 1f, _current = 1f;
 
+        /// <summary>Above zero, the button keeps gently swelling by this much and settling (the main call to action).</summary>
+        public float Breathe;
+
         public void OnPointerDown(PointerEventData eventData) { _target = 0.93f; }
         public void OnPointerUp(PointerEventData eventData) { _target = 1f; }
         public void OnPointerExit(PointerEventData eventData) { _target = 1f; }
@@ -449,9 +452,16 @@ namespace MetroSort.Game
 
         private void Update()
         {
-            if (Mathf.Approximately(_current, _target)) return;
-            _current = GameSettings.ReducedMotion ? _target : Mathf.MoveTowards(_current, _target, Time.unscaledDeltaTime * 1.4f);
-            transform.localScale = Vector3.one * _current;
+            bool breathe = Breathe > 0f && !GameSettings.ReducedMotion;
+            if (!breathe && Mathf.Approximately(_current, _target))
+            {
+                if (!Mathf.Approximately(transform.localScale.x, _current)) transform.localScale = Vector3.one * _current;
+                return;
+            }
+            if (!Mathf.Approximately(_current, _target))
+                _current = GameSettings.ReducedMotion ? _target : Mathf.MoveTowards(_current, _target, Time.unscaledDeltaTime * 1.4f);
+            float swell = breathe ? 1f + Breathe * (0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 3.2f)) : 1f;
+            transform.localScale = Vector3.one * (_current * swell);
         }
     }
 
