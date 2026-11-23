@@ -342,9 +342,8 @@ namespace MetroSort.Game
             Text t = UiKit.MakeText(ribbon.transform, title, 70, Color.white);
             // The ribbon artwork's band sits in its upper middle; keep the title on it.
             UiKit.Stretch(t.rectTransform, width * 0.18f, h * 0.42f, width * 0.18f, h * 0.14f);
-            t.resizeTextForBestFit = true;
-            t.resizeTextMinSize = 30;
-            t.resizeTextMaxSize = 70;
+            // One line on the band in every language ("Emeği Geçenler" used to wrap onto two).
+            UiKit.OneLine(t, 70, 30);
             UiKit.Emboss(t, new Color(0.45f, 0.04f, 0.06f, 0.95f));
             return ribbon;
         }

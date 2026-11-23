@@ -86,9 +86,15 @@ def matte(im):
 
 
 def import_logo():
-    # Keep the main menu's existing sprite bounds as the new mark is taller.
-    logo = ImageOps.pad(trim(load("logo-v2")), (1207, 997), method=Image.Resampling.LANCZOS)
+    # Keep the main menu's existing sprite bounds.
+    logo = ImageOps.pad(trim(load("passenger-pop-logo")), (1207, 997), method=Image.Resampling.LANCZOS)
     save(logo, "logo")
+
+
+def import_app_icon():
+    icon = load("passenger-pop-app-icon").convert("RGB")
+    icon.resize((1024, 1024), Image.Resampling.LANCZOS).save(ICON, optimize=True)
+    print("icon ", ICON)
 
 
 def import_menu_icons():
@@ -131,8 +137,7 @@ def main():
         im = load(name).convert("RGB")
         save(im.crop((0, 0, im.width, im.width // 3)).resize((1200, 400), Image.LANCZOS), "chapter_%d" % i)
 
-    load("app-icon").convert("RGB").resize((1024, 1024), Image.LANCZOS).save(ICON, optimize=True)
-    print("icon ", ICON)
+    import_app_icon()
 
     for name in sorted(os.listdir(os.path.join(SRC, "Ses"))):
         if name.endswith(".wav"):

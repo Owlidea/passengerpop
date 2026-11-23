@@ -1,11 +1,15 @@
 {
-  "_note": "Metro Sort's real AdMob app and ad units (created 2026-11-21). The test APK (Metro Sort > Build > Android APK) follows useTestAds: while it is true it requests Google's test ad units, so testing on your own phone never clicks a real ad (that can get the AdMob account suspended). The Google Play build (Android App Bundle) always requests the real units, whatever useTestAds says; add your phone as a test device in AdMob before installing that one. revenueCatGoogleApiKey is the public SDK key of the RevenueCat project Metro Sort (Play Store app); it is meant to ship inside the app. The privacy policy is the StagFunny studio policy that covers all its games.",
+  "_note": "Metro Sort's real AdMob apps and ad units (Android created 2026-11-21, iOS 2026-11-22). The test APK (Metro Sort > Build > Android APK) follows useTestAds: while it is true it requests Google's test ad units, so testing on your own phone never clicks a real ad (that can get the AdMob account suspended). The Google Play build (Android App Bundle) always requests the real units, whatever useTestAds says; add your phone as a test device in AdMob before installing that one. revenueCatGoogleApiKey is the public SDK key of the RevenueCat project Metro Sort (Play Store app); it is meant to ship inside the app. The in-app privacy link opens Passenger Pop's own page on GitHub Pages (repo Owlidea/passengerpop, English and Turkish); the App Store listing links to the StagFunny studio policy (stagfunny.com/privacy/ and /tr/privacy/) since 2026-11-23. Builds already shipped open the GitHub addresses, so those pages must stay online (or redirect) even if the link here changes. iOS has its own AdMob app and units (admobIos*) and its own RevenueCat key (revenueCatAppleApiKey, appl_...); the App Store build (Metro Sort > Build > iOS Xcode Project) always requests the real iOS units, the simulator build follows useTestAds, and revenueCatAppleApiKey is the public SDK key of the RevenueCat app Passenger Pop (App Store), app4be99ce65a, created 2026-11-22; while a key is empty that platform refuses purchases instead of granting them for free.",
   "admobAndroidAppId": "ca-app-pub-6048334063594634~6964306001",
   "admobAndroidRewardedId": "ca-app-pub-6048334063594634/1383182979",
   "admobAndroidInterstitialId": "ca-app-pub-6048334063594634/7270980659",
+  "admobIosAppId": "ca-app-pub-6048334063594634~4208783179",
+  "admobIosRewardedId": "ca-app-pub-6048334063594634/2045654264",
+  "admobIosInterstitialId": "ca-app-pub-6048334063594634/5657596217",
   "useTestAds": true,
   "revenueCatGoogleApiKey": "goog_WRZIeOeukjgMCfJDnLwQdKwNbJE",
+  "revenueCatAppleApiKey": "appl_QTrFanEOChNxtRtIqOQjpIbaMqA",
   "removeAdsEntitlement": "no_ads",
-  "privacyPolicyUrl": "https://stagfunny.com/privacy",
-  "privacyPolicyUrlTr": "https://stagfunny.com/tr/privacy"
+  "privacyPolicyUrl": "https://owlidea.github.io/passengerpop/privacy.html",
+  "privacyPolicyUrlTr": "https://owlidea.github.io/passengerpop/tr/privacy.html"
 }

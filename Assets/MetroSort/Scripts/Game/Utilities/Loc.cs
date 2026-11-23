@@ -6,29 +6,90 @@ namespace MetroSort.Game
     /// <summary>
     /// Minimal localisation. English text is the key; a language table maps it to a translation and anything
     /// missing falls back to English. Use T() for fixed text and F() for text with {0}-style placeholders.
+    /// Turkish lives in this file; the other tables are in LocDe/LocFr/LocEs/LocPt/LocIt.cs.
     /// </summary>
-    public static class Loc
+    public static partial class Loc
     {
         public const string English = "en";
         public const string Turkish = "tr";
+        public const string German = "de";
+        public const string French = "fr";
+        public const string Spanish = "es";
+        public const string Portuguese = "pt";
+        public const string Italian = "it";
+
+        /// <summary>Every language the game speaks, in the order the language picker lists them.</summary>
+        public static readonly string[] Languages = { English, Turkish, German, French, Spanish, Portuguese, Italian };
 
         public static string Language { get; private set; }
 
         static Loc() { Language = English; }
 
+        /// <summary>The language's own name, as the picker shows it whatever the current language is.</summary>
+        public static string NativeName(string language)
+        {
+            switch (language)
+            {
+                case Turkish: return "Türkçe";
+                case German: return "Deutsch";
+                case French: return "Français";
+                case Spanish: return "Español";
+                case Portuguese: return "Português";
+                case Italian: return "Italiano";
+                default: return "English";
+            }
+        }
+
+        // Device languages the game speaks, and the language each one opens in. Anything else opens in English.
+        private static readonly Dictionary<SystemLanguage, string> DeviceLanguages = new Dictionary<SystemLanguage, string>
+        {
+            { SystemLanguage.Turkish, Turkish },
+            { SystemLanguage.German, German },
+            { SystemLanguage.French, French },
+            { SystemLanguage.Spanish, Spanish },
+            { SystemLanguage.Portuguese, Portuguese },
+            { SystemLanguage.Italian, Italian },
+        };
+
         /// <summary>
-        /// saved = "" (never chosen) opens in English whatever the device language; Turkish is picked in Settings.
+        /// A language picked in Settings always wins. Never chosen (saved = ""), the game opens in the device's
+        /// language when it speaks it, and in English everywhere else.
         /// </summary>
         public static void Init(string saved)
         {
-            Language = saved == Turkish ? Turkish : English;
+            if (System.Array.IndexOf(Languages, saved) >= 0)
+            {
+                Language = saved;
+                return;
+            }
+            string spoken;
+            Language = DeviceLanguages.TryGetValue(Application.systemLanguage, out spoken) ? spoken : English;
+        }
+
+        private static Dictionary<string, Dictionary<string, string>> _tables;
+
+        /// <summary>The current language's table; null for English. Built on first use, after every table exists.</summary>
+        private static Dictionary<string, string> Table
+        {
+            get
+            {
+                if (Language == English) return null;
+                if (_tables == null)
+                    _tables = new Dictionary<string, Dictionary<string, string>>
+                    {
+                        { Turkish, Tr }, { German, De }, { French, Fr }, { Spanish, Es }, { Portuguese, Pt }, { Italian, It },
+                    };
+                Dictionary<string, string> table;
+                return _tables.TryGetValue(Language, out table) ? table : null;
+            }
         }
 
         public static string T(string english)
         {
-            if (string.IsNullOrEmpty(english) || Language != Turkish) return english;
+            Dictionary<string, string> table = Table;
+            if (string.IsNullOrEmpty(english) || table == null) return english;
             string translated;
-            return Tr.TryGetValue(english, out translated) ? translated : english;
+            return table.TryGetValue(english, out translated) ? translated : english;
         }
 
         public static string F(string englishFormat, params object[] args)
@@ -37,19 +98,34 @@ namespace MetroSort.Game
         }
 
         /// <summary>
-        /// Level names: curated names are translated whole; generated two-word names ("Copper Junction")
-        /// are translated word by word.
+        /// Level names: curated names are translated whole. Generated two-word names ("Copper Junction") are built
+        /// from their words: "name:" + the second word is the place, and the first word describes it. English and
+        /// Turkish keep the English order; German makes one compound word ("Kupfer" + "Kreuz" = "Kupferkreuz");
+        /// French, Spanish, Portuguese and Italian put the place first ("Puente" + "de Cobre"). A "mod:" entry
+        /// gives the first word the form it takes in the name ("Frühlings", "de Cobre"); without one the "name:"
+        /// word is used in the English order.
         /// </summary>
         public static string LevelName(string english)
         {
-            if (string.IsNullOrEmpty(english) || Language != Turkish) return english;
+            Dictionary<string, string> table = Table;
+            if (string.IsNullOrEmpty(english) || table == null) return english;
             string whole;
-            if (Tr.TryGetValue(english, out whole)) return whole;
+            if (table.TryGetValue(english, out whole)) return whole;
             string[] words = english.Split(' ');
             if (words.Length != 2) return english;
-            string first, second;
-            if (!Tr.TryGetValue("name:" + words[0], out first) || !Tr.TryGetValue("name:" + words[1], out second)) return english;
-            return first + " " + second;
+            string place, modifier;
+            if (!table.TryGetValue("name:" + words[1], out place) || string.IsNullOrEmpty(place)) return english;
+            bool own = table.TryGetValue("mod:" + words[0], out modifier);
+            if (!own && !table.TryGetValue("name:" + words[0], out modifier)) return english;
+            if (Language == German) return modifier + char.ToLowerInvariant(place[0]) + place.Substring(1);
+            if (own && PlaceFirst) return place + " " + modifier;
+            return modifier + " " + place;
+        }
+
+        /// <summary>Languages whose generated names put the place before its description.</summary>
+        private static bool PlaceFirst
+        {
+            get { return Language == French || Language == Spanish || Language == Portuguese || Language == Italian; }
         }
 
         private static readonly Dictionary<string, string> Tr = new Dictionary<string, string>
@@ -138,7 +214,7 @@ namespace MetroSort.Game
             { "BEST VALUE", "EN İYİ FIRSAT" },
             { "Play without ad breaks", "Reklamsız oyna" },
             { "Done", "Alındı" },
-            { "Daily Gift", "Günlük Hediye" },
+            { "Daily Gift", "Hediye" },
             { "Lives", "Canlar" },
             { "Restart", "Yeniden Başlat" },
             { "Paused", "Duraklatıldı" },

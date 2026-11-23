@@ -7,28 +7,32 @@ using UnityEngine;
 namespace MetroSort.Game
 {
     /// <summary>
-    /// Picks the real ad network and store on an Android device (AdMob, RevenueCat) and the development stand-ins
-    /// everywhere else: in the editor, in tests, and while the config has no key for a service.
+    /// Picks the real ad network and store on a phone (AdMob, RevenueCat; Android and iOS each with their own units
+    /// and key) and the development stand-ins in the editor and in tests. A phone whose platform has no unit or key
+    /// yet gets no ads and a store that refuses every purchase: never free coins or free rewards in a shipped build.
     /// </summary>
     public static class MonetizationServices
     {
-        private static bool OnDevice { get { return !Application.isEditor && Application.platform == RuntimePlatform.Android; } }
+        private static bool OnAndroid { get { return !Application.isEditor && Application.platform == RuntimePlatform.Android; } }
+        private static bool OnIos { get { return !Application.isEditor && Application.platform == RuntimePlatform.IPhonePlayer; } }
+        private static bool OnDevice { get { return OnAndroid || OnIos; } }
 
         public static IAdsService CreateAds(MonetizationConfig config)
         {
 #if METROSORT_ADMOB
-            if (OnDevice && !string.IsNullOrEmpty(config.RewardedUnit)) return new AdMobAdsService(config.RewardedUnit, config.InterstitialUnit);
+            string rewarded = config.RewardedUnitFor(OnIos);
+            if (OnDevice && !string.IsNullOrEmpty(rewarded)) return new AdMobAdsService(rewarded, config.InterstitialUnitFor(OnIos));
 #endif
-            return new MockAdsService();
+            return OnDevice ? new MockAdsService { RewardedReady = false, InterstitialReady = false } : new MockAdsService();
         }
 
         public static IPurchaseService CreatePurchases(MonetizationConfig config)
         {
 #if METROSORT_REVENUECAT
-            if (OnDevice && !string.IsNullOrEmpty(config.RevenueCatGoogleKey))
-                return new RevenueCatPurchaseService(config.RevenueCatGoogleKey, config.RemoveAdsEntitlement);
+            string key = OnIos ? config.RevenueCatAppleKey : config.RevenueCatGoogleKey;
+            if (OnDevice && !string.IsNullOrEmpty(key)) return new RevenueCatPurchaseService(key, config.RemoveAdsEntitlement);
 #endif
-            return new MockPurchaseService();
+            return OnDevice ? new MockPurchaseService { NextSucceeds = false } : new MockPurchaseService();
         }
     }
 

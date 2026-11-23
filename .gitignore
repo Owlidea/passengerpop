@@ -21,3 +21,7 @@ Tools/**/__pycache__/
 
 # Android build scratch
 /.utmp/
+
+# Signing keys never belong in the repo (the upload key lives in ~/Keys).
+*.keystore
+*.jks

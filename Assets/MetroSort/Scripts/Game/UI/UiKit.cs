@@ -318,6 +318,16 @@ namespace MetroSort.Game
             return button.GetComponentInChildren<Text>(true);
         }
 
+        /// <summary>Keeps the label on one line, shrinking it (down to min) rather than wrapping long translations.</summary>
+        public static OneLineText OneLine(Text text, int max, int min)
+        {
+            OneLineText fit = text.GetComponent<OneLineText>();
+            if (fit == null) fit = text.gameObject.AddComponent<OneLineText>();
+            fit.Max = max;
+            fit.Min = min;
+            return fit;
+        }
+
         public static Slider MakeSlider(Transform parent, float value, UnityAction<float> onChanged, float width)
         {
             RectTransform root = MakeRect("Slider", parent);
@@ -518,6 +528,49 @@ namespace MetroSort.Game
             rt.anchorMin = new Vector2(safe.xMin / Screen.width, safe.yMin / Screen.height);
             rt.anchorMax = new Vector2(safe.xMax / Screen.width, safe.yMax / Screen.height);
             rt.offsetMin = rt.offsetMax = Vector2.zero;
+        }
+    }
+
+    /// <summary>
+    /// Keeps a label on one line, at the largest size up to Max at which the whole text fits the box's width.
+    /// Best fit alone would rather wrap a long title onto two lines whenever the box is tall enough for them.
+    /// </summary>
+    [RequireComponent(typeof(Text))]
+    public sealed class OneLineText : MonoBehaviour
+    {
+        public int Max = 56;
+        public int Min = 24;
+
+        private Text _text;
+        private string _fitted;
+        private float _width = -1f;
+        private int _max;
+
+        private void OnEnable() { Fit(); }
+
+        private void LateUpdate() { Fit(); }
+
+        private void Fit()
+        {
+            if (_text == null) _text = GetComponent<Text>();
+            float width = _text.rectTransform.rect.width;
+            if (_text.text == _fitted && Mathf.Approximately(width, _width) && Max == _max) return;
+            _fitted = _text.text;
+            _width = width;
+            _max = Max;
+            _text.resizeTextForBestFit = false;
+            _text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            int size = Max;
+            if (!string.IsNullOrEmpty(_fitted) && width > 0f)
+            {
+                TextGenerationSettings settings = _text.GetGenerationSettings(Vector2.zero);
+                for (; size > Min; size--)
+                {
+                    settings.fontSize = size;
+                    if (_text.cachedTextGeneratorForLayout.GetPreferredWidth(_fitted, settings) / _text.pixelsPerUnit <= width) break;
+                }
+            }
+            _text.fontSize = size;
         }
     }
 

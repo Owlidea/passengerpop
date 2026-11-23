@@ -68,8 +68,8 @@ namespace MetroSort.EditorTools
         public static void ApplyPlayerSettings()
         {
             PlayerSettings.companyName = "Metro Sort Studio";
-            PlayerSettings.productName = "Metro Sort";
-            PlayerSettings.bundleVersion = "0.1.0";
+            PlayerSettings.productName = "Passenger Pop";
+            PlayerSettings.bundleVersion = "1.0.0";
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToPortrait = true;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
@@ -95,8 +95,12 @@ namespace MetroSort.EditorTools
             PlayerSettings.SplashScreen.backgroundColor = Color.white;
             EditorUserBuildSettings.buildAppBundle = true;
             PlayerSettings.iOS.targetOSVersionString = "15.0";
-            PlayerSettings.iOS.buildNumber = "1";
+            // App Store Connect takes each build number once per version: raise it before every upload.
+            PlayerSettings.iOS.buildNumber = "2";
             PlayerSettings.iOS.targetDevice = iOSTargetDevice.iPhoneOnly;
+            // The App Store team (OWLIDEA BILISIM TEKNOLOJILERI LTD. STI.), so the export archives without signing edits.
+            PlayerSettings.iOS.appleDeveloperTeamID = "7ULGPGPVQ3";
+            PlayerSettings.iOS.appleEnableAutomaticSigning = true;
         }
 
         public static void SetupUrp()
@@ -291,8 +295,54 @@ namespace MetroSort.EditorTools
         {
             MetroSortProjectSetup.RunSetup();
             ApplyAdMobAppId();
-            // The bundle goes to Google Play: real ad units, whatever useTestAds says (MonetizationConfig.StoreBuild).
-            Build(BuildTarget.Android, "Builds/Android/MetroSort.aab", "METROSORT_STORE_BUILD");
+            bool signed = UseUploadKey();
+            try
+            {
+                // The bundle goes to Google Play: real ad units, whatever useTestAds says (MonetizationConfig.StoreBuild).
+                Build(BuildTarget.Android, "Builds/Android/MetroSort.aab", "METROSORT_STORE_BUILD");
+            }
+            finally
+            {
+                if (signed) ForgetUploadKey();
+            }
+        }
+
+        /// <summary>
+        /// Google Play only accepts bundles signed with the app's upload key. The keystore lives outside the repo and
+        /// its passwords are never saved: the build reads METROSORT_KEYSTORE (path), METROSORT_KEY_ALIAS,
+        /// METROSORT_KEYSTORE_PASS and METROSORT_KEY_PASS from the environment, which
+        /// Tools/android/build_play_bundle.sh fills after asking for the password. Without them the bundle gets the
+        /// debug key, which Google Play refuses.
+        /// </summary>
+        private static bool UseUploadKey()
+        {
+            string keystore = Environment.GetEnvironmentVariable("METROSORT_KEYSTORE");
+            string storePass = Environment.GetEnvironmentVariable("METROSORT_KEYSTORE_PASS");
+            if (string.IsNullOrEmpty(keystore) || string.IsNullOrEmpty(storePass) || !File.Exists(keystore))
+            {
+                PlayerSettings.Android.useCustomKeystore = false;
+                Debug.LogWarning("Metro Sort build: no upload key (METROSORT_KEYSTORE / METROSORT_KEYSTORE_PASS); the bundle is signed with the debug key and Google Play will refuse it.");
+                return false;
+            }
+            string alias = Environment.GetEnvironmentVariable("METROSORT_KEY_ALIAS");
+            string keyPass = Environment.GetEnvironmentVariable("METROSORT_KEY_PASS");
+            PlayerSettings.Android.useCustomKeystore = true;
+            PlayerSettings.Android.keystoreName = keystore;
+            PlayerSettings.Android.keystorePass = storePass;
+            PlayerSettings.Android.keyaliasName = string.IsNullOrEmpty(alias) ? "passengerpop" : alias;
+            PlayerSettings.Android.keyaliasPass = string.IsNullOrEmpty(keyPass) ? storePass : keyPass;
+            Debug.Log("Metro Sort build: signing with the upload key, alias " + PlayerSettings.Android.keyaliasName);
+            return true;
+        }
+
+        /// <summary>Back to the debug key, so the keystore path is not left in ProjectSettings and test APKs still build.</summary>
+        private static void ForgetUploadKey()
+        {
+            PlayerSettings.Android.useCustomKeystore = false;
+            PlayerSettings.Android.keystoreName = "";
+            PlayerSettings.Android.keystorePass = "";
+            PlayerSettings.Android.keyaliasName = "";
+            PlayerSettings.Android.keyaliasPass = "";
         }
 
         /// <summary>An APK can be installed straight onto a phone or emulator (an AAB cannot); for testing only.</summary>
@@ -335,7 +385,12 @@ namespace MetroSort.EditorTools
             }
             var so = new SerializedObject(settings);
             bool changed = false;
-            foreach (var pair in new[] { new[] { "adMobAndroidAppId", appId }, new[] { "adMobIOSAppId", iosAppId } })
+            // The game shows no App Tracking Transparency prompt, so Info.plist must not carry
+            // NSUserTrackingUsageDescription: the plugin writes it whenever this text is not empty, and App Store
+            // Connect then refuses a "no tracking" privacy label. To add the prompt later: set the text here, publish
+            // an IDFA explainer in AdMob Privacy & messaging (UMP shows it) and mark Device ID as tracking in App Privacy.
+            const string tracking = "";
+            foreach (var pair in new[] { new[] { "adMobAndroidAppId", appId }, new[] { "adMobIOSAppId", iosAppId }, new[] { "userTrackingUsageDescription", tracking } })
             {
                 SerializedProperty id = so.FindProperty(pair[0]);
                 if (id == null || id.stringValue == pair[1]) continue;
@@ -360,7 +415,8 @@ namespace MetroSort.EditorTools
             ApplyAdMobAppId();
             // Always state the SDK: a simulator build must never leave the device export pointing at the simulator.
             PlayerSettings.iOS.sdkVersion = iOSSdkVersion.DeviceSDK;
-            Build(BuildTarget.iOS, "Builds/iOS");
+            // The device export goes to the App Store: real ad units, as in the Play bundle.
+            Build(BuildTarget.iOS, "Builds/iOS", "METROSORT_STORE_BUILD");
         }
 
         /// <summary>Same project built against the iOS Simulator SDK, for running on a Mac without a device.</summary>

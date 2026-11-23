@@ -50,20 +50,39 @@ xcodebuild -workspace Builds/iOSSimulator/Unity-iPhone.xcworkspace -scheme Unity
 and install `Builds/iOSSimDerived/Build/Products/Release-iphonesimulator/MetroSort.app` on a booted simulator.
 
 Since AdMob and RevenueCat were added the export uses CocoaPods (`pod` must be installed) and opens as a
-*workspace*. `IosPodfileFix` lifts the ad pods to iOS 15 (Xcode 27 refuses their declared 12.0). There is no
-iOS AdMob app yet: iOS builds carry Google's sample app id and the game uses its development ad and purchase
-stand-ins on iOS.
+*workspace*. `IosPodfileFix` lifts the ad pods to iOS 15 (Xcode 27 refuses their declared 12.0), and
+`IosEncryptionDeclaration` writes `ITSAppUsesNonExemptEncryption = NO` into Info.plist, so App Store Connect stops
+asking the export compliance question on each upload (the game only uses exempt HTTPS encryption).
+
+Ads and purchases on iOS (`Resources/monetization.json`):
+
+| | Simulator build | App Store build (*iOS Xcode Project*) |
+|---|---|---|
+| AdMob app | Metro Sort iOS (`admobIosAppId`) | the same |
+| Ad units | Google's iOS test units while `useTestAds` is true | always the real `admobIos*` units |
+| Purchases | refused until `revenueCatAppleApiKey` (appl_...) is set | the same |
+
+Purchases need a RevenueCat **App Store** app (bundle id `com.owlidea.metrosort`), the in-app purchase key from
+App Store Connect uploaded to RevenueCat, and the three products created in App Store Connect with the Android ids:
+`com.metrosort.coins.small`, `com.metrosort.coins.large`, `com.metrosort.removeads` (the last one attached to the
+`no_ads` entitlement).
 
 ## Before submitting to the App Store
 
 - [ ] Bundle identifier, version and build number set
 - [ ] App icon set (all sizes) and launch screen
 - [ ] Test on a notched iPhone and a small iPhone; check the safe area
-- [ ] Replace mock ads / IAP / analytics with real SDKs, or remove the shop entries that depend on them
-- [ ] If ads use the advertising identifier: `NSUserTrackingUsageDescription` and an App Tracking Transparency prompt
+- [x] Real AdMob iOS app and ad units (`admobIos*` in monetization.json)
+- [ ] `revenueCatAppleApiKey` set and the three products live in App Store Connect (purchases are refused without them)
+- [x] AdMob *Privacy & messaging*: a GDPR consent message for the EEA/UK. The game shows whatever AdMob publishes
+      there through the User Messaging Platform. There is no App Tracking Transparency prompt and no IDFA explainer:
+      Info.plist has no `NSUserTrackingUsageDescription` (App Store Connect refuses a "no tracking" privacy label while
+      it is present). To add the prompt later, see the comment in `MetroSortBuild.ApplyAdMobAppId`.
+- [ ] Raise `PlayerSettings.iOS.buildNumber` (in `ApplyPlayerSettings`) before every upload of the same version
 - [ ] **Restore Purchases** is reachable (it is in Settings on the main menu) once real IAP is wired
 - [ ] Privacy "nutrition label" in App Store Connect matches the SDKs you ship; privacy manifests for third-party SDKs
-- [ ] Export compliance answer (the game itself uses no custom encryption)
+- [x] Export compliance: declared in Info.plist (exempt encryption only)
+- [ ] Store listing in each game language: English, Turkish, German, French, Spanish, Portuguese (Brazil), Italian
 - [ ] Age rating questionnaire
 - [ ] Screenshots for the required iPhone sizes, description, keywords, support URL, privacy policy URL
 - [ ] TestFlight round before review

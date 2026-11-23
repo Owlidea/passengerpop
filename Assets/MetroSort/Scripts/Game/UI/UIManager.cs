@@ -46,7 +46,7 @@ namespace MetroSort.Game
         private float _musicBeforeMute = 0.6f, _soundBeforeMute = 0.9f;
         private Slider _musicSlider, _soundSlider;
         private Button _resumeButton, _restartButton, _quitButton, _restoreButton, _privacyButton, _creditsButton;
-        private GameObject _linksRow, _credits;
+        private GameObject _linksRow, _credits, _languages;
         private readonly Button[] _boosterButtons = new Button[4];
         private readonly Text[] _boosterBadges = new Text[4];
         private readonly Text[] _boosterPrices = new Text[4];
@@ -127,6 +127,7 @@ namespace MetroSort.Game
             BuildMenu();
             BuildPointer(canvas.transform);
             BuildSettings();
+            BuildLanguages();
             BuildCredits();
             BuildPause();
             BuildShop();
@@ -233,7 +234,7 @@ namespace MetroSort.Game
                 plate = UiKit.MakeImage(menu, "TitlePlate", UiKit.ButtonSprite, Palette.UiPrimary);
                 plate.pixelsPerUnitMultiplier = 0.6f;
                 UiKit.Place(plate.rectTransform, 0.5f, 1f, 0f, -190f, 880f, 300f);
-                Text title = UiKit.MakeText(plate.transform, "METRO SORT", 116, Color.white);
+                Text title = UiKit.MakeText(plate.transform, Application.productName.ToUpperInvariant(), 116, Color.white);
                 UiKit.Stretch(title.rectTransform, 20f, 104f, 20f, 16f);
                 UiKit.Emboss(title, new Color(0.06f, 0.20f, 0.46f, 0.95f));
                 title.GetComponent<Outline>().effectDistance = new Vector2(4f, -4f);
@@ -945,17 +946,12 @@ namespace MetroSort.Game
             _motionSwitch = SwitchRow(body, "Reduced motion", () => { data.ReducedMotion = !data.ReducedMotion; ApplySettings(); }, ref y);
             _fastSwitch = SwitchRow(body, "Fast trains", () => { data.FastTrains = !data.FastTrains; ApplySettings(); }, ref y);
 
-            // Language: the row's button names the current language and switches to the other one.
+            // Language: the row's button names the current language and opens the list of them all.
             Image lang = UiPremium.MakeTile(body, "LanguageRow", 0.5f, 1f, 0f, y, 872f, 118f);
             float langLeft = RowIconFor(lang.transform, "Language");
             Text langLabel = UiKit.MakeText(lang.transform, "Language", 42, UiPremium.Ink, TextAnchor.MiddleLeft);
             UiKit.Stretch(langLabel.rectTransform, langLeft, 10f, 300f, 4f);
-            Button langButton = Btn(lang.transform, "", UiPremium.Blue, () =>
-            {
-                data.Language = Loc.Language == Loc.Turkish ? Loc.English : Loc.Turkish;
-                _app.Services.Save.Save();
-                _app.ChangeLanguage(data.Language);
-            }, 230f, 88f, 36);
+            Button langButton = Btn(lang.transform, "", UiPremium.Blue, OpenLanguages, 230f, 88f, 36);
             UiKit.Place((RectTransform)langButton.transform, 1f, 0.5f, -28f, 4f, 230f, 88f);
             _languageLabel = UiKit.LabelOf(langButton);
             y -= 136f;
@@ -1007,6 +1003,56 @@ namespace MetroSort.Game
             if (!string.IsNullOrEmpty(page)) Application.OpenURL(page);
         }
 
+        // ------------------------------------------------------------------ language picker
+
+        /// <summary>
+        /// Every language the game speaks, each named in itself (so a player can always find their own); the
+        /// current one is green. Picking one saves it and rebuilds the UI in it.
+        /// </summary>
+        private void BuildLanguages()
+        {
+            RectTransform body;
+            string[] languages = Loc.Languages;
+            _languages = UiPremium.Modal(_root, "Languages", "Language", 760f, 190f + languages.Length * 124f, () => { _app.Audio.Play(Sfx.Click); CloseLanguages(); }, out body);
+            for (int i = 0; i < languages.Length; i++)
+            {
+                string language = languages[i];
+                bool current = language == Loc.Language;
+                Button b = Btn(body, "", current ? UiPremium.Green : UiPremium.Blue, () => PickLanguage(language), 560f, 104f, 44);
+                UiKit.Place((RectTransform)b.transform, 0.5f, 1f, 0f, -6f - i * 124f, 560f, 104f);
+                // Set after creation: labels made through UiKit are translated, a language's own name must not be.
+                UiKit.LabelOf(b).text = Loc.NativeName(language);
+            }
+        }
+
+        // One card at a time: the taller settings card would show its ribbon above the language list.
+        private void OpenLanguages()
+        {
+            _settings.SetActive(false);
+            _languages.SetActive(true);
+        }
+
+        private void CloseLanguages()
+        {
+            _languages.SetActive(false);
+            _settings.SetActive(true);
+        }
+
+        private void PickLanguage(string language)
+        {
+            if (language == Loc.Language)
+            {
+                CloseLanguages();
+                return;
+            }
+            // The UI is rebuilt in the new language and reopens on the settings card.
+            _languages.SetActive(false);
+            SaveData data = _app.Services.Save.Data;
+            data.Language = language;
+            _app.Services.Save.Save();
+            _app.ChangeLanguage(language);
+        }
+
         // ------------------------------------------------------------------ credits
 
         private void BuildCredits()
@@ -1034,7 +1080,7 @@ namespace MetroSort.Game
             const string heading = "<size=36><color=#B23A2B>{0}</color></size>";
             var lines = new[]
             {
-                "<size=50><color=#1D3F86>Metro Sort</color></size>",
+                "<size=50><color=#1D3F86>" + Application.productName + "</color></size>",
                 Loc.T("A StagFunny game"),
                 "",
                 string.Format(heading, Loc.T("Sound effects")),
@@ -1498,7 +1544,7 @@ namespace MetroSort.Game
             Image ribbon = UiPremium.Ribbon(content, "", 760f, 0f, 22f);
             ribbon.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
             _loseTitle = ribbon.GetComponentInChildren<Text>();
-            _loseTitle.resizeTextMaxSize = 56; // one line on the band ("İstasyon Tıkandı" would wrap at the ribbon's 70)
+            UiKit.OneLine(_loseTitle, 56, 30); // smaller than the ribbon's 70: "İstasyon Tıkandı" still reads large
             Color ink = new Color(0.03f, 0.06f, 0.20f, 0.95f);
 
             // How close it was: the sad conductor beside a card with the passengers still waiting.
@@ -1527,12 +1573,12 @@ namespace MetroSort.Game
             UiKit.Place(_loseLeft.rectTransform, 0f, 0.5f, 162f, 22f, 330f, 112f);
             Text waitingLabel = UiPremium.Heading(waiting, "passengers left", 34, new Color(1f, 0.86f, 0.40f), ink);
             UiKit.Place(waitingLabel.rectTransform, 0f, 0.5f, 162f, -54f, 330f, 52f);
-            waitingLabel.resizeTextForBestFit = true;
-            waitingLabel.resizeTextMinSize = 20;
-            waitingLabel.resizeTextMaxSize = 34;
+            UiKit.OneLine(waitingLabel, 34, 20);
             _loseReason = UiKit.MakeText(content, "", 32, new Color(0.92f, 0.96f, 1f), TextAnchor.MiddleCenter, FontStyle.Normal);
             UiKit.Emboss(_loseReason, new Color(0.03f, 0.08f, 0.24f, 0.7f));
             _loseReason.rectTransform.sizeDelta = new Vector2(780f, 54f);
+            // One line between the hero and the offers; a second line would crowd the Continue button.
+            UiKit.OneLine(_loseReason, 32, 24);
 
             // The offer: carry on from here with one more platform (owned, for coins, or for a video).
             // The platform picture on the button says "+1 platform", so the label can stay one big word.
@@ -1732,7 +1778,7 @@ namespace MetroSort.Game
             _assistSwitch.Set(data.AssistedMode, "ON", "OFF");
             _motionSwitch.Set(data.ReducedMotion, "ON", "OFF");
             _fastSwitch.Set(data.FastTrains, "ON", "OFF");
-            _languageLabel.text = Loc.Language == Loc.Turkish ? "Türkçe" : "English";
+            _languageLabel.text = Loc.NativeName(Loc.Language);
             _app.Services.Save.Save();
         }
 

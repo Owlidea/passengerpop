@@ -3,6 +3,7 @@
     "rootNamespace": "MetroSort.Tests",
     "references": [
         "MetroSort.Core",
+        "MetroSort.Game",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

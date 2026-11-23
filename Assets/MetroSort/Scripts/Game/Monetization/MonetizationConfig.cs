@@ -15,20 +15,26 @@ namespace MetroSort.Game
         // Google's public test ad units: they work with any app id and never pay or count as clicks.
         public const string GoogleTestRewardedId = "ca-app-pub-3940256099942544/5224354917";
         public const string GoogleTestInterstitialId = "ca-app-pub-3940256099942544/1033173712";
+        public const string GoogleTestIosRewardedId = "ca-app-pub-3940256099942544/1712485313";
+        public const string GoogleTestIosInterstitialId = "ca-app-pub-3940256099942544/4411468910";
 
         public string AdMobAndroidAppId = "";
         public string AdMobIosAppId = "";
         public string RewardedId = "";
         public string InterstitialId = "";
+        public string IosRewardedId = "";
+        public string IosInterstitialId = "";
         public string RevenueCatGoogleKey = "";
+        public string RevenueCatAppleKey = "";
         public string RemoveAdsEntitlement = "no_ads";
         /// <summary>The studio's privacy policy (English and Turkish pages), opened from Settings.</summary>
         public string PrivacyPolicyUrl = "";
         public string PrivacyPolicyUrlTr = "";
 
         /// <summary>
-        /// True in the Google Play build: MetroSortBuild.BuildAndroid adds METROSORT_STORE_BUILD, and that build always
-        /// requests the real ad units. The test APK follows useTestAds.
+        /// True in the store builds: MetroSortBuild.BuildAndroid (Google Play bundle) and BuildIOS (App Store export)
+        /// add METROSORT_STORE_BUILD, and those always request the real ad units. The test APK and the simulator
+        /// build follow useTestAds.
         /// </summary>
 #if METROSORT_STORE_BUILD
         public const bool StoreBuild = true;
@@ -46,8 +52,21 @@ namespace MetroSort.Game
 
         public bool UsesGoogleTestAds { get { return AdMobAndroidAppId == GoogleTestAppId; } }
 
-        public string RewardedUnit { get { return UseTestAds ? GoogleTestRewardedId : RewardedId; } }
-        public string InterstitialUnit { get { return UseTestAds ? GoogleTestInterstitialId : InterstitialId; } }
+        public string RewardedUnit { get { return RewardedUnitFor(false); } }
+        public string InterstitialUnit { get { return InterstitialUnitFor(false); } }
+
+        /// <summary>The rewarded unit for Android or iOS: Google's test unit while UseTestAds, else the real one.</summary>
+        public string RewardedUnitFor(bool ios)
+        {
+            if (UseTestAds) return ios ? GoogleTestIosRewardedId : GoogleTestRewardedId;
+            return ios ? IosRewardedId : RewardedId;
+        }
+
+        public string InterstitialUnitFor(bool ios)
+        {
+            if (UseTestAds) return ios ? GoogleTestIosInterstitialId : GoogleTestInterstitialId;
+            return ios ? IosInterstitialId : InterstitialId;
+        }
 
         public static MonetizationConfig Load()
         {
@@ -65,6 +84,9 @@ namespace MetroSort.Game
             {
                 AdMobAndroidAppId = JsonRead.Str(root, "admobAndroidAppId", "").Trim(),
                 AdMobIosAppId = JsonRead.Str(root, "admobIosAppId", "").Trim(),
+                IosRewardedId = JsonRead.Str(root, "admobIosRewardedId", "").Trim(),
+                IosInterstitialId = JsonRead.Str(root, "admobIosInterstitialId", "").Trim(),
+                RevenueCatAppleKey = JsonRead.Str(root, "revenueCatAppleApiKey", "").Trim(),
                 RewardedId = JsonRead.Str(root, "admobAndroidRewardedId", "").Trim(),
                 InterstitialId = JsonRead.Str(root, "admobAndroidInterstitialId", "").Trim(),
                 RevenueCatGoogleKey = JsonRead.Str(root, "revenueCatGoogleApiKey", "").Trim(),
