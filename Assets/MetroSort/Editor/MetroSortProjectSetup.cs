@@ -84,7 +84,9 @@ namespace MetroSort.EditorTools
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.Android.minSdkVersion = (AndroidSdkVersions)26; // Android 8.0
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
-            PlayerSettings.Android.bundleVersionCode = 1;
+            // Google Play takes each version code once: raise it before every upload (1 was the 1.0.0 launch,
+            // 2 the launcher icon fix).
+            PlayerSettings.Android.bundleVersionCode = 2;
             // The project had an empty format list, which shipped every "compressed" texture as raw RGBA (the art
             // alone was 182 MB). ASTC runs on every OpenGL ES 3.2 / Vulkan phone; older GPUs get it decoded.
             PlayerSettings.Android.textureCompressionFormats = new[] { TextureCompressionFormat.ASTC };
@@ -294,6 +296,7 @@ namespace MetroSort.EditorTools
         public static void BuildAndroid()
         {
             MetroSortProjectSetup.RunSetup();
+            if (!ApplyAndroidIcon()) return;
             ApplyAdMobAppId();
             bool signed = UseUploadKey();
             try
@@ -350,10 +353,23 @@ namespace MetroSort.EditorTools
         public static void BuildAndroidApk()
         {
             MetroSortProjectSetup.RunSetup();
+            if (!ApplyAndroidIcon()) return;
             ApplyAdMobAppId();
             EditorUserBuildSettings.buildAppBundle = false;
             try { Build(BuildTarget.Android, "Builds/Android/MetroSort.apk"); }
             finally { EditorUserBuildSettings.buildAppBundle = true; }
+        }
+
+        /// <summary>
+        /// Every Android build sets the launcher icon first: Unity 6 ignores the default icon on Android, and without
+        /// the adaptive icon the game shows Unity's logo on the home screen. A batch build stops when it cannot be set.
+        /// </summary>
+        private static bool ApplyAndroidIcon()
+        {
+            if (MediaImport.TryApplyAppIcon()) return true;
+            Debug.LogError("Metro Sort build: no Android app icon, not building.");
+            if (Application.isBatchMode) EditorApplication.Exit(1);
+            return false;
         }
 
         /// <summary>
