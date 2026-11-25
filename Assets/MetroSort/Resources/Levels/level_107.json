@@ -4,21 +4,19 @@
   "group": "Expert",
   "stages": [
     [
-      "OPR",
-      "PBY",
-      "OOP",
-      "BRRR",
-      "RRR"
+      "RRRR",
+      "RRGY",
+      "YYG",
+      "PPOGG"
     ],
     [
-      "RBPG",
-      "PYGBP",
-      "PYR",
-      "BPB",
-      "GP"
+      "BPRPB",
+      "RPGB",
+      "RPOP",
+      "PGPO"
     ]
   ],
-  "trains": "RROPBRPGYPB",
+  "trains": "RYPRGPRGPBO",
   "platforms": [
     {
       "cap": 3
@@ -31,7 +29,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 35,
-  "difficulty": 57.1,
+  "par": 37,
+  "difficulty": 30.3,
   "tier": 0
 }

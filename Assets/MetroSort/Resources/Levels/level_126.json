@@ -4,14 +4,12 @@
   "group": "Master",
   "stages": [
     [
-      "BBGGYYY",
-      "GYBGGGOY",
-      "GBYYRRP",
-      "GYBRRBR",
-      "RPOGPOY"
+      "RYYOGOORGPBY",
+      "RRGOGYRRYGGP",
+      "GYOGORBRBPGR"
     ]
   ],
-  "trains": "RGBBYGGRYOPY",
+  "trains": "YORGROGBGRPY",
   "platforms": [
     {
       "cap": 3
@@ -24,7 +22,8 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 39,
-  "difficulty": 61.4,
-  "tier": 0
+  "par": 43,
+  "difficulty": 28.7,
+  "tier": 0,
+  "visible": 2
 }

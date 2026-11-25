@@ -4,22 +4,23 @@
   "group": "Alpine",
   "stages": [
     [
-      "GGGGOG",
-      "RBRBR",
-      "GBBGPGG",
-      "BGGRR",
-      "OBRYR"
+      "YGOOB",
+      "ROPG",
+      "PYORBOO",
+      "BPYR"
     ],
     [
-      "PGOGGO",
-      "ROYPGG",
-      "PPOGGO",
-      "GOBBPG",
-      "YOBRG"
+      "ORGGG",
+      "OYOY",
+      "YBROB",
+      "OOGRBO"
     ]
   ],
-  "trains": "RGGBGBORGOPYRBPGGGO",
+  "trains": "RYBO2POGOORYGO2B",
   "platforms": [
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     },
@@ -31,7 +32,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 62,
-  "difficulty": 61.4,
+  "par": 42,
+  "difficulty": 23.8,
   "tier": 0
 }

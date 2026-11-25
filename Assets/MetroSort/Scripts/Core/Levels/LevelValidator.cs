@@ -44,11 +44,8 @@ namespace MetroSort.Levels
                 foreach (string q in queues)
                 {
                     if (q.Length > 0) any = true;
-                    foreach (char c in q)
-                    {
-                        int color; bool vip;
-                        if (!ColorCodes.TryParse(c, out color, out vip)) errors.Add("unknown passenger code '" + c + "'");
-                    }
+                    try { LevelData.ParseQueue(q, 0); }
+                    catch (System.FormatException e) { errors.Add(e.Message); }
                 }
                 if (!any) errors.Add("stage " + s + " has no passengers");
             }
@@ -74,24 +71,21 @@ namespace MetroSort.Levels
             int[] counts = level.ColorCounts();
             if (level.HasSchedule)
             {
-                // Every scheduled train leaves full: each line needs exactly three passengers per train.
-                var trains = new int[ColorCodes.Count];
-                foreach (char c in level.Trains)
-                {
-                    int color; bool vip;
-                    if (ColorCodes.TryParse(c, out color, out vip)) trains[color]++;
-                    else errors.Add("unknown train code '" + c + "'");
-                }
+                // Every scheduled train leaves full: each line needs exactly as many passengers as its trains seat.
+                var seats = new int[ColorCodes.Count];
+                int[] trainColors, trainSizes;
+                if (!LevelData.TryParseTrains(level.Trains, out trainColors, out trainSizes)) errors.Add("bad train timetable '" + level.Trains + "'");
+                for (int i = 0; i < trainColors.Length; i++) seats[trainColors[i]] += trainSizes[i];
                 foreach (PlatformConfig p in level.Platforms)
-                    if (p.Capacity != 3 || p.Express || p.ReservedColor >= 0 || p.Uses > 0) errors.Add("scheduled levels use plain platforms");
+                    if (p.Express || p.ReservedColor >= 0 || p.Uses > 0) errors.Add("scheduled levels use plain platforms");
                 for (int c = 0; c < counts.Length; c++)
-                    if (counts[c] != trains[c] * 3)
-                        errors.Add(ColorCodes.Names[c] + " has " + counts[c] + " passengers but " + trains[c] + " trains");
+                    if (counts[c] != seats[c])
+                        errors.Add(ColorCodes.Names[c] + " has " + counts[c] + " passengers but " + seats[c] + " train seats");
                 if (errors.Count > 0) return report;
             }
 
             // Each colour must be divisible into complete train groups using the available capacities.
-            for (int c = 0; c < counts.Length; c++)
+            for (int c = 0; c < counts.Length && !level.HasSchedule; c++)
             {
                 if (counts[c] > 0 && !CanPartition(counts[c], capacities))
                     errors.Add(ColorCodes.Names[c] + " has " + counts[c] + " passengers, which cannot form complete groups");

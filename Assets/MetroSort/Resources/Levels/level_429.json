@@ -4,24 +4,24 @@
   "group": "Emerald",
   "stages": [
     [
-      "BGYBBROYYYYG",
-      "BGGBYPPYYGYRO",
-      "BBPGPPOYOOGOY",
-      "YBPYYYOYROO",
-      "BBOBOBOYYGG"
+      "PB(BB)GG",
+      "OOYO",
+      "RRYP",
+      "R(GG)GY",
+      "(YY)PYG"
     ]
   ],
-  "trains": "BBYGBBOYPYPGYOOYRGOY",
+  "trains": "RBOPYYGG",
   "platforms": [
     {
       "cap": 3
     }
   ],
-  "bench": 6,
+  "bench": 5,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 71,
-  "difficulty": 90.0,
+  "par": 27,
+  "difficulty": 32.5,
   "tier": 0
 }

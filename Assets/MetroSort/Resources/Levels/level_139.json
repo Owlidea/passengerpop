@@ -4,21 +4,19 @@
   "group": "Master",
   "stages": [
     [
-      "YBBYP",
-      "GYPG",
-      "PYB",
-      "GOPO",
-      "YYO"
+      "OOOYB",
+      "YYGYOOG",
+      "RYBOYB",
+      "OOGGOB"
     ],
     [
-      "OBBG",
-      "RPPG",
-      "OYYO",
-      "YGRY",
-      "YBYR"
+      "BPRORPO",
+      "BRRRYR",
+      "OBPPP",
+      "YPBPRP"
     ]
   ],
-  "trains": "YBYGPOYBPOYGR",
+  "trains": "O4O4Y4B4G4R4B4Y4O4P4P4R4",
   "platforms": [
     {
       "cap": 3
@@ -27,11 +25,11 @@
       "cap": 3
     }
   ],
-  "bench": 3,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 42,
-  "difficulty": 57.1,
+  "par": 56,
+  "difficulty": 12.8,
   "tier": 0
 }

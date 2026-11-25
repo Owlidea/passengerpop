@@ -4,14 +4,12 @@
   "group": "Golden",
   "stages": [
     [
-      "GBRYRROPBBBB",
-      "YBBRPBOOPOBOO",
-      "YYGRYRPPYBYOO",
-      "YYBGPBYYYOP",
-      "YYRRPPROOYO"
+      "RPBBGYYP(YY)Y(OO)P",
+      "PPPGPPPYGGY",
+      "PRGBBRYYPBY(RR)"
     ]
   ],
-  "trains": "BRGYYYRRPPBBOYOOYOBP",
+  "trains": "P4P2RBYB2PP2YG2Y4R2O2G",
   "platforms": [
     {
       "cap": 3
@@ -24,7 +22,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 66,
-  "difficulty": 78.6,
+  "par": 39,
+  "difficulty": 30.0,
   "tier": 0
 }

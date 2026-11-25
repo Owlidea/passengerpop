@@ -524,6 +524,10 @@ namespace MetroSort.Game
             else if (hint.Target < Platforms.Count) Platforms[hint.Target].SetHighlight(true, true);
         }
 
+        /// <summary>Where a notice about the bench floats: just above the seated heads.</summary>
+        public Vector3 BenchAnchor { get { return _benchCenter + new Vector3(0f, 1.9f, 0.2f); } }
+        public bool HasBench { get { return _benchCapacity > 0; } }
+
         public void ClearHighlights()
         {
             for (int p = 0; p < Platforms.Count; p++) Platforms[p].SetHighlight(false, false);
@@ -538,7 +542,7 @@ namespace MetroSort.Game
             Measure(s, out maxQueues, out maxDepth);
             var sb = new StringBuilder();
             sb.Append(maxQueues).Append('/').Append(maxDepth).Append('/').Append(s.BenchCapacity).Append('/');
-            foreach (PlatformState p in s.Platforms) sb.Append(p.Capacity).Append(p.Express ? 'e' : 'n');
+            foreach (PlatformState p in s.Platforms) sb.Append(s.LayoutCapacity(p)).Append(p.Express ? 'e' : 'n');
             return sb.ToString();
         }
 
@@ -796,17 +800,18 @@ namespace MetroSort.Game
             if (state.HasSchedule && count > 1)
                 for (int i = 0; i < count; i++)
                 {
-                    int cap = state.Platforms[first + i].Capacity;
+                    int cap = state.LayoutCapacity(state.Platforms[first + i]);
                     gap = Mathf.Max(gap, TrainView.LengthFor(cap) - PlatformView.WidthFor(cap) + 0.45f);
                 }
             float total = -gap;
-            for (int i = 0; i < count; i++) total += PlatformView.WidthFor(state.Platforms[first + i].Capacity) + gap;
+            for (int i = 0; i < count; i++) total += PlatformView.WidthFor(state.LayoutCapacity(state.Platforms[first + i])) + gap;
             float x = -total * 0.5f;
             for (int i = 0; i < count; i++)
             {
                 PlatformState ps = state.Platforms[first + i];
-                float w = PlatformView.WidthFor(ps.Capacity);
-                Platforms.Add(PlatformView.Create(_platformRoot, first + i, ps, new Vector3(x + w * 0.5f, 0f, z)));
+                int layoutCap = state.LayoutCapacity(ps);
+                float w = PlatformView.WidthFor(layoutCap);
+                Platforms.Add(PlatformView.Create(_platformRoot, first + i, ps, new Vector3(x + w * 0.5f, 0f, z), layoutCap));
                 x += w + gap;
             }
             return total;
@@ -1198,8 +1203,8 @@ namespace MetroSort.Game
 
         /// <summary>
         /// Widens the painted wall to what the camera sees at its depth (plus a margin), so its picture never
-        /// repeats at the sides. The framing keeps the picture's original height; a widened picture grows taller
-        /// too, and only its top (ceiling) slips under the HUD.
+        /// repeats at the sides, and raises it to the bottom of the HUD. The framing keeps the picture's original
+        /// height; a widened picture grows taller too, and only its top (ceiling) slips under the HUD.
         /// </summary>
         private void FitWallToView(float face, float sinPitch)
         {
@@ -1214,6 +1219,13 @@ namespace MetroSort.Game
                 if (plane.Raycast(ray, out hit)) width = Mathf.Max(width, Mathf.Abs(ray.GetPoint(hit).x - (_minX + _maxX) * 0.5f) * 2f);
             }
             _wallSpan = Mathf.Max(_wallSpan, width * 1.04f);
+            // A wide station (two platforms side by side) pulls the camera back to fit its width, and the height
+            // that is left over goes to the top of the screen. The picture grows until it reaches the bottom of
+            // the HUD card there, so the camera's empty background never shows above it.
+            Ray top = Cam.ViewportPointToRay(new Vector3(0.5f, 1f - TopMargin, 0f));
+            float topHit;
+            if (plane.Raycast(top, out topHit))
+                _wallSpan = Mathf.Max(_wallSpan, top.GetPoint(topHit).y * Mathf.Cos(Pitch * Mathf.Deg2Rad) * 4f * 1.03f);
         }
     }
 }

@@ -25,3 +25,9 @@ Tools/**/__pycache__/
 # Signing keys never belong in the repo (the upload key lives in ~/Keys).
 *.keystore
 *.jks
+
+# Firebase configuration: identifiers of the studio's Firebase project. This repository is public, so they stay
+# on the build machine; Docs/ANALYTICS.md says how to get them again.
+/Config/firebase/
+/Assets/Plugins/Android/MetroFirebase.androidlib/res/
+/Assets/Plugins/Android/MetroFirebase.androidlib/res.meta

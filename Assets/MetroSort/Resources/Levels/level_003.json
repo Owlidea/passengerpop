@@ -4,9 +4,9 @@
   "group": "Intro",
   "stages": [
     [
-      "GBGB",
-      "RR",
-      "GRB"
+      "GGRRB",
+      "R",
+      "GBB"
     ]
   ],
   "trains": "GRB",
@@ -23,5 +23,6 @@
   "extraPlatforms": 1,
   "tutorial": "bench_wait",
   "par": 9,
-  "difficulty": 0.0
+  "difficulty": 0.0,
+  "tier": 0
 }

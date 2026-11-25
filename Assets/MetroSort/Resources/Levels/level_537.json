@@ -4,24 +4,28 @@
   "group": "Southern",
   "stages": [
     [
-      "PYPOPYPPPRGYY",
-      "GYYYPPYPBYYYG",
-      "GYGYRBYYOBGY",
-      "GGOYOOOBBYO",
-      "GYORYYYYOBY"
+      "BYPOOOBOGORR",
+      "YYBYBYYOGGGPP",
+      "PYBOYPPGROO"
     ]
   ],
-  "trains": "GGYYYPPOOYBYPRYBGOYY",
+  "trains": "BOB2P2YYY2G2P2OROGP2",
   "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     }
   ],
-  "bench": 6,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 71,
-  "difficulty": 94.3,
+  "par": 39,
+  "difficulty": 33.1,
   "tier": 0
 }

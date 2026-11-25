@@ -4,14 +4,16 @@
   "group": "Intermediate",
   "stages": [
     [
-      "BGPPRG",
-      "BBRBY",
-      "BYRYR",
-      "GBRPR"
+      "BYRORGPP",
+      "RBOOOOP",
+      "YOBYGG"
     ]
   ],
-  "trains": "BGBRYRP",
+  "trains": "BROYGPO",
   "platforms": [
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     },
@@ -23,7 +25,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 24,
-  "difficulty": 52.9,
+  "par": 22,
+  "difficulty": 9.8,
   "tier": 0
 }

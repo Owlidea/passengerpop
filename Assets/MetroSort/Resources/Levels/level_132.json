@@ -4,14 +4,11 @@
   "group": "Master",
   "stages": [
     [
-      "GPBBBGBR",
-      "GOOOBRO",
-      "PYPYGGR",
-      "PYPOBGB",
-      "GBGOPGB"
+      "YYBYPRGGGGGP",
+      "OOYOYYGRBPRB"
     ]
   ],
-  "trains": "GPPOYBGOGBBR",
+  "trains": "YOYRGBGP",
   "platforms": [
     {
       "cap": 3
@@ -24,7 +21,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 37,
-  "difficulty": 60.0,
+  "par": 27,
+  "difficulty": 29.7,
   "tier": 0
 }

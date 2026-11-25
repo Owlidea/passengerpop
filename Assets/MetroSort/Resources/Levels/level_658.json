@@ -4,15 +4,17 @@
   "group": "Autumn",
   "stages": [
     [
-      "BRROYPPPYBYG",
-      "BROPRROYBGYO",
-      "BPGPOOBOYYGO",
-      "GOPORRYGORR",
-      "PGPRORYYRYGYG"
+      "RRRYRORGBP",
+      "GOGBGYOPRG",
+      "ORBYBBPGP",
+      "ORBGGROPGP"
     ]
   ],
-  "trains": "BPPGOORRRYYOPBYRGYGO",
+  "trains": "ORBYRGBOPGRGP",
   "platforms": [
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     },
@@ -24,7 +26,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 63,
-  "difficulty": 54.3,
+  "par": 40,
+  "difficulty": 27.5,
   "tier": 0
 }

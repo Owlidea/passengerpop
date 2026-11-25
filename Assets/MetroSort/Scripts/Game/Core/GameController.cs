@@ -20,6 +20,8 @@ namespace MetroSort.Game
         private GameApp _app;
         private readonly List<BoardEvent> _events = new List<BoardEvent>(8);
         private int _token, _assists, _retries, _stamp;
+        /// <summary>The station jammed and no booster has been used since: the next one is a "continue".</summary>
+        private bool _jammed;
         private float _startTime;
         private bool _jobRunning;
 
@@ -63,6 +65,7 @@ namespace MetroSort.Game
             Board = new PuzzleBoard(level);
             _token = _app.Services.Progression.BeginAttempt(level.Id);
             _assists = 0;
+            _jammed = false;
             _startTime = Time.time;
             ClearHint();
             _stamp++;
@@ -154,6 +157,7 @@ namespace MetroSort.Game
             _app.Tutorial.OnLevelCompleted();
             var p = new Dictionary<string, object>();
             p["stars"] = stars;
+            p["par"] = Level.Par;
             Track(AnalyticsEvents.LevelCompleted, p);
             _app.Audio.Play(Sfx.LevelComplete);
             _app.Anim.WinShower();
@@ -165,6 +169,8 @@ namespace MetroSort.Game
         {
             var p = new Dictionary<string, object>();
             p["reason"] = Board.LoseReason.ToString();
+            p["left"] = Board.State.Total - Board.State.Boarded;
+            _jammed = true;
             Track(AnalyticsEvents.LevelFailed, p);
             _app.Audio.Play(Sfx.LevelFailed);
             _app.States.Set(AppState.LevelFailed);
@@ -280,6 +286,9 @@ namespace MetroSort.Game
                 _app.Audio.Play(Sfx.Booster);
                 var p = new Dictionary<string, object>();
                 p["booster"] = type.ToString();
+                // Used from the "station jammed" screen: the player paid to carry on instead of starting over.
+                p["continue"] = _jammed;
+                _jammed = false;
                 Track(AnalyticsEvents.BoosterUsed, p);
             }
             else if (result == BoosterUseResult.NotAffordable)
@@ -326,7 +335,11 @@ namespace MetroSort.Game
             if (Level == null) return;
             if (p == null) p = new Dictionary<string, object>();
             p["level"] = Level.Id;
+            p["tier"] = Level.Tier;
+            p["passengers"] = Board.State.Total;
+            p["boarded"] = Board.State.Boarded;
             p["moves"] = Board.State.MovesUsed;
+            p["boosters"] = _assists;
             p["retries"] = _retries;
             p["seconds"] = Mathf.RoundToInt(Time.time - _startTime);
             _app.Services.Analytics.Track(eventName, p);

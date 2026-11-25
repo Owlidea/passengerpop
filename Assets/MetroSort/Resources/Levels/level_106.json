@@ -4,14 +4,13 @@
   "group": "Expert",
   "stages": [
     [
-      "RRRGRRY",
-      "GBPYOO",
-      "BGGOGR",
-      "BORORO",
-      "GPRYP"
+      "PY(PP)YPP",
+      "OP(PP)PYY",
+      "PROYBB",
+      "PRYP(GG)"
     ]
   ],
-  "trains": "BOGRGRROPY",
+  "trains": "P2O2P2P2P2P2Y2R2P2G2Y2B2Y2",
   "platforms": [
     {
       "cap": 3
@@ -24,7 +23,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 33,
-  "difficulty": 48.6,
+  "par": 26,
+  "difficulty": 26.3,
   "tier": 0
 }

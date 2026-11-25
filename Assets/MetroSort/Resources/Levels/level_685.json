@@ -4,14 +4,13 @@
   "group": "Festival",
   "stages": [
     [
-      "GRROBPYGYYPB",
-      "OYYYGGBGPGRG",
-      "YGGGPPGYBGRG",
-      "YGYYOPBYBGPP",
-      "RGGGYBYPYBBR"
+      "OYPROOOGORORY",
+      "OOYRPRGOBRROGR",
+      "OYYPGRGOGBYGG",
+      "OROGRGRROORYGY"
     ]
   ],
-  "trains": "ORYGYGYGYPBBGPGYPBRG",
+  "trains": "Y4O4ORR4RPOG4O4O2R2GB2Y4G4R2",
   "platforms": [
     {
       "cap": 3
@@ -20,11 +19,11 @@
       "cap": 3
     }
   ],
-  "bench": 3,
+  "bench": 5,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 63,
-  "difficulty": 84.3,
+  "par": 59,
+  "difficulty": 61.9,
   "tier": 1
 }

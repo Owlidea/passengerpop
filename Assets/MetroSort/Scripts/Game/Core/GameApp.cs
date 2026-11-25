@@ -22,6 +22,8 @@ namespace MetroSort.Game
         public GameController Game { get; private set; }
         public TutorialManager Tutorial { get; private set; }
         public UIManager UI { get; private set; }
+        /// <summary>The studio's other games, for the "Our Games" shelf.</summary>
+        public MoreGames MoreGames { get; private set; }
         public InputController Input { get; private set; }
 
         /// <summary>The level the Play button starts: the furthest unlocked one that exists.</summary>
@@ -86,6 +88,7 @@ namespace MetroSort.Game
             Game = AddChild<GameController>("Game");
             Game.Init(this);
             Tutorial = AddChild<TutorialManager>("Tutorial");
+            if (MoreGames == null) MoreGames = AddChild<MoreGames>("MoreGames");
             Tutorial.Init(this);
             UI = AddChild<UIManager>("UI");
             UI.Init(this);

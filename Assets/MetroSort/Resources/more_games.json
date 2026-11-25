@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "games": [
+    {
+      "slug": "slingshire",
+      "name": {
+        "en": "Slingshire"
+      },
+      "tagline": {
+        "en": "One shot. A whole castle.",
+        "tr": "Tek atış. Koca bir kale.",
+        "de": "Ein Schuss. Eine ganze Burg.",
+        "es": "Un disparo. Un castillo entero.",
+        "fr": "Un tir. Tout un château.",
+        "pt": "Um tiro. Um castelo inteiro."
+      },
+      "status": "live",
+      "icon": "https://stagfunny.com/games/slingshire/icon.png",
+      "page": "https://stagfunny.com/games/slingshire/",
+      "color": "#FFA41B",
+      "ios": "https://apps.apple.com/app/id6832535285",
+      "android": "https://play.google.com/store/apps/details?id=com.owlidea.slingshire"
+    },
+    {
+      "slug": "passenger-pop",
+      "name": {
+        "en": "Passenger Pop"
+      },
+      "tagline": {
+        "en": "Every passenger, the right train.",
+        "tr": "Her yolcu, doğru trene.",
+        "de": "Jeder Fahrgast in den richtigen Zug.",
+        "es": "Cada pasajero, a su tren.",
+        "fr": "Chaque passager dans le bon train.",
+        "pt": "Cada passageiro no trem certo."
+      },
+      "status": "live",
+      "icon": "https://stagfunny.com/games/passenger-pop/icon.png",
+      "page": "https://stagfunny.com/games/passenger-pop/",
+      "color": "#FFC53D",
+      "ios": null,
+      "android": "https://play.google.com/store/apps/details?id=com.owlidea.metrosort"
+    },
+    {
+      "slug": "pofu",
+      "name": {
+        "en": "Pofu"
+      },
+      "tagline": {
+        "en": "A tiny friend that grows with you.",
+        "tr": "Seninle büyüyen minik bir dost.",
+        "de": "Ein kleiner Freund, der mit dir wächst.",
+        "es": "Un amiguito que crece contigo.",
+        "fr": "Un petit compagnon qui grandit avec toi.",
+        "pt": "Um amiguinho que cresce com você."
+      },
+      "status": "coming-soon",
+      "icon": "https://stagfunny.com/games/pofu/icon.png",
+      "page": "https://stagfunny.com/games/pofu/",
+      "color": "#F59E0B",
+      "ios": null,
+      "android": null
+    },
+    {
+      "slug": "harf-kombo",
+      "name": {
+        "en": "Harf Kombo"
+      },
+      "tagline": {
+        "en": "Place the blocks, pop the words.",
+        "tr": "Blokları diz, kelimeyi patlat.",
+        "de": "Blöcke legen, Wörter platzen lassen.",
+        "es": "Coloca los bloques, haz estallar las palabras.",
+        "fr": "Place les blocs, fais éclater les mots.",
+        "pt": "Encaixe os blocos, estoure as palavras."
+      },
+      "status": "coming-soon",
+      "icon": "https://stagfunny.com/games/harf-kombo/icon.png",
+      "page": "https://stagfunny.com/games/harf-kombo/",
+      "color": "#4CC3BA",
+      "ios": null,
+      "android": null
+    }
+  ]
+}

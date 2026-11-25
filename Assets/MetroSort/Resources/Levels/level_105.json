@@ -4,14 +4,12 @@
   "group": "Expert",
   "stages": [
     [
-      "RRROBYORR",
-      "RRGRYYPY",
-      "RORPPRBYB",
-      "GYRRYYOO",
-      "RRGRRRYO"
+      "YYBBBPGBBROG",
+      "YYBGBPBOBBRGB",
+      "YPYGBBGGGBGORB"
     ]
   ],
-  "trains": "RRRORGRYYYPRBO",
+  "trains": "YPBYBBOBGGGRB",
   "platforms": [
     {
       "cap": 3
@@ -25,6 +23,6 @@
   "extraPlatforms": 1,
   "tutorial": "",
   "par": 44,
-  "difficulty": 68.6,
+  "difficulty": 46.6,
   "tier": 1
 }

@@ -4,8 +4,8 @@
   "group": "Intro",
   "stages": [
     [
-      "RBR",
-      "BBR"
+      "BRB",
+      "BRR"
     ]
   ],
   "trains": "BR",
@@ -22,5 +22,6 @@
   "extraPlatforms": 1,
   "tutorial": "board",
   "par": 6,
-  "difficulty": 0.0
+  "difficulty": 0.0,
+  "tier": 0
 }

@@ -4,18 +4,13 @@
   "group": "Grand",
   "stages": [
     [
-      "PYGOYGR",
-      "OPPGGGR",
-      "GOPGBGR",
-      "GGBYRRBG",
-      "GBPPRBB"
+      "R(GG)ROORB",
+      "GYPOR(BB)P",
+      "ROYYR(OO)P"
     ]
   ],
-  "trains": "PGGYOBPGRBGR",
+  "trains": "GRYOROPB",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     }
@@ -24,7 +19,8 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 37,
-  "difficulty": 50.0,
-  "tier": 0
+  "par": 26,
+  "difficulty": 26.5,
+  "tier": 0,
+  "visible": 3
 }

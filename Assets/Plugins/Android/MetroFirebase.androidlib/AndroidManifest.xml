@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Firebase Analytics settings for the game's own bridge (FirebaseAnalyticsService.cs). See Docs/ANALYTICS.md.
+
+  Collection starts switched off. The game switches it on at run time once the consent asked by the ad SDK allows
+  it, and Firebase remembers that choice between sessions.
+
+  The project's identifiers (app id, API key) are string resources in res/values/google-services.xml, written by
+  Tools/firebase_config.py from Firebase's google-services.json. Without that file the SDK stays idle.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.owlidea.metrosort.firebase">
+  <application>
+    <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
+    <!-- The ad-related consent signals (ad storage, ad user data, ad personalization) follow the IAB consent
+         string the ad SDK's consent form writes. -->
+    <meta-data android:name="google_analytics_tcf_data_enabled" android:value="true" />
+  </application>
+</manifest>

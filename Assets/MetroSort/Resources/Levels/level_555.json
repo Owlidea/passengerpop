@@ -4,21 +4,15 @@
   "group": "Eastern",
   "stages": [
     [
-      "BGOYOY",
-      "OBGPGYP",
-      "OYOYYO",
-      "BBBPPO",
-      "OPOBB"
+      "OGGPGOG",
+      "GRROO"
     ],
     [
-      "OORRPR",
-      "BROOGYP",
-      "YYORYR",
-      "PBYGY",
-      "YOPYYG"
+      "OYBPB",
+      "RGYBPOY"
     ]
   ],
-  "trains": "BOGOBPPYYBOYOROYGYRP",
+  "trains": "GGOROBPY",
   "platforms": [
     {
       "cap": 3
@@ -31,7 +25,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 66,
-  "difficulty": 78.6,
+  "par": 32,
+  "difficulty": 57.5,
   "tier": 1
 }

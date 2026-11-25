@@ -4,9 +4,9 @@
   "group": "Intro",
   "stages": [
     [
-      "RGBRGBG",
-      "RRBGBG",
-      "BRBGR"
+      "GRBRGB",
+      "BRRGRGB",
+      "GGRBB"
     ]
   ],
   "trains": "RGBRGB",
@@ -22,7 +22,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 19,
+  "par": 18,
   "difficulty": 0.0,
   "tier": 0
 }

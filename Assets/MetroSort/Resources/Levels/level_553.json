@@ -4,24 +4,26 @@
   "group": "Eastern",
   "stages": [
     [
-      "YPGOYYPRYBOR",
-      "POGYYBYBBRPPP",
-      "PYGRORBRBBPO",
-      "GYPPYBBRRROR",
-      "YRGGPPPYPPR"
+      "YYYYYRRGBOGOG",
+      "RBBBBGRPPBBPB",
+      "BBBPBGBBPPOPO",
+      "YRBOGORRRPRP"
     ]
   ],
-  "trains": "YGPGOPYRYPBBYBRPORRP",
+  "trains": "YYBBRBORGPBPRBGPO",
   "platforms": [
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     }
   ],
-  "bench": 6,
+  "bench": 3,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 69,
-  "difficulty": 92.9,
+  "par": 55,
+  "difficulty": 30.6,
   "tier": 0
 }

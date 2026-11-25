@@ -4,15 +4,17 @@
   "group": "Northern",
   "stages": [
     [
-      "PGPBGBRBORRB",
-      "BYGRBPOOBOBR",
-      "GPPBPBBBBBYBB",
-      "PGPORYBGRBBB",
-      "GGPGBORBRBB"
+      "GRRGPYBYR",
+      "RRYPYGGGR",
+      "RGYRYORR",
+      "RRROYRYB"
     ]
   ],
-  "trains": "PGBGPPGBROYBBBROBBRB",
+  "trains": "R2G2R2R2P2Y2R2Y2Y2G2B2G2R2O2Y2R2R2",
   "platforms": [
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     },
@@ -20,11 +22,12 @@
       "cap": 3
     }
   ],
-  "bench": 4,
+  "bench": 2,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 64,
-  "difficulty": 95.7,
-  "tier": 0
+  "par": 34,
+  "difficulty": 28.7,
+  "tier": 0,
+  "visible": 2
 }

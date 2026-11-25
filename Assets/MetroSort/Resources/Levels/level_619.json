@@ -4,22 +4,24 @@
   "group": "Spring",
   "stages": [
     [
-      "PRGRRY",
-      "PRPRRO",
-      "GRPPYROG",
-      "GYYRO",
-      "PPPPY"
+      "POORY",
+      "PBRPRGRP",
+      "GBPP"
     ],
     [
-      "ROBOOB",
-      "YOYRRY",
-      "OROYBR",
-      "GYGRBR",
-      "BRYRYB"
+      "PP(PP)PPPY",
+      "BPRRP",
+      "(PP)OYPG"
     ]
   ],
-  "trains": "RPGYPRPRROGYOYRYBOBR",
+  "trains": "OPRBPPGPRPYP",
   "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     },
@@ -27,11 +29,11 @@
       "cap": 3
     }
   ],
-  "bench": 4,
+  "bench": 3,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 64,
-  "difficulty": 52.9,
+  "par": 38,
+  "difficulty": 30.0,
   "tier": 0
 }

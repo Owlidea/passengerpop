@@ -16,6 +16,8 @@
   <ItemGroup>
     <Compile Include="..\..\Assets\MetroSort\Scripts\Core\**\*.cs" LinkBase="Core" />
     <Compile Include="..\..\Assets\MetroSort\Tests\EditMode\**\*.cs" LinkBase="Tests" />
+    <!-- Tests of the Unity-side assembly run in the Unity Test Runner only. -->
+    <Compile Remove="..\..\Assets\MetroSort\Tests\EditMode\LocalisationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />

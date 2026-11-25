@@ -4,22 +4,23 @@
   "group": "Crimson",
   "stages": [
     [
-      "YYYGYO",
-      "YBYPPPO",
-      "GPGGRR",
-      "GRGGBP",
-      "RBROO"
+      "OYOPG",
+      "PYOOP",
+      "POPG",
+      "(RR)PPO"
     ],
     [
-      "RRBGBBO",
-      "BOBPGG",
-      "RGPBPO",
-      "GPBGBG",
-      "ROOGB"
+      "OGYBRR",
+      "POGP",
+      "ORYG(YY)",
+      "BYPO"
     ]
   ],
-  "trains": "YYGRBGOPRPGROBBGPGBO",
+  "trains": "Y2PRO2OG2O2PGP2OP2B2YY2R2",
   "platforms": [
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     },
@@ -31,7 +32,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 64,
-  "difficulty": 51.4,
+  "par": 42,
+  "difficulty": 24.4,
   "tier": 0
 }

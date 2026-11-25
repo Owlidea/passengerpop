@@ -4,18 +4,15 @@
   "group": "Coastal",
   "stages": [
     [
-      "YPPORYBROG",
-      "PPBPGPROG",
-      "YPBOROORO",
-      "YRYOGPROG",
-      "OORYPOGR"
+      "PBBPY",
+      "GOPR",
+      "GBRY",
+      "OYYR",
+      "GYYORRR"
     ]
   ],
-  "trains": "PYPYOROBROPGOGR",
+  "trains": "BGPOYRRY",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     }
@@ -24,7 +21,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 48,
-  "difficulty": 52.9,
+  "par": 30,
+  "difficulty": 30.6,
   "tier": 0
 }

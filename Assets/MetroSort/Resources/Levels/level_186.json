@@ -4,15 +4,16 @@
   "group": "Capital",
   "stages": [
     [
-      "YGPOPPBPB",
-      "GGGOPBGPB",
-      "RRRRYBYYBB",
-      "OGPRYPGBY",
-      "YYBPGRGY"
+      "OPBGRPGYBPOGB",
+      "OBPYYOYYPGRYG",
+      "OYYBBGOGPGRGY"
     ]
   ],
-  "trains": "YGRGPPORBPYBGYB",
+  "trains": "OPGBYOBYRPGGY",
   "platforms": [
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     },
@@ -24,7 +25,8 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 48,
-  "difficulty": 60.0,
-  "tier": 0
+  "par": 43,
+  "difficulty": 17.5,
+  "tier": 0,
+  "visible": 2
 }

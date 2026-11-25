@@ -43,8 +43,85 @@ namespace MetroSort.Levels
         /// Train schedule: one line letter per train, in arrival order. Empty = classic rules (a platform takes
         /// the colour of its first passenger). Otherwise every platform is a track where the next scheduled train
         /// waits for its own line, and passengers with no train go to the waiting bench. JSON: "trains": "RRBG".
+        /// A digit after a letter is that train's seat count (2-4); without one a train has three: "R2BG4".
         /// </summary>
         public string Trains = "";
+
+        public const int DefaultTrainSize = 3;
+        public const int MinTrainSize = 2;
+        public const int MaxTrainSize = 4;
+
+        /// <summary>Splits a timetable into line and seat count per train. False when a code is unknown.</summary>
+        public static bool TryParseTrains(string code, out int[] colors, out int[] sizes)
+        {
+            var cs = new List<int>();
+            var ss = new List<int>();
+            colors = sizes = new int[0];
+            code = code ?? "";
+            for (int i = 0; i < code.Length; i++)
+            {
+                int color; bool vip;
+                if (!ColorCodes.TryParse(code[i], out color, out vip) || vip) return false;
+                int size = DefaultTrainSize;
+                if (i + 1 < code.Length && code[i + 1] >= '0' && code[i + 1] <= '9') size = code[++i] - '0';
+                if (size < MinTrainSize || size > MaxTrainSize) return false;
+                cs.Add(color);
+                ss.Add(size);
+            }
+            colors = cs.ToArray();
+            sizes = ss.ToArray();
+            return true;
+        }
+
+        /// <summary>
+        /// Reads one queue string, front passenger first. Letters are passengers; "(RR)" is a family that moves
+        /// together. Ids count up from firstId. Throws FormatException on a bad code.
+        /// </summary>
+        public static Passenger[] ParseQueue(string code, int firstId)
+        {
+            var list = new List<Passenger>();
+            int group = 0, members = 0;
+            code = code ?? "";
+            for (int i = 0; i < code.Length; i++)
+            {
+                char ch = code[i];
+                if (ch == '(')
+                {
+                    if (group != 0) throw new FormatException("Nested family in queue '" + code + "'");
+                    group = firstId + list.Count + 1;
+                    members = 0;
+                    continue;
+                }
+                if (ch == ')')
+                {
+                    if (group == 0 || members < 2) throw new FormatException("Bad family in queue '" + code + "'");
+                    group = 0;
+                    continue;
+                }
+                int color; bool vip;
+                if (!ColorCodes.TryParse(ch, out color, out vip))
+                    throw new FormatException("Unknown passenger code '" + ch + "'");
+                var p = new Passenger(firstId + list.Count, color, vip);
+                if (group != 0)
+                {
+                    if (members > 0 && list[list.Count - 1].Color != color)
+                        throw new FormatException("A family shares one line: '" + code + "'");
+                    p.Group = group;
+                    members++;
+                }
+                list.Add(p);
+            }
+            if (group != 0) throw new FormatException("Unclosed family in queue '" + code + "'");
+            return list.ToArray();
+        }
+
+        /// <summary>Passengers in a queue string (family brackets are not passengers).</summary>
+        public static int QueueLength(string code)
+        {
+            int n = 0;
+            foreach (char c in code ?? "") if (c != '(' && c != ')') n++;
+            return n;
+        }
 
         public bool HasSchedule { get { return !string.IsNullOrEmpty(Trains); } }
         /// <summary>
@@ -77,7 +154,7 @@ namespace MetroSort.Levels
             {
                 int n = 0;
                 foreach (string[] stage in Stages)
-                    foreach (string q in stage) n += q.Length;
+                    foreach (string q in stage) n += QueueLength(q);
                 return n;
             }
         }
@@ -93,6 +170,19 @@ namespace MetroSort.Levels
                         if (ColorCodes.TryParse(c, out color, out vip)) counts[color]++;
                     }
             return counts;
+        }
+
+        /// <summary>Seats of the longest train in the timetable (the platforms are built for it).</summary>
+        public int LongestTrain
+        {
+            get
+            {
+                int[] colors, sizes;
+                int max = DefaultTrainSize;
+                if (TryParseTrains(Trains, out colors, out sizes))
+                    foreach (int s in sizes) if (s > max) max = s;
+                return max;
+            }
         }
 
         public int DistinctColors

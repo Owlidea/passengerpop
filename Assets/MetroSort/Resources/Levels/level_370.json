@@ -4,18 +4,15 @@
   "group": "Aurora",
   "stages": [
     [
-      "BBBBGBORRRRR",
-      "YRYGRRYOYBBP",
-      "YRORBYGBYPGR",
-      "OBBROBGOBRBR",
-      "BYBYGRRPRBRB"
+      "POOBBOGYBOBY",
+      "BGOGBRRROYYO",
+      "BBPBBOBGROOO",
+      "BBOBBOGYRBRR",
+      "BOOOGRPBOYRO"
     ]
   ],
-  "trains": "RBOYYBOBRYBGGRRRBPRB",
+  "trains": "OBPBBGOOBBRGROOYYROB",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     },
@@ -27,14 +24,14 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 62,
-  "difficulty": 85.7,
+  "par": 67,
+  "difficulty": 56.2,
   "tier": 2,
   "gates": [
-    6,
     0,
     0,
     0,
-    0
+    0,
+    5
   ]
 }

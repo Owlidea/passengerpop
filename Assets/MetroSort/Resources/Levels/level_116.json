@@ -4,15 +4,20 @@
   "group": "Expert",
   "stages": [
     [
-      "OBRRBR",
-      "BYGRPR",
-      "PORPPY",
-      "OYGPPY",
-      "OBOOBGYYB"
+      "GPBOYRR",
+      "ORYBBOPGY",
+      "PGBPYRR",
+      "PORYBO"
     ]
   ],
-  "trains": "OBORYGBPRYP",
+  "trains": "O2PGP2RBY2OYB2R",
   "platforms": [
+    {
+      "cap": 3
+    },
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     },
@@ -20,17 +25,16 @@
       "cap": 3
     }
   ],
-  "bench": 3,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 35,
-  "difficulty": 51.4,
+  "par": 32,
+  "difficulty": 14.2,
   "tier": 0,
   "gates": [
+    0,
     2,
-    0,
-    0,
     0,
     0
   ]

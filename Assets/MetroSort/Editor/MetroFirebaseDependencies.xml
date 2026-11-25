@@ -1,0 +1,24 @@
+<!--
+  Native Firebase Analytics SDKs for the game's own bridge (Scripts/Game/Monetization/FirebaseAnalyticsService.cs).
+  External Dependency Manager reads this file like the ad and purchase plugins' own lists: the Android line goes
+  into mainTemplate.gradle, the pod into the generated Podfile. See Docs/ANALYTICS.md before changing a version.
+
+  iOS uses the Core subspec: analytics without the advertising identifier, because the game shows no App Tracking
+  Transparency prompt.
+-->
+<dependencies>
+  <androidPackages>
+    <androidPackage spec="com.google.firebase:firebase-analytics:24.0.0">
+      <repositories>
+        <repository>https://maven.google.com/</repository>
+      </repositories>
+    </androidPackage>
+  </androidPackages>
+  <iosPods>
+    <iosPod name="FirebaseAnalytics/Core" version="~> 12.19">
+      <sources>
+        <source>https://github.com/CocoaPods/Specs</source>
+      </sources>
+    </iosPod>
+  </iosPods>
+</dependencies>

@@ -4,14 +4,12 @@
   "group": "Coastal",
   "stages": [
     [
-      "YRROOGRPO",
-      "RPGRPPOG",
-      "GRPPPBGRP",
-      "YYPRORPPBPP",
-      "RPGPRBOR"
+      "GBGPYPROPYPROO",
+      "RRPYGOGPPPYOO",
+      "BBBRPYPPPOOOOR"
     ]
   ],
-  "trains": "YRGRPPPORGOPRBP",
+  "trains": "B4R4G4P4Y2P4P4YO4O2O4R2",
   "platforms": [
     {
       "cap": 3
@@ -20,11 +18,12 @@
       "cap": 3
     }
   ],
-  "bench": 3,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 48,
-  "difficulty": 57.1,
-  "tier": 0
+  "par": 46,
+  "difficulty": 27.5,
+  "tier": 0,
+  "visible": 3
 }

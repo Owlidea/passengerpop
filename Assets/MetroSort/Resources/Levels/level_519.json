@@ -4,34 +4,25 @@
   "group": "Northern",
   "stages": [
     [
-      "RPYYPO",
-      "GRGGYB",
-      "PGRBBRP",
-      "POBRBR",
-      "POOPO"
+      "PPBBGY",
+      "RRPBRO"
     ],
     [
-      "GGYRPRYR",
-      "YGGRRP",
-      "BRRPR",
-      "GPRRP",
-      "OPPRRP"
+      "YBBGYG",
+      "OOYYYB"
     ]
   ],
-  "trains": "RPGBYPROBOGGPYRPRRPR",
+  "trains": "RBPYOBGY",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     }
   ],
-  "bench": 3,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 62,
-  "difficulty": 45.7,
+  "par": 35,
+  "difficulty": 34.4,
   "tier": 0
 }

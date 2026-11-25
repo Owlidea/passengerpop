@@ -4,14 +4,12 @@
   "group": "Sapphire",
   "stages": [
     [
-      "BPPPPYRPRRYR",
-      "GPRGYYPRPYBY",
-      "GGBGBPYPPYBP",
-      "PORBBBBPRYR",
-      "GBOBOBRBBBRRP"
+      "YPPPYBP(OO)GYYB",
+      "(RR)(RR)GGYGOPOGOP",
+      "YRB(GG)YGGBOPP"
     ]
   ],
-  "trains": "PBGGRPOBBPYYRRBPYPBR",
+  "trains": "Y4RP4R2G2YG4B4O4GO2P2P2",
   "platforms": [
     {
       "cap": 3
@@ -20,11 +18,11 @@
       "cap": 3
     }
   ],
-  "bench": 3,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 63,
-  "difficulty": 80.0,
+  "par": 39,
+  "difficulty": 51.9,
   "tier": 1
 }

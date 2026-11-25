@@ -43,6 +43,7 @@ namespace MetroSort.Game
         public int Id { get; private set; }
         public int ColorIndex { get; private set; }
         public bool Vip { get; private set; }
+        public bool InFamily { get; private set; }
         public bool Selected;
         public bool Held;
         /// <summary>Standing on a platform that needs just one more passenger.</summary>
@@ -82,7 +83,7 @@ namespace MetroSort.Game
         private readonly System.Collections.Generic.List<Slots> _slots = new System.Collections.Generic.List<Slots>();
         private readonly GameObject[] _hats = new GameObject[ColorCodes.Count];
         private readonly GameObject[] _hairStyles = new GameObject[5];
-        private GameObject _glow, _skirt, _moustache, _lashes, _eyesOpen, _eyesClosed, _halo, _mysteryMark;
+        private GameObject _familyPad, _familyHeart, _glow, _skirt, _moustache, _lashes, _eyesOpen, _eyesClosed, _halo, _mysteryMark;
         private Color _skin, _hair, _lower, _legs, _mouth;
         private bool _eyesShut;
         private float _base = BaseScale;
@@ -124,6 +125,23 @@ namespace MetroSort.Game
             _glow = Prims.Make(PrimitiveType.Cylinder, transform, new Vector3(0f, 0.02f, 0f), new Vector3(1.05f, 0.008f, 1.05f), Palette.HintGlow, "SelectGlow");
             Prims.NoShadow(_glow);
             _glow.SetActive(false);
+            // Families stand on a shared cream mat: the pads of neighbours overlap into one shape.
+            // (a bright pink rim round a cream mat; the grown-up also carries a heart at the side of the lane)
+            _familyPad = new GameObject("FamilyPad");
+            _familyPad.transform.SetParent(transform, false);
+            var pink = new Color(1f, 0.30f, 0.58f);
+            Prims.NoShadow(Prims.Make(PrimitiveType.Cylinder, _familyPad.transform, new Vector3(0f, 0.010f, 0f), new Vector3(1.50f, 0.005f, 1.50f), pink, "Rim"));
+            Prims.NoShadow(Prims.Make(PrimitiveType.Cylinder, _familyPad.transform, new Vector3(0f, 0.016f, 0f), new Vector3(1.22f, 0.005f, 1.22f), new Color(1f, 0.95f, 0.80f), "Mat"));
+            _familyHeart = new GameObject("Heart");
+            _familyHeart.transform.SetParent(_familyPad.transform, false);
+            _familyHeart.transform.localPosition = new Vector3(0.66f, 0.05f, -0.50f);
+            Prims.NoShadow(Prims.Make(PrimitiveType.Cylinder, _familyHeart.transform, Vector3.zero, new Vector3(0.52f, 0.012f, 0.52f), Color.white, "Badge"));
+            Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, _familyHeart.transform, new Vector3(-0.075f, 0.02f, 0.05f), new Vector3(0.19f, 0.04f, 0.19f), pink, "LobeL"));
+            Prims.NoShadow(Prims.Make(PrimitiveType.Sphere, _familyHeart.transform, new Vector3(0.075f, 0.02f, 0.05f), new Vector3(0.19f, 0.04f, 0.19f), pink, "LobeR"));
+            GameObject tip = Prims.Make(PrimitiveType.Cube, _familyHeart.transform, new Vector3(0f, 0.02f, -0.035f), new Vector3(0.20f, 0.03f, 0.20f), pink, "Tip");
+            tip.transform.localRotation = Quaternion.Euler(0f, 45f, 0f);
+            Prims.NoShadow(tip);
+            _familyPad.SetActive(false);
 
             // Sculpted variants PassengerHD_0, _1, ... each with its painted texture; pooled views take turns
             // so a queue mixes them. Without any, the built model is used.
@@ -391,7 +409,13 @@ namespace MetroSort.Game
             _base = BaseScale * (female && !_hd ? 0.95f : 1f); // HD variants carry their own build
             Show(_skirt, female);
             Show(_lashes, female);
-            Show(_moustache, !female && p.Id % 3 == 0);
+            // A family: the first member is the grown-up, the others are children at their side.
+            InFamily = p.Group != 0;
+            bool child = InFamily && p.Id != p.Group - 1;
+            if (child) _base *= 0.68f;
+            Show(_familyPad, InFamily);
+            _familyHeart.SetActive(InFamily && !child);
+            Show(_moustache, !female && !child && p.Id % 3 == 0);
             int style = female ? 2 + (p.Id * 11 + 1) % 3 : (p.Id * 11 + 1) % 2;
             for (int i = 0; i < _hairStyles.Length; i++) Show(_hairStyles[i], i == style);
 
@@ -603,6 +627,7 @@ namespace MetroSort.Game
         public void Board(Vector3 door, float duration)
         {
             WalkTo(door, duration, 0.40f, null);
+            Show(_familyPad, false);
             _boarding = true;
             _cheering = false;
         }

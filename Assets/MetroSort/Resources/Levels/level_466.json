@@ -4,15 +4,17 @@
   "group": "Amber",
   "stages": [
     [
-      "RGRROORPOBBP",
-      "RRPRBBYRBYGG",
-      "ORRGORYYYBGB",
-      "RRPRORYRBYGB",
-      "RBPPGYRBYGBG"
+      "YGPGRGROGR",
+      "GPOORGRGGG",
+      "ROYYYOOOOB",
+      "ROPYGOYBRR"
     ]
   ],
-  "trains": "RRRRGPOPORBYBRYBGYBG",
+  "trains": "PYGG2OYRROO2O2GG2RB2",
   "platforms": [
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     },
@@ -20,11 +22,11 @@
       "cap": 3
     }
   ],
-  "bench": 5,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 65,
-  "difficulty": 81.4,
+  "par": 42,
+  "difficulty": 27.5,
   "tier": 0
 }

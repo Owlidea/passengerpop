@@ -4,13 +4,13 @@
   "group": "Basic",
   "stages": [
     [
-      "PRGBRBYRY",
-      "PBBGPPBGR",
-      "GGGPPRBPG",
-      "GGRGPGYGP"
+      "GYYPPGYGP",
+      "YYGGBRGP",
+      "RGGRBRGR",
+      "PPRRGRGYG"
     ]
   ],
-  "trains": "GGBPGRBPGRPY",
+  "trains": "P2G2Y2R2R2G2Y2G2Y2P2G2R2G2P2G2B2R2",
   "platforms": [
     {
       "cap": 3
@@ -19,11 +19,11 @@
       "cap": 3
     }
   ],
-  "bench": 3,
+  "bench": 2,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 41,
-  "difficulty": 88.6,
+  "par": 35,
+  "difficulty": 53.7,
   "tier": 2
 }

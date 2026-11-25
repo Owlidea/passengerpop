@@ -4,25 +4,22 @@
   "group": "Master",
   "stages": [
     [
-      "RRR",
-      "RRGRR",
-      "BYGGP",
-      "PPG",
-      "BP"
+      "RRYP",
+      "PYP",
+      "RPY",
+      "YPP",
+      "RBP"
     ],
     [
-      "BOYR",
-      "RRGR",
-      "OYOG",
-      "RYY",
-      "YPP"
+      "GBY",
+      "YOO",
+      "BPGGO",
+      "BYG",
+      "OY"
     ]
   ],
-  "trains": "RPGRRBYOPGYR",
+  "trains": "R4Y4P4P4B4Y4O4G4",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     }
@@ -32,6 +29,6 @@
   "extraPlatforms": 1,
   "tutorial": "",
   "par": 40,
-  "difficulty": 52.9,
+  "difficulty": 54.0,
   "tier": 0
 }

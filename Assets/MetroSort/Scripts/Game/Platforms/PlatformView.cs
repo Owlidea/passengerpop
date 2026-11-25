@@ -38,19 +38,27 @@ namespace MetroSort.Game
 
         public static PlatformView Create(Transform parent, int index, PlatformState state, Vector3 position)
         {
+            return Create(parent, index, state, position, state.Capacity);
+        }
+
+        /// <summary>layoutCapacity: seats the slab is built for (the longest train of the timetable).</summary>
+        public static PlatformView Create(Transform parent, int index, PlatformState state, Vector3 position, int layoutCapacity)
+        {
             var go = new GameObject("Platform_" + index);
             go.transform.SetParent(parent, false);
             go.transform.position = position;
             var view = go.AddComponent<PlatformView>();
-            view.Build(index, state);
+            view.Build(index, state, Mathf.Max(layoutCapacity, state.Capacity));
             return view;
         }
 
-        private void Build(int index, PlatformState state)
+        private GameObject[] _slots;
+
+        private void Build(int index, PlatformState state, int layoutCapacity)
         {
             Index = index;
-            Capacity = state.Capacity;
-            Width = WidthFor(Capacity);
+            Capacity = layoutCapacity;
+            Width = WidthFor(layoutCapacity);
             Transform t = transform;
 
             float body = Width - Depth * 0.5f;
@@ -67,10 +75,12 @@ namespace MetroSort.Game
             GameObject line = Prims.Make(PrimitiveType.Cube, t, new Vector3(0f, 0.285f, Depth * 0.5f - 0.12f), new Vector3(body, 0.02f, 0.10f), state.Express ? Palette.Lines[5] : Palette.Gold, "SafetyLine");
             Prims.NoShadow(line);
 
+            _slots = new GameObject[Capacity];
             for (int i = 0; i < Capacity; i++)
             {
                 Vector3 local = SlotLocal(i);
                 GameObject spot = ModelKit.Spawn("Platform", "Slot", t, "Slot" + i);
+                _slots[i] = spot;
                 spot.transform.localPosition = new Vector3(local.x, 0.293f, local.z); // just above the framed top surface
                 ModelKit.Paint(spot, PlatformMaterial);
                 foreach (MeshRenderer r in spot.GetComponentsInChildren<MeshRenderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -114,6 +124,25 @@ namespace MetroSort.Game
             _built = true;
         }
 
+        /// <summary>Trains differ in length: shows as many seats (and pips) as the train at the platform has.</summary>
+        private void SetCapacity(int capacity)
+        {
+            capacity = Mathf.Clamp(capacity, 1, _slots.Length);
+            if (capacity == Capacity) return;
+            Capacity = capacity;
+            for (int i = 0; i < _slots.Length; i++)
+            {
+                bool on = i < capacity;
+                _slots[i].SetActive(on);
+                _pips[i].SetActive(on);
+                if (!on) continue;
+                Vector3 local = SlotLocal(i);
+                _slots[i].transform.localPosition = new Vector3(local.x, 0.293f, local.z);
+                Vector3 pip = _pips[i].transform.localPosition;
+                _pips[i].transform.localPosition = new Vector3((i - (capacity - 1) * 0.5f) * 0.30f, pip.y, pip.z);
+            }
+        }
+
         private Vector3 SlotLocal(int slot)
         {
             return new Vector3((slot - (Capacity - 1) * 0.5f) * SlotSpacing, 0.28f, -0.10f);
@@ -133,6 +162,7 @@ namespace MetroSort.Game
         public void Refresh(PlatformState s, bool scheduled)
         {
             _scheduled = scheduled;
+            if (!s.Closed) SetCapacity(s.Capacity);
             bool blocked = s.IsLocked || s.Closed;
             _slabColor = blocked ? Palette.PlatformLocked : Palette.Platform;
             // The band around the slab wears the line this platform serves (or is reserved for).

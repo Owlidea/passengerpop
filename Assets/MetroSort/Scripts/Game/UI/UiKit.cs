@@ -254,15 +254,7 @@ namespace MetroSort.Game
             colors.fadeDuration = 0.06f;
             button.colors = colors;
             if (onClick != null) button.onClick.AddListener(onClick);
-            // A glassy highlight across the upper half, white so it reads on any colour, under the label.
-            Image gloss = MakeImage(img.transform, "Gloss", Rounded, new Color(1f, 1f, 1f, 0.22f));
-            RectTransform g = gloss.rectTransform;
-            g.anchorMin = new Vector2(0f, 0.5f);
-            g.anchorMax = new Vector2(1f, 1f);
-            float side = Mathf.Max(10f, height * 0.16f);
-            g.offsetMin = new Vector2(side, height * 0.05f);
-            g.offsetMax = new Vector2(-side, -height * 0.11f);
-            gloss.pixelsPerUnitMultiplier = 48f / Mathf.Max(8f, height * 0.34f);
+            // No glossy band across the top: the user wants plain, clean button faces everywhere (2026-11-24).
             Text text = MakeText(img.transform, label, fontSize, Color.white);
             Stretch(text.rectTransform, 14f, Mathf.Min(16f, height * 0.12f), 14f, 6f);
             text.resizeTextForBestFit = true;

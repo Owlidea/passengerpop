@@ -4,15 +4,17 @@
   "group": "Master",
   "stages": [
     [
-      "PYYGYYGO",
-      "RPYYGOO",
-      "PGGBYPB",
-      "OGBYYYP",
-      "YRROOYP"
+      "OROBBO",
+      "OBRGGPO",
+      "OBYO(OO)OPOBY",
+      "(GG)OROGOO"
     ]
   ],
-  "trains": "OPYRGGYYOYBP",
+  "trains": "ORB2G2OGBO2Y2P2O2OO2",
   "platforms": [
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     },
@@ -20,11 +22,11 @@
       "cap": 3
     }
   ],
-  "bench": 3,
+  "bench": 5,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 38,
-  "difficulty": 58.6,
+  "par": 31,
+  "difficulty": 18.9,
   "tier": 0
 }

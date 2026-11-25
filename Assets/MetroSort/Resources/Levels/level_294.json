@@ -4,14 +4,13 @@
   "group": "Royal",
   "stages": [
     [
-      "PRGROGGBBBBG",
-      "RRPRBOBGBGBOO",
-      "RRRPRPYGOGGO",
-      "RRGPORYGRGGO",
-      "PRROOOBGGYO"
+      "BBOBBGGYRO(PP)Y",
+      "BYGYOPPGOPOYO",
+      "GGG(YY)B(RR)GOGGOY",
+      "BOGGBBYPOOO"
     ]
   ],
-  "trains": "RPPRRROGRBOBGGYGOBOG",
+  "trains": "OGBBGGBPYYGROOYPO",
   "platforms": [
     {
       "cap": 3
@@ -24,7 +23,8 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 62,
-  "difficulty": 75.7,
-  "tier": 0
+  "par": 51,
+  "difficulty": 22.5,
+  "tier": 0,
+  "visible": 2
 }

@@ -4,21 +4,17 @@
   "group": "Winter",
   "stages": [
     [
-      "BBBOBP",
-      "GBOBYG",
-      "GOGBPO",
-      "GOOBOR",
-      "GBOOOG"
+      "GBBGBBGBRR",
+      "RBBGBPPBOR",
+      "BBOBROBGBP"
     ],
     [
-      "PGOROY",
-      "YYRYOY",
-      "OPROPYO",
-      "RORYOO",
-      "OPOGY"
+      "GPRROGYRGB",
+      "BBROOPYGOP",
+      "BBOOYYYYBB"
     ]
   ],
-  "trains": "GOBOBGBOPRYOOGPRYOOY",
+  "trains": "BBGBOBRBRBROPGYYOGPB",
   "platforms": [
     {
       "cap": 3
@@ -27,11 +23,11 @@
       "cap": 3
     }
   ],
-  "bench": 3,
+  "bench": 5,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 64,
-  "difficulty": 52.9,
+  "par": 70,
+  "difficulty": 38.7,
   "tier": 0
 }

@@ -35,9 +35,35 @@ namespace MetroSort.Puzzle
 
         public PassengerQueue Clone() { return new PassengerQueue(_items); }
 
+        /// <summary>How many passengers leave with one tap: 1, or the whole family standing at the front.</summary>
+        public int FrontGroupSize
+        {
+            get
+            {
+                if (_items.Count == 0) return 0;
+                int g = _items[0].Group;
+                if (g == 0) return 1;
+                int n = 1;
+                while (n < _items.Count && _items[n].Group == g) n++;
+                return n;
+            }
+        }
+
         public void AppendCode(StringBuilder sb)
         {
-            for (int i = 0; i < _items.Count; i++) sb.Append(ColorCodes.ToChar(_items[i].Color, _items[i].Vip));
+            int open = 0;
+            for (int i = 0; i < _items.Count; i++)
+            {
+                int g = _items[i].Group;
+                if (g != open)
+                {
+                    if (open != 0) sb.Append(')');
+                    if (g != 0) sb.Append('(');
+                    open = g;
+                }
+                sb.Append(ColorCodes.ToChar(_items[i].Color, _items[i].Vip));
+            }
+            if (open != 0) sb.Append(')');
         }
     }
 
@@ -110,10 +136,24 @@ namespace MetroSort.Puzzle
         public int[] TrainsByColor;
         /// <summary>Train schedule (line per train, arrival order). Null = classic rules. Shared, never mutated.</summary>
         public int[] Schedule;
+        /// <summary>Seats per scheduled train, parallel to Schedule. Shared, never mutated.</summary>
+        public int[] ScheduleSizes;
         /// <summary>Index into Schedule of the next train still to arrive at a platform.</summary>
         public int NextTrain;
 
         public bool HasSchedule { get { return Schedule != null; } }
+
+        /// <summary>
+        /// Seats the platform is laid out for. With a timetable every platform fits the longest train, since the
+        /// seats in use change with each train; otherwise it is the platform's own capacity.
+        /// </summary>
+        public int LayoutCapacity(PlatformState p)
+        {
+            if (ScheduleSizes == null) return p.Capacity;
+            int max = p.Capacity;
+            for (int i = 0; i < ScheduleSizes.Length; i++) if (ScheduleSizes[i] > max) max = ScheduleSizes[i];
+            return max;
+        }
 
         /// <summary>Lines of the trains still to come after the ones already at platforms.</summary>
         public int UpcomingTrains { get { return Schedule != null ? Schedule.Length - NextTrain : 0; } }
@@ -161,15 +201,10 @@ namespace MetroSort.Puzzle
                 s.AllStages[st] = new Passenger[queues.Length][];
                 for (int q = 0; q < queues.Length; q++)
                 {
-                    string code = queues[q];
-                    var arr = new Passenger[code.Length];
-                    for (int i = 0; i < code.Length; i++)
-                    {
-                        int color; bool vip;
-                        if (!ColorCodes.TryParse(code[i], out color, out vip))
-                            throw new FormatException("Unknown passenger code '" + code[i] + "' in level " + level.Id);
-                        arr[i] = new Passenger(id++, color, vip);
-                    }
+                    Passenger[] arr;
+                    try { arr = LevelData.ParseQueue(queues[q], id); }
+                    catch (FormatException e) { throw new FormatException(e.Message + " in level " + level.Id); }
+                    id += arr.Length;
                     s.AllStages[st][q] = arr;
                 }
             }
@@ -196,14 +231,8 @@ namespace MetroSort.Puzzle
             }
             if (level.HasSchedule)
             {
-                s.Schedule = new int[level.Trains.Length];
-                for (int i = 0; i < s.Schedule.Length; i++)
-                {
-                    int color; bool vip;
-                    if (!ColorCodes.TryParse(level.Trains[i], out color, out vip))
-                        throw new FormatException("Unknown train code '" + level.Trains[i] + "' in level " + level.Id);
-                    s.Schedule[i] = color;
-                }
+                if (!LevelData.TryParseTrains(level.Trains, out s.Schedule, out s.ScheduleSizes))
+                    throw new FormatException("Bad train timetable '" + level.Trains + "' in level " + level.Id);
                 for (int i = 0; i < s.Platforms.Count; i++) BoardRules.CallNextTrain(s, i, null);
             }
             s.Queues = new PassengerQueue[0];
@@ -235,6 +264,7 @@ namespace MetroSort.Puzzle
                 GateColors = GateColors,
                 TrainsByColor = TrainsByColor != null ? (int[])TrainsByColor.Clone() : null,
                 Schedule = Schedule,
+                ScheduleSizes = ScheduleSizes,
                 NextTrain = NextTrain
             };
             c.Queues = new PassengerQueue[Queues.Length];
@@ -273,10 +303,25 @@ namespace MetroSort.Puzzle
             sb.Append('#');
             if (Bench.Count > 0)
             {
-                var chars = new char[Bench.Count];
-                for (int i = 0; i < chars.Length; i++) chars[i] = ColorCodes.ToChar(Bench[i].Color, Bench[i].Vip);
-                Array.Sort(chars);
-                sb.Append(chars);
+                // One entry per passenger travelling alone and one per family (a family boards as a whole).
+                parts.Clear();
+                for (int i = 0; i < Bench.Count; i++)
+                {
+                    int g = Bench[i].Group;
+                    char c = ColorCodes.ToChar(Bench[i].Color, Bench[i].Vip);
+                    if (g == 0) { parts.Add(c.ToString()); continue; }
+                    bool first = true;
+                    int n = 0;
+                    for (int k = 0; k < Bench.Count; k++)
+                    {
+                        if (Bench[k].Group != g) continue;
+                        if (k < i) first = false;
+                        n++;
+                    }
+                    if (first) parts.Add(c.ToString() + n);
+                }
+                parts.Sort(string.CompareOrdinal);
+                for (int i = 0; i < parts.Count; i++) sb.Append(parts[i]).Append(',');
             }
 
             sb.Append('#');

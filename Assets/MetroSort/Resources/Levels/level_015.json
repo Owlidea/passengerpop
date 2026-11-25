@@ -4,12 +4,13 @@
   "group": "Basic",
   "stages": [
     [
-      "YYYBYBBB",
-      "RRRGBYBG",
-      "BYGYYBBY"
+      "YRYRGY",
+      "GRRGRYB",
+      "RYYRRY",
+      "BYBYR"
     ]
   ],
-  "trains": "GRYYYBBB",
+  "trains": "RRGYBRYY",
   "platforms": [
     {
       "cap": 3
@@ -23,6 +24,6 @@
   "extraPlatforms": 1,
   "tutorial": "",
   "par": 27,
-  "difficulty": 71.4,
+  "difficulty": 36.9,
   "tier": 1
 }

@@ -4,14 +4,11 @@
   "group": "Grand",
   "stages": [
     [
-      "BYYBOYYYPR",
-      "BBBRBOPOBO",
-      "ROGBOYBYR",
-      "YGGBYOBYOR",
-      "RYBBBOYPB"
+      "GGYRBOPRPYBY",
+      "BYOYGRRROYPR"
     ]
   ],
-  "trains": "BBRBOBYGYYYOBPOR",
+  "trains": "GORBYPRY",
   "platforms": [
     {
       "cap": 3
@@ -24,7 +21,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 51,
-  "difficulty": 78.6,
+  "par": 31,
+  "difficulty": 51.3,
   "tier": 1
 }

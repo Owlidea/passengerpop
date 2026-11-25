@@ -4,9 +4,9 @@
   "group": "Intro",
   "stages": [
     [
-      "BRRGG",
-      "GBGR",
-      "GGGGGB"
+      "BRGGG",
+      "BRGGR",
+      "GGGGB"
     ]
   ],
   "trains": "GBGRG",

@@ -152,7 +152,7 @@ namespace MetroSort.Game
                         break;
                     }
                     case BoardEventType.PlatformColorAssigned:
-                        if (_scheduled && e.Platform < _station.Platforms.Count) StartCoroutine(Arrive(e.Platform, e.Color, epoch));
+                        if (_scheduled && e.Platform < _station.Platforms.Count) StartCoroutine(Arrive(e.Platform, e.Color, e.Capacity, epoch));
                         else _audio.Play(Sfx.Assign);
                         break;
                     case BoardEventType.TrainDeparted:
@@ -195,10 +195,10 @@ namespace MetroSort.Game
             {
                 PlatformState ps = state.Platforms[p];
                 if (ps.Closed || ps.IsLocked || ps.ReservedColor < 0) continue;
-                if (animate) StartCoroutine(Arrive(p, ps.ReservedColor, _epoch));
+                if (animate) StartCoroutine(Arrive(p, ps.ReservedColor, ps.Capacity, _epoch));
                 else
                 {
-                    TrainView train = NewTrain(p, ps.ReservedColor);
+                    TrainView train = NewTrain(p, ps.ReservedColor, ps.Capacity);
                     train.transform.position = _station.Platforms[p].TrainStop;
                     train.SetDoors(1f);
                     train.Humming = true;
@@ -261,17 +261,17 @@ namespace MetroSort.Game
             return false;
         }
 
-        private TrainView NewTrain(int platform, int color)
+        private TrainView NewTrain(int platform, int color, int capacity)
         {
             TrainView train = _station.AcquireTrain();
             _trains.Add(train);
-            train.Configure(color, _station.Platforms[platform].Capacity);
+            train.Configure(color, capacity > 0 ? capacity : _station.Platforms[platform].Capacity);
             train.transform.rotation = Quaternion.identity;
             return train;
         }
 
         /// <summary>The next train of the timetable pulls in once the platform's previous train has gone.</summary>
-        private IEnumerator Arrive(int platform, int color, int epoch)
+        private IEnumerator Arrive(int platform, int color, int capacity, int epoch)
         {
             int ticket = Next(_arrivalsIssued, platform);
             int key = LaneKey(platform);
@@ -280,7 +280,7 @@ namespace MetroSort.Game
             if (epoch != _epoch) yield break;
             _occupiedTracks.Add(key);
             PlatformView view = _station.Platforms[platform];
-            TrainView train = NewTrain(platform, color);
+            TrainView train = NewTrain(platform, color, capacity);
             Vector3 stop = view.TrainStop;
             Vector3 from = stop + Vector3.right * (18f * SideOf(platform));
             train.transform.position = from;
@@ -418,7 +418,7 @@ namespace MetroSort.Game
 
             train = _station.AcquireTrain();
             _trains.Add(train);
-            train.Configure(e.Color, platform.Capacity);
+            train.Configure(e.Color, e.Capacity > 0 ? e.Capacity : platform.Capacity);
             Vector3 from = stop + Vector3.right * 18f;
             train.transform.position = from;
             _audio.PlaySweep(Sfx.TrainArrive, 0.85f, AudioManager.PanAt(stop.x), 0.40f * scale);

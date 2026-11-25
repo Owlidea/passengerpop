@@ -4,14 +4,13 @@
   "group": "Spring",
   "stages": [
     [
-      "YPGGGGYYYYBP",
-      "YGYYGPOYOGO",
-      "OOGOOOGGOOPRR",
-      "YPPPPOOBGOYR",
-      "GYOBOOOGGGOP"
+      "YYRRYOPOYGGRY",
+      "PRORR(RR)GRPYR(RR)",
+      "YGGRRGRYGYBG",
+      "PYRYRYPPGRBB"
     ]
   ],
-  "trains": "YYPOPOGGOGOYGBYOOGPR",
+  "trains": "YRGPYRRORGYGPBRRY",
   "platforms": [
     {
       "cap": 3
@@ -20,11 +19,11 @@
       "cap": 3
     }
   ],
-  "bench": 4,
+  "bench": 3,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 62,
-  "difficulty": 58.6,
+  "par": 53,
+  "difficulty": 41.2,
   "tier": 0
 }

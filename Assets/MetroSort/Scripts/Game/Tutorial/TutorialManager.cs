@@ -45,6 +45,8 @@ namespace MetroSort.Game
             { "stages", new Definition("A second wave arrives when the queues are empty.", 0, null) },
             { "long", new Definition("The long platform needs four passengers and serves one line only.", 0, null) },
             { "mystery", new Definition("Grey passengers hide their line until they move up the queue.", 0, null) },
+            { "train_size", new Definition("Trains differ in length: each needs as many passengers as it has seats.", 0, "The number on a coming train is its seats.") },
+            { "family", new Definition("A family travels together: they need two seats side by side.", 0, "No room on the train? They wait on the bench together.") },
             { "gate", new Definition("A closed turnstile opens after the number of trains shown on it have left.", 0, null) },
             { "gate_color", new Definition("A coloured turnstile only counts trains of its own line.", 0, null) }
         };

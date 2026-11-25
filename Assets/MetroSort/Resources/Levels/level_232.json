@@ -4,27 +4,23 @@
   "group": "Desert",
   "stages": [
     [
-      "BOYYGGGGBB",
-      "YYBPBPYGR",
-      "PPBBBRGGRG",
-      "OYRPBGBBRB",
-      "OPBBRGGGB"
+      "OPBBYPPR",
+      "GOPGPG",
+      "GGGPRY"
     ]
   ],
-  "trains": "BYOPBYPBRGGGBBRG",
+  "trains": "G2O2G2P2P2B2P2R2G2Y2",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     }
   ],
-  "bench": 3,
+  "bench": 2,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 50,
-  "difficulty": 50.0,
-  "tier": 0
+  "par": 22,
+  "difficulty": 25.0,
+  "tier": 0,
+  "visible": 2
 }

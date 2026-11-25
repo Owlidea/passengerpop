@@ -4,12 +4,12 @@
   "group": "Intro",
   "stages": [
     [
-      "RRR",
-      "RGRBBB",
-      "GGR"
+      "BGRGG",
+      "BRBB",
+      "BBR"
     ]
   ],
-  "trains": "GRBR",
+  "trains": "BBRG",
   "platforms": [
     {
       "cap": 3
@@ -19,6 +19,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "bench_full",
-  "par": 13,
-  "difficulty": 17.5
+  "par": 14,
+  "difficulty": 8.8,
+  "tier": 0
 }

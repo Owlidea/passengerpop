@@ -96,6 +96,20 @@ namespace MetroSort.Game
                 if (view != null) view.Shake();
                 _app.Audio.Play(Sfx.Invalid);
                 if (source >= 0 && state.GateRemaining(source) > 0) _app.Game.Say("This turnstile is still closed");
+                else if (state.HasSchedule && source >= 0 && !state.Queues[source].IsEmpty)
+                {
+                    // Say why: no train of theirs is in (or it has no room for a family) and the bench cannot take them.
+                    Passenger front = state.Queues[source].Front;
+                    bool family = state.Queues[source].FrontGroupSize > 1;
+                    if (view != null) Fx.Ring(view.transform.position + Vector3.up * 0.06f, Palette.Line(front.Color), 1.7f);
+                    // The people on the bench shake their heads, and a notice pops up right above them.
+                    for (int b = 0; b < state.Bench.Count; b++)
+                    {
+                        PassengerView seated = _app.Station.GetPassenger(state.Bench[b].Id);
+                        if (seated != null) seated.Shake();
+                    }
+                    _app.UI.BenchNotice(family ? "A family needs two free seats" : "Their train is not here yet and the bench is full");
+                }
                 Deselect();
                 return;
             }

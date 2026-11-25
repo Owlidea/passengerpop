@@ -4,12 +4,12 @@
   "group": "Intro",
   "stages": [
     [
-      "GGBGRGG",
-      "GBGRGGG",
-      "BGRRRGR"
+      "RRRRRRB",
+      "BBGRBGG",
+      "BBRRRRR"
     ]
   ],
-  "trains": "GBRRGGG",
+  "trains": "BBRRRRG",
   "platforms": [
     {
       "cap": 3
@@ -23,6 +23,6 @@
   "extraPlatforms": 1,
   "tutorial": "",
   "par": 22,
-  "difficulty": 15.7,
+  "difficulty": 0.0,
   "tier": 0
 }

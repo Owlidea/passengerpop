@@ -4,22 +4,21 @@
   "group": "Coastal",
   "stages": [
     [
-      "YBRRR",
-      "RRBBY",
-      "PYRYB",
-      "YPRBR",
-      "YRPPR"
+      "BBPOOR",
+      "PPBOBO",
+      "BOOOB"
     ],
     [
-      "ORPOP",
-      "RBGBO",
-      "RYGBG",
-      "YRPBP",
-      "YPPRPP"
+      "OPPYGY",
+      "PYYPBY",
+      "YRGPB"
     ]
   ],
-  "trains": "RYPBRYYRRRBPPGBOP",
+  "trains": "B2O2B2P2P2B2P2O2O2G2O2R2Y2B2P2Y2Y2",
   "platforms": [
+    {
+      "cap": 3
+    },
     {
       "cap": 3
     },
@@ -31,7 +30,7 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 55,
-  "difficulty": 52.9,
+  "par": 38,
+  "difficulty": 26.2,
   "tier": 0
 }

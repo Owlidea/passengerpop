@@ -4,21 +4,15 @@
   "group": "Expert",
   "stages": [
     [
-      "GYGBR",
-      "GY",
-      "GRG",
-      "BY",
-      "BOOG"
+      "BOYGPB",
+      "OYYRRO"
     ],
     [
-      "BOYP",
-      "PBB",
-      "PPO",
-      "PYRP",
-      "OYO"
+      "PBRPGG",
+      "GPGPGP"
     ]
   ],
-  "trains": "GYBGORBPOPY",
+  "trains": "YOGRBPPG",
   "platforms": [
     {
       "cap": 3
@@ -27,11 +21,11 @@
       "cap": 3
     }
   ],
-  "bench": 3,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 37,
-  "difficulty": 55.7,
+  "par": 31,
+  "difficulty": 27.8,
   "tier": 0
 }

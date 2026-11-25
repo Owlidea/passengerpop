@@ -4,18 +4,15 @@
   "group": "Winter",
   "stages": [
     [
-      "GOOPGPYGOOGY",
-      "YGYGOOGOBBOY",
-      "YRRGPYBRGOGR",
-      "RYRBBPRRRYOG",
-      "OPRRRPGRBORR"
+      "BPGRRPG",
+      "YG(BB)GR",
+      "GOBOP",
+      "YG(YY)P",
+      "OGPO"
     ]
   ],
-  "trains": "YROGROGPYPBBRGROOYGR",
+  "trains": "Y4GP2B4O4RPG4",
   "platforms": [
-    {
-      "cap": 3
-    },
     {
       "cap": 3
     }
@@ -24,14 +21,14 @@
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 63,
-  "difficulty": 74.3,
+  "par": 32,
+  "difficulty": 31.9,
   "tier": 0,
   "gates": [
     0,
     0,
-    0,
     1,
+    0,
     0
   ]
 }

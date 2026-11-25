@@ -1,6 +1,67 @@
 # Metro Sort - Level Design
 
-## Schema
+## Current levels: train timetable
+
+Since 2026-11-20 all 700 shipped levels use the **train timetable** rules and come from `Tools/train_levels.py`.
+The sections further down (schema, progression, validation, difficulty score) describe the classic rule set the
+game started with; the engine still runs it for a level without `trains`, but no shipped level uses it.
+
+```json
+{
+  "id": 41,
+  "stages": [ ["GYOPPRYR", "GOYGPRY", "Y(BB)OYBB(BB)"] ],
+  "trains": "O2GYPB4YRB",
+  "platforms": [ { "cap": 3 }, { "cap": 3 } ],
+  "bench": 3,
+  "visible": 2,
+  "tutorial": "family",
+  "par": 27,
+  "difficulty": 12.0,
+  "tier": 0
+}
+```
+
+| Field | Meaning |
+|-------|---------|
+| `trains` | The timetable, in arrival order: one line letter per train. A digit after a letter is that train's seat count (2-4); without one it has three. Each platform holds one train; a full train leaves and the next one pulls in |
+| `(RR)` in a queue | A family: the passengers in brackets move with one tap and need that many free seats, on their train or on the bench |
+| `platforms` | Only their number matters here; a platform takes the seat count of the train standing at it |
+| `bench` | Seats for passengers whose train is not in. A tap that can neither board nor sit is refused; no possible tap at all loses the level |
+| `visible` | Mystery queues: how many passengers at the front of each queue show their line (0 = all) |
+| `gates`, `stages` | As in the classic schema below |
+| `par` | Taps plus the fewest bench waits on a winning line; used for stars |
+| `difficulty` | 100 x (1 - win rate) for the slot's player mix, see below |
+| `tier` | 0 normal, 1 Hard, 2 Super Hard (marked in the game, pays a bonus) |
+
+**Variety.** The station changes from level to level: 1-4 platforms, 2-5 queues, 2-5 bench seats. Three ideas
+arrive one chapter apart and then return in rotation: trains of different lengths (level 21), families (41) and
+mystery queues (61). Stations with three or four platforms keep to two- and three-seat trains (a four-seat train
+makes a two-platform row so wide that the whole station shrinks on a phone), and Hard and Super Hard levels have
+at most two platforms: four trains at once make a station forgiving whatever else is done.
+
+**Who the levels are tuned for.** Three simulated players rate every draft:
+
+- *attentive*: always boards when possible; when someone has to wait, usually (70%) digs for the trains that are
+  standing there and seats whoever's own train comes soonest, otherwise seats someone at random;
+- *careless*: boards when possible (85%), otherwise seats anyone;
+- *careful*: the attentive player without the random choices.
+
+A level's win rate is the attentive player's, blended with the careless player's early on (half at levels 11-20,
+fading to nothing by level 160). The target falls from 93% right after the tutorial to 62% at level 700; Hard
+levels sit 18 points lower and Super Hard ones 33. Softer preferences keep the puzzle fair: random tapping
+rarely wins, reading the station beats not reading it, the careful player beats both, and a Super Hard level
+should not fall to the rule of thumb every time. Drafts that turn that order upside down are a last resort.
+Every level is proven winnable within the solver budget the in-game hint uses.
+
+A full run is followed by a wider check of a sample of levels (100 plays per player). A level that still comes
+out upside down there (random tapping beats the attentive player by more than 10 points), or a normal level the
+careful player wins less than 60% of the time, draws from another series of drafts: the `RESEED` table in
+`Tools/train_levels.py` (levels 78, 401, 411 and 682 on 2026-11-25).
+
+These are simulated players, not people. `Docs/LEVEL_VALIDATION.md` lists the measured rates per level; real pass
+rates come from analytics once a build with it is released (`Docs/ANALYTICS.md`).
+
+## Schema (classic rules)
 
 One JSON file per level in `Assets/MetroSort/Resources/Levels/level_NNN.json`. No scene per level.
 
@@ -43,7 +104,7 @@ One JSON file per level in `Assets/MetroSort/Resources/Levels/level_NNN.json`. N
 | `par` | Minimum solution length from the solver; used for stars |
 | `difficulty` | Score from `DifficultyScorer` at authoring time |
 
-## Progression in this release
+## Progression of the classic levels (historical)
 
 | Levels | Group | Content |
 |--------|-------|---------|

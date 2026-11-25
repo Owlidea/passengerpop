@@ -4,14 +4,12 @@
   "group": "Expert",
   "stages": [
     [
-      "YRGPBPPP",
-      "YPYOPPB",
-      "PGYPPBY",
-      "RPGOBBB",
-      "YYYYPRO"
+      "RRYPYRYYRGB",
+      "PGYGGYYGOO",
+      "GGRYYGBYRYY"
     ]
   ],
-  "trains": "PYRYGYOPBPPB",
+  "trains": "R2G2G2P2Y2Y2G2R2Y2Y2Y2G2Y2B2O2R2",
   "platforms": [
     {
       "cap": 3
@@ -20,11 +18,12 @@
       "cap": 3
     }
   ],
-  "bench": 3,
+  "bench": 2,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 37,
-  "difficulty": 55.7,
-  "tier": 0
+  "par": 35,
+  "difficulty": 32.7,
+  "tier": 0,
+  "visible": 2
 }

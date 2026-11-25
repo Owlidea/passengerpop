@@ -4,24 +4,24 @@
   "group": "Festival",
   "stages": [
     [
-      "OPOPPPYOYYOOYY",
-      "PGOOYYGOYYYY",
-      "PBYPBBGGGYYG",
-      "PPBYBRRGYYG",
-      "BYOYRYGGGYG"
+      "BGRY",
+      "RPGRO",
+      "YYRY",
+      "RYO",
+      "PPBR"
     ]
   ],
-  "trains": "PPPYBOOYRYBGGGYYOYYG",
+  "trains": "RB2G2Y2PO2RY",
   "platforms": [
     {
       "cap": 3
     }
   ],
-  "bench": 6,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 67,
-  "difficulty": 98.6,
+  "par": 25,
+  "difficulty": 34.4,
   "tier": 0
 }

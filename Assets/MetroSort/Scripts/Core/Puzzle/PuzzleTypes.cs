@@ -35,12 +35,18 @@ namespace MetroSort.Puzzle
         public int Id;
         public int Color;
         public bool Vip;
+        /// <summary>
+        /// 0 = travels alone. Otherwise the id of the family this passenger belongs to: neighbours in a queue with
+        /// the same value move with one tap and need that many free seats (on their train or on the bench).
+        /// </summary>
+        public int Group;
 
         public Passenger(int id, int color, bool vip)
         {
             Id = id;
             Color = color;
             Vip = vip;
+            Group = 0;
         }
     }
 
@@ -125,6 +131,8 @@ namespace MetroSort.Puzzle
         public int Slot = -1;
         public int Queue = -1;
         public int Color = ColorCodes.None;
+        /// <summary>PlatformColorAssigned in timetable levels: seats of the train that pulled in.</summary>
+        public int Capacity;
         public int[] PassengerIds;
         public int Stage;
         public LoseReason Reason;

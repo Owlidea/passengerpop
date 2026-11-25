@@ -126,6 +126,7 @@ namespace MetroSort.Ads
             {
                 _save.Data.LevelsSinceInterstitial = 0;
                 _save.Save();
+                _analytics.Track(AnalyticsEvents.InterstitialShown, new Dictionary<string, object> { { "level", completedLevelId } });
                 _ads.ShowInterstitialAd(onContinue);
                 return;
             }
@@ -332,6 +333,11 @@ namespace MetroSort.Analytics
         public const string RewardedRequested = "rewarded_ad_requested";
         public const string RewardedCompleted = "rewarded_ad_completed";
         public const string PurchaseCompleted = "iap_completed";
+        public const string InterstitialShown = "interstitial_shown";
+        public const string ShopOpened = "shop_opened";
+        public const string LivesEmpty = "lives_empty";
+        public const string DailyGiftClaimed = "daily_gift_claimed";
+        public const string MoreGamesOpened = "more_games_open";
     }
 
     /// <summary>Event sink. Implementations must never throw and must tolerate being offline.</summary>

@@ -4,24 +4,22 @@
   "group": "Summer",
   "stages": [
     [
-      "RGRGBGGPOBPGG",
-      "ORBGBPOYYYY",
-      "ROOBYBGBYYP",
-      "GORBPRYOGYP",
-      "ORYBBGBBRROYYG"
+      "GBYBBRGP",
+      "GYOOGRRP",
+      "GYOGOOOP"
     ]
   ],
-  "trains": "OGRRBOYBYGPBGBROGYPY",
+  "trains": "GBYGROOP",
   "platforms": [
     {
       "cap": 3
     }
   ],
-  "bench": 5,
+  "bench": 4,
   "moveLimit": 0,
   "extraPlatforms": 1,
   "tutorial": "",
-  "par": 73,
-  "difficulty": 98.6,
+  "par": 29,
+  "difficulty": 36.3,
   "tier": 0
 }

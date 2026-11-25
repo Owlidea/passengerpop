@@ -197,6 +197,10 @@ namespace MetroSort.Game
             { "Palace Line", "Saray Hattı" }, { "Harbour Line", "Liman Hattı" }, { "Misty Line", "Sisli Hat" }, { "Night Line", "Gece Hattı" },
             { "{0}  ({1}-{2})", "{0}  ({1}-{2})" },
             { "Grey passengers hide their line until they move up the queue.", "Gri yolcuların hattı, kuyrukta öne gelene kadar gizlidir." },
+            { "Trains differ in length: each needs as many passengers as it has seats.", "Trenlerin boyu farklı: her tren koltuk sayısı kadar yolcu ister." },
+            { "The number on a coming train is its seats.", "Gelen trenin üstündeki sayı koltuk sayısıdır." },
+            { "A family travels together: they need two seats side by side.", "Aile birlikte yolculuk eder: yan yana iki koltuk ister." },
+            { "No room on the train? They wait on the bench together.", "Trende yer yoksa bankta birlikte beklerler." },
 
             // Menu and HUD
             { "PLAY", "OYNA" },
@@ -210,6 +214,10 @@ namespace MetroSort.Game
             { "Free +{0} coins", "Bedava +{0} jeton" },
             { "Watch a short video", "Kısa bir video izle" },
             { "Watch", "İzle" },
+            { "Our Games", "Oyunlarımız" },
+            { "Get", "İndir" },
+            { "Try {0} too", "{0} oyununu da dene" },
+            { "Free", "Ücretsiz" },
             { "Boosters", "Güçlendiriciler" },
             { "BEST VALUE", "EN İYİ FIRSAT" },
             { "Play without ad breaks", "Reklamsız oyna" },
@@ -341,6 +349,8 @@ namespace MetroSort.Game
             { "That platform is still locked", "Bu peron hâlâ kilitli" },
             { "That platform is closed", "Bu peron kapalı" },
             { "The bench is full", "Bank dolu" },
+            { "A family needs two free seats", "Ailenin iki boş koltuğa ihtiyacı var" },
+            { "Their train is not here yet and the bench is full", "Treni henüz gelmedi ve bank dolu" },
             { "Wait for the train to leave", "Trenin kalkmasını bekle" },
 
             // Platform captions

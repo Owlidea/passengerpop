@@ -19,6 +19,8 @@ namespace MetroSort.Game
         private readonly Image[] _icons = new Image[Slots];
         private RectTransform _glow, _row;
         private GameObject _more, _last;
+        private readonly GameObject[] _seatBadges = new GameObject[Slots];
+        private readonly Text[] _seatTexts = new Text[Slots];
         private Text _moreText;
         private int[] _schedule;
         private int _shownNext;
@@ -89,6 +91,14 @@ namespace MetroSort.Game
                 rt.pivot = new Vector2(0.5f, 0.5f);
                 strip._icons[i] = icon;
                 strip._slots[i] = rt;
+                // Seat count of the train, shown only on levels whose trains differ in length.
+                Image badge = UiKit.MakeImage(rt, "Seats", UiPremium.Round, new Color(1f, 0.80f, 0.24f));
+                UiKit.Place(badge.rectTransform, 1f, 0f, -2f, 4f, 34f, 34f).pivot = new Vector2(1f, 0f);
+                Text seats = UiPremium.Heading(badge.transform, "", 24, Color.white, new Color(0.45f, 0.22f, 0.0f, 0.95f));
+                UiKit.Stretch(seats.rectTransform, 0f, 2f, 0f, 0f);
+                seats.alignment = TextAnchor.MiddleCenter;
+                strip._seatBadges[i] = badge.gameObject;
+                strip._seatTexts[i] = seats;
             }
 
             Image more = UiKit.MakeImage(root, "More", UiPremium.Round, UiPremium.Gold);
@@ -136,11 +146,16 @@ namespace MetroSort.Game
             }
 
             int left = state.UpcomingTrains;
+            bool mixed = false;
+            for (int i = 0; i < state.ScheduleSizes.Length; i++)
+                if (state.ScheduleSizes[i] != state.ScheduleSizes[0]) mixed = true;
             for (int i = 0; i < Slots; i++)
             {
                 bool shown = i < left;
                 _icons[i].gameObject.SetActive(shown);
                 if (!shown) continue;
+                _seatBadges[i].SetActive(mixed);
+                if (mixed) _seatTexts[i].text = state.ScheduleSizes[state.NextTrain + i].ToString();
                 int color = state.Schedule[state.NextTrain + i];
                 Sprite art = UiKit.Art("train_icon_" + color);
                 _icons[i].sprite = art != null ? art : UiKit.Rounded;

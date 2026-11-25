@@ -4,14 +4,12 @@
   "group": "Master",
   "stages": [
     [
-      "YOPGRGGP",
-      "PPPPGBR",
-      "OGGGBGY",
-      "YYOGGGG",
-      "OOYOYBR"
+      "BGGG(OO)BGBP(PP)R",
+      "(YY)BGBGYGRROR",
+      "PBOPOGGRROP"
     ]
   ],
-  "trains": "YGOOPGGYBPGR",
+  "trains": "BBGYGOPGRPRO",
   "platforms": [
     {
       "cap": 3
@@ -25,6 +23,6 @@
   "extraPlatforms": 1,
   "tutorial": "",
   "par": 38,
-  "difficulty": 50.0,
+  "difficulty": 29.3,
   "tier": 0
 }

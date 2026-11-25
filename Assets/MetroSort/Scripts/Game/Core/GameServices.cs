@@ -128,7 +128,12 @@ namespace MetroSort.Game
             s.Progression = new ProgressionManager(s.Save, s.Economy);
             s.Boosters = new BoosterManager(s.Save, s.Economy);
             s.Achievements = new AchievementManager(s.Save, s.Economy);
-            s.Analytics = new DebugLogAnalyticsService();
+            // The console in development builds, Firebase on a phone (idle in the editor, in tests and in a build
+            // without Firebase's configuration files).
+            var analytics = new AnalyticsRouter();
+            analytics.Add(new DebugLogAnalyticsService());
+            if (FirebaseAnalyticsService.Supported) analytics.Add(new FirebaseAnalyticsService());
+            s.Analytics = analytics;
             // AdMob and RevenueCat on an Android device (Resources/monetization.json); development stand-ins in the
             // editor, in tests and while a key is missing.
             MonetizationConfig money = MonetizationConfig.Load();
