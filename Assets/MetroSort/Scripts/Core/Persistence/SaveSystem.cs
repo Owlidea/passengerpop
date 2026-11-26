@@ -25,6 +25,10 @@ namespace MetroSort.Persistence
         public int LastDailyClaimDay = -1;
         public bool RemoveAds;
         public List<string> ProcessedTransactions = new List<string>();
+        /// <summary>Products sold once per player that were bought (the starter pack).</summary>
+        public List<string> OneTimePurchases = new List<string>();
+        /// <summary>When the starter offer was first shown (UTC unix seconds; 0 = not yet).</summary>
+        public long StarterOfferStart;
         public int LevelsSinceInterstitial;
         /// <summary>"" = follow the device language; otherwise a language code such as "en" or "tr".</summary>
         public string Language = "";
@@ -66,6 +70,8 @@ namespace MetroSort.Persistence
             root["lastDailyClaimDay"] = LastDailyClaimDay;
             root["removeAds"] = RemoveAds;
             root["processedTransactions"] = ToObjects(ProcessedTransactions);
+            root["oneTimePurchases"] = ToObjects(OneTimePurchases);
+            root["starterOfferStart"] = (double)StarterOfferStart;
             root["levelsSinceInterstitial"] = LevelsSinceInterstitial;
             root["language"] = Language;
             root["lives"] = Lives;
@@ -107,6 +113,8 @@ namespace MetroSort.Persistence
             d.LastDailyClaimDay = JsonRead.Int(root, "lastDailyClaimDay", -1);
             d.RemoveAds = JsonRead.Bool(root, "removeAds", false);
             d.ProcessedTransactions = ToStrings(JsonRead.List(root, "processedTransactions"));
+            d.OneTimePurchases = ToStrings(JsonRead.List(root, "oneTimePurchases"));
+            d.StarterOfferStart = JsonRead.Long(root, "starterOfferStart", 0);
             d.LevelsSinceInterstitial = JsonRead.Int(root, "levelsSinceInterstitial", 0);
             d.Language = JsonRead.Str(root, "language", "");
             d.Lives = JsonRead.Int(root, "lives", 5);

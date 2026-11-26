@@ -142,7 +142,7 @@ namespace MetroSort.Game
             s.Ads = MonetizationServices.CreateAds(money);
             s.AdsCoordinator = new AdsCoordinator(s.Ads, s.Economy, s.Save, s.Analytics);
             s.Purchases = MonetizationServices.CreatePurchases(money);
-            s.Store = new StoreManager(s.Purchases, new AcceptAllReceiptValidator(), s.Economy, s.Save, s.Analytics);
+            s.Store = new StoreManager(s.Purchases, new AcceptAllReceiptValidator(), s.Economy, s.Save, s.Analytics, s.Boosters, s.Lives);
 #if METROSORT_REVENUECAT
             var revenueCat = s.Purchases as RevenueCatPurchaseService;
             if (revenueCat != null) revenueCat.RemoveAdsOwned += () => s.Store.MarkOwned(StoreCatalog.RemoveAds);

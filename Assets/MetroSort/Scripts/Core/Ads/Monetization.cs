@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MetroSort.Analytics;
+using MetroSort.Boosters;
 using MetroSort.Economy;
 using MetroSort.Persistence;
 
@@ -208,6 +209,15 @@ namespace MetroSort.Purchases
         public string PriceLabel;
         public int Coins;
         public bool Consumable;
+        /// <summary>Boosters in the pack, indexed by BoosterType (Undo, Hint, ExtraPlatform, Shuffle); null for none.</summary>
+        public int[] Boosters;
+        /// <summary>Unlimited lives in the pack, in minutes; they stack on any still running.</summary>
+        public int UnlimitedLivesMinutes;
+        /// <summary>Sold once per player (the starter pack): the shop stops offering it once bought.</summary>
+        public bool OncePerPlayer;
+
+        /// <summary>A bundle: coins together with boosters or unlimited lives (plain coin packs are not).</summary>
+        public bool IsBundle { get { return Boosters != null || UnlimitedLivesMinutes > 0; } }
     }
 
     public static class StoreCatalog
@@ -215,14 +225,29 @@ namespace MetroSort.Purchases
         public const string CoinsSmall = "com.metrosort.coins.small";
         public const string CoinsLarge = "com.metrosort.coins.large";
         public const string RemoveAds = "com.metrosort.removeads";
+        public const string StarterPack = "com.metrosort.starter";
+        public const string BundleSmall = "com.metrosort.bundle.small";
+        public const string BundleMedium = "com.metrosort.bundle.medium";
+        public const string BundleLarge = "com.metrosort.bundle.large";
 
-        // Kept low on purpose (2026-11-21). The labels are fallbacks: on a device the store's own prices, in the
-        // player's currency, replace them (RevenueCatPurchaseService); set the real prices in Google Play Console.
+        // Coin packs kept low on purpose (2026-11-21); bundles added 2026-11-26. The labels are fallbacks: on a
+        // device the store's own prices, in the player's currency, replace them (RevenueCatPurchaseService); set the
+        // real prices in Google Play Console and App Store Connect. In coin terms (boosters at their shop price,
+        // an hour of unlimited lives at 350) the one-time starter pack is the best deal, about 1040 coins per
+        // dollar against 505 for the smallest coin pack; the bundles give 820 to 1000.
         public static readonly StoreProduct[] Products =
         {
             new StoreProduct { Id = CoinsSmall, Title = "Pocket of Coins", PriceLabel = "$0.99", Coins = 500, Consumable = true },
             new StoreProduct { Id = CoinsLarge, Title = "Vault of Coins", PriceLabel = "$2.99", Coins = 1800, Consumable = true },
-            new StoreProduct { Id = RemoveAds, Title = "Remove Ads", PriceLabel = "$1.99", Coins = 0, Consumable = false }
+            new StoreProduct { Id = RemoveAds, Title = "Remove Ads", PriceLabel = "$1.99", Coins = 0, Consumable = false },
+            new StoreProduct { Id = StarterPack, Title = "Starter Pack", PriceLabel = "$1.99", Coins = 1200, Consumable = true,
+                Boosters = new[] { 3, 3, 3, 3 }, UnlimitedLivesMinutes = 60, OncePerPlayer = true },
+            new StoreProduct { Id = BundleSmall, Title = "Traveller Bundle", PriceLabel = "$4.99", Coins = 3200, Consumable = true,
+                Boosters = new[] { 3, 3, 3, 3 }, UnlimitedLivesMinutes = 60 },
+            new StoreProduct { Id = BundleMedium, Title = "Conductor Bundle", PriceLabel = "$9.99", Coins = 7000, Consumable = true,
+                Boosters = new[] { 6, 6, 6, 6 }, UnlimitedLivesMinutes = 180 },
+            new StoreProduct { Id = BundleLarge, Title = "Station Master Bundle", PriceLabel = "$19.99", Coins = 15000, Consumable = true,
+                Boosters = new[] { 12, 12, 12, 12 }, UnlimitedLivesMinutes = 480 }
         };
 
         /// <summary>Raised when the store's prices have replaced the fallback labels.</summary>
@@ -243,27 +268,74 @@ namespace MetroSort.Purchases
     /// <summary>Turns purchase results into entitlements exactly once per transaction.</summary>
     public sealed class StoreManager
     {
+        /// <summary>The starter pack is offered once the player reaches this level ...</summary>
+        public const int StarterOfferLevel = 10;
+        /// <summary>... for this long after the offer is first shown.</summary>
+        public const long StarterOfferSeconds = 48L * 60 * 60;
+
         private readonly IPurchaseService _service;
         private readonly IReceiptValidator _validator;
         private readonly EconomyManager _economy;
         private readonly SaveManager _save;
         private readonly IAnalyticsService _analytics;
+        private readonly BoosterManager _boosters;
+        private readonly LivesManager _lives;
+        private readonly Func<long> _clock;
 
         public event Action Changed;
 
-        public StoreManager(IPurchaseService service, IReceiptValidator validator, EconomyManager economy, SaveManager save, IAnalyticsService analytics)
+        /// <summary>boosters and lives receive what bundles hold; clock gives UTC unix seconds (the device clock by default).</summary>
+        public StoreManager(IPurchaseService service, IReceiptValidator validator, EconomyManager economy, SaveManager save, IAnalyticsService analytics,
+            BoosterManager boosters = null, LivesManager lives = null, Func<long> clock = null)
         {
             _service = service;
             _validator = validator;
             _economy = economy;
             _save = save;
             _analytics = analytics;
+            _boosters = boosters;
+            _lives = lives;
+            _clock = clock ?? (() => LivesManager.Now(DateTime.UtcNow));
         }
 
         public bool AdsRemoved { get { return _save.Data.RemoveAds; } }
 
+        public bool StarterBought { get { return _save.Data.OneTimePurchases.Contains(StoreCatalog.StarterPack); } }
+
+        /// <summary>The starter offer runs: the level is reached, the pack not bought, and its 48 hours not over.</summary>
+        public bool StarterAvailable(long now)
+        {
+            if (StarterBought || _save.Data.HighestUnlocked < StarterOfferLevel) return false;
+            long start = _save.Data.StarterOfferStart;
+            return start == 0 || now < start + StarterOfferSeconds;
+        }
+
+        /// <summary>Time left on the starter offer (all of it until the offer is first shown).</summary>
+        public long StarterSecondsLeft(long now)
+        {
+            long start = _save.Data.StarterOfferStart;
+            return start == 0 ? StarterOfferSeconds : Math.Max(0, start + StarterOfferSeconds - now);
+        }
+
+        /// <summary>Starts the starter offer's clock when it is first shown. True only then: the game presents it once.</summary>
+        public bool TryStartStarterOffer(long now)
+        {
+            if (_save.Data.StarterOfferStart != 0 || !StarterAvailable(now)) return false;
+            _save.Data.StarterOfferStart = now;
+            _save.Save();
+            if (Changed != null) Changed();
+            return true;
+        }
+
         public void Buy(string productId, Action<bool> onDone)
         {
+            StoreProduct product = StoreCatalog.Find(productId);
+            // A once-per-player pack is never charged twice.
+            if (product != null && product.OncePerPlayer && _save.Data.OneTimePurchases.Contains(product.Id))
+            {
+                if (onDone != null) onDone(false);
+                return;
+            }
             _service.Purchase(productId, result =>
             {
                 bool granted = Grant(result);
@@ -281,7 +353,15 @@ namespace MetroSort.Purchases
             if (_save.Data.ProcessedTransactions.Contains(result.TransactionId)) return false;
 
             _save.Data.ProcessedTransactions.Add(result.TransactionId);
-            if (product.Consumable) _economy.AddCoins(product.Coins);
+            if (product.Consumable)
+            {
+                _economy.AddCoins(product.Coins);
+                if (product.Boosters != null && _boosters != null)
+                    for (int i = 0; i < product.Boosters.Length && i < 4; i++)
+                        if (product.Boosters[i] > 0) _boosters.Grant((BoosterType)i, product.Boosters[i]);
+                if (product.UnlimitedLivesMinutes > 0 && _lives != null) _lives.GrantUnlimited(product.UnlimitedLivesMinutes * 60L, _clock());
+                if (product.OncePerPlayer && !_save.Data.OneTimePurchases.Contains(product.Id)) _save.Data.OneTimePurchases.Add(product.Id);
+            }
             else if (product.Id == StoreCatalog.RemoveAds) _save.Data.RemoveAds = true;
             _save.Save();
             var p = new Dictionary<string, object>();
@@ -335,6 +415,7 @@ namespace MetroSort.Analytics
         public const string PurchaseCompleted = "iap_completed";
         public const string InterstitialShown = "interstitial_shown";
         public const string ShopOpened = "shop_opened";
+        public const string StarterOfferShown = "starter_offer_shown";
         public const string LivesEmpty = "lives_empty";
         public const string DailyGiftClaimed = "daily_gift_claimed";
         public const string MoreGamesOpened = "more_games_open";

@@ -137,6 +137,7 @@ namespace MetroSort.Game
             BuildLose();
             BuildMoreGames();
             BuildNoLives();
+            BuildStarterOffer();
             BuildToast();
 
             GameServices s = app.Services;
@@ -1155,40 +1156,129 @@ namespace MetroSort.Game
 
 
 
+        // The shop: the coin balance stays at the top, everything under it scrolls. LayoutShop stacks the starter
+        // offer (only while it runs) over the rest: bundles, coin packs, boosters and Remove Ads.
+        private const float ShopWidth = 932f;
+        private const float StarterSectionHeight = 470f;
+        private const float BundleHeight = 236f;
+        private static readonly Color StarterBoard = new Color(0.36f, 0.15f, 0.60f);
+        private static readonly Color FeaturedBoard = new Color(0.13f, 0.22f, 0.50f);
+        private RectTransform _shopContent, _shopStarter, _shopRest;
+        private ScrollRect _shopScroll;
+        private float _shopRestHeight;
+        private Text _shopStarterTimer;
+
         private void BuildShop()
         {
             RectTransform body;
             _shop = UiPremium.Modal(_root, "Shop", "Shop", 1000f, 1560f, () => { _app.Audio.Play(Sfx.Click); _shop.SetActive(false); }, out body);
-            GameServices s = _app.Services;
 
             // Coin balance under the ribbon.
             _shopCoins = CoinPill(body, 0.5f, 1f, 0f, 0f);
             Transform plus = _shopCoins.transform.parent.Find("RoundButton");
             if (plus != null) plus.gameObject.SetActive(false);
 
-            // The biggest coin pack is the featured offer across the top; the others share a row with the free coins.
+            // The scrolling list under it; the transparent viewport takes drags that start between the cards.
+            Image viewport = UiKit.MakeImage(body, "Viewport", null, new Color(0f, 0f, 0f, 0f), true);
+            UiKit.Stretch(viewport.rectTransform, 0f, 0f, 0f, 104f);
+            viewport.gameObject.AddComponent<RectMask2D>();
+            _shopContent = UiKit.MakeRect("Content", viewport.transform);
+            _shopContent.anchorMin = new Vector2(0f, 1f);
+            _shopContent.anchorMax = new Vector2(1f, 1f);
+            _shopContent.pivot = new Vector2(0.5f, 1f);
+            _shopContent.anchoredPosition = Vector2.zero;
+            _shopContent.sizeDelta = Vector2.zero;
+            _shopScroll = viewport.gameObject.AddComponent<ScrollRect>();
+            _shopScroll.viewport = viewport.rectTransform;
+            _shopScroll.content = _shopContent;
+            _shopScroll.horizontal = false;
+            _shopScroll.vertical = true;
+            _shopScroll.movementType = ScrollRect.MovementType.Elastic;
+            _shopScroll.scrollSensitivity = 40f;
+
+            _shopStarter = ShopSection("Starter", StarterSectionHeight);
+            ShopStarter(_shopStarter);
+            _shopRest = ShopSection("Offers", 0f);
+            _shopRestHeight = BuildShopOffers(_shopRest);
+            _shopRest.sizeDelta = new Vector2(ShopWidth, _shopRestHeight);
+            LayoutShop();
+            Mascot((RectTransform)body.parent, "thumbs", 220f, -390f, -14f);
+        }
+
+        private RectTransform ShopSection(string name, float height)
+        {
+            return UiKit.Place(UiKit.MakeRect(name, _shopContent), 0.5f, 1f, 0f, 0f, ShopWidth, height);
+        }
+
+        /// <summary>Shows the starter offer while it runs, stacks the rest under it and scrolls back to the top.</summary>
+        private void LayoutShop()
+        {
+            if (_shopContent == null) return;
+            bool starter = _app.Services.Store.StarterAvailable(Now());
+            _shopStarter.gameObject.SetActive(starter);
+            float top = starter ? StarterSectionHeight : 0f;
+            _shopRest.anchoredPosition = new Vector2(0f, -top);
+            _shopContent.sizeDelta = new Vector2(0f, top + _shopRestHeight);
+            _shopScroll.StopMovement();
+            _shopContent.anchoredPosition = Vector2.zero;
+        }
+
+        /// <summary>Bundles, coin packs, boosters and Remove Ads, top to bottom. Returns the height they take.</summary>
+        private float BuildShopOffers(RectTransform rest)
+        {
+            GameServices s = _app.Services;
+            var bundles = new List<StoreProduct>();
             var packs = new List<StoreProduct>();
             StoreProduct removeAds = null;
             foreach (StoreProduct product in StoreCatalog.Products)
             {
-                if (product.Consumable) packs.Add(product);
+                if (product.OncePerPlayer) continue;              // the starter pack has a section of its own
+                if (product.IsBundle) bundles.Add(product);
+                else if (product.Consumable) packs.Add(product);
                 else removeAds = product;
             }
+            float y = 0f;
+
+            // Bundles, the biggest first: it sets the scale the others are judged by.
+            if (bundles.Count > 0)
+            {
+                y = ShopHeading(rest, "Bundles", y);
+                bundles.Sort((a, b) => b.Coins.CompareTo(a.Coins));
+                string[] arts = { "coin_bag", "chest", "coins" };
+                for (int i = 0; i < bundles.Count; i++)
+                {
+                    string flag = i == 0 ? "BEST VALUE" : (i == 1 && bundles.Count > 2 ? "MOST POPULAR" : null);
+                    y += flag != null ? 46f : 24f;             // flags ride over the card's top edge
+                    ShopBundle(rest, bundles[i], y, flag, arts[Mathf.Min(i, arts.Length - 1)]);
+                    y += BundleHeight;
+                }
+                y += 34f;
+            }
+
+            // Coin packs: the biggest one featured across the top, the others sharing a row with the free coins.
             packs.Sort((a, b) => b.Coins.CompareTo(a.Coins));
-            if (packs.Count > 0) ShopFeatured(body, packs[0], packs);
+            y = ShopHeading(rest, "Coins", y);
+            if (packs.Count > 0)
+            {
+                y += 46f;
+                ShopFeatured(rest, packs[0], packs, y);
+                y += 330f;
+            }
             int cards = Mathf.Max(1, packs.Count);
-            float cardW = (932f - (cards - 1) * 22f) / cards;
-            for (int i = 1; i < packs.Count; i++) ShopPack(body, packs[i], -466f + cardW * 0.5f + (i - 1) * (cardW + 22f), cardW);
-            ShopFreeCoins(body, -466f + cardW * 0.5f + (cards - 1) * (cardW + 22f), cardW);
+            float cardW = (ShopWidth - (cards - 1) * 22f) / cards;
+            y += 52f;
+            for (int i = 1; i < packs.Count; i++) ShopPack(rest, packs[i], -466f + cardW * 0.5f + (i - 1) * (cardW + 22f), y, cardW);
+            ShopFreeCoins(rest, -466f + cardW * 0.5f + (cards - 1) * (cardW + 22f), y, cardW);
+            y += 330f + 34f;
 
             // Boosters: each on a disc of its own colour, with the owned count and a coin price.
-            Text boosterHead = UiPremium.Heading(body, "Boosters", 44, Color.white, UiPremium.DeepBlue);
-            UiKit.Place(boosterHead.rectTransform, 0.5f, 1f, 0f, -812f, 600f, 60f);
+            y = ShopHeading(rest, "Boosters", y);
+            y += 22f;
             for (int i = 0; i < 4; i++)
             {
                 var type = (BoosterType)i;
                 float x = -351f + i * 234f;
-                Image card = UiPremium.MakeTile(body, "Booster" + i, 0.5f, 1f, x, -884f, 216f, 316f);
+                Image card = UiPremium.MakeTile(rest, "Booster" + i, 0.5f, 1f, x, -y, 216f, 316f);
                 Image disc = UiKit.MakeImage(card.transform, "Disc", UiPremium.Round, BoosterColors[i]);
                 UiKit.Place(disc.rectTransform, 0.5f, 1f, 0f, -18f, 140f, 140f);
                 UiKit.AddIcon(disc.transform, BoosterIcon(i), 100f, 0.5f, 0.5f, 0f, 4f);
@@ -1209,12 +1299,13 @@ namespace MetroSort.Game
                 }, 180f, 84f, true);
                 UiKit.Place((RectTransform)_shopBoosterButtons[i].transform, 0.5f, 0f, 0f, 20f, 180f, 84f);
             }
+            y += 316f + 34f;
 
             // Remove ads.
             if (removeAds != null)
             {
                 StoreProduct p = removeAds;
-                Image tile = UiPremium.MakeTile(body, "RemoveAds", 0.5f, 1f, 0f, -1216f, 932f, 150f);
+                Image tile = UiPremium.MakeTile(rest, "RemoveAds", 0.5f, 1f, 0f, -y, ShopWidth, 150f);
                 if (UiKit.Art("no_ads") != null) UiKit.AddIcon(tile.transform, "no_ads", 136f, 0f, 0.5f, 86f, 4f);
                 else
                 {
@@ -1230,27 +1321,43 @@ namespace MetroSort.Game
                 UiKit.Stretch(sub.rectTransform, 170f, 18f, 290f, 82f);
                 _removeAdsButton = UiPremium.PriceButton(tile.transform, p.PriceLabel, UiPremium.Green, () => BuyProduct(p), 240f, 100f, false);
                 UiKit.Place((RectTransform)_removeAdsButton.transform, 1f, 0.5f, -26f, 4f, 240f, 100f);
+                y += 150f;
             }
-            Mascot((RectTransform)body.parent, "thumbs", 220f, -390f, -14f);
+            return y + 40f;
         }
 
-        /// <summary>The featured coin pack: a wide gold-rimmed navy card, the art on turning rays, the value flags.</summary>
-        private void ShopFeatured(RectTransform body, StoreProduct p, List<StoreProduct> packs)
+        /// <summary>A section heading at y (measured down from the top of parent). Returns the y under it.</summary>
+        private static float ShopHeading(RectTransform parent, string label, float y)
         {
-            RectTransform card = UiKit.Place(UiKit.MakeRect("Featured", body), 0.5f, 1f, 0f, -114f, 932f, 330f);
+            Text head = UiPremium.Heading(parent, label, 44, Color.white, UiPremium.DeepBlue);
+            UiKit.Place(head.rectTransform, 0.5f, 1f, 0f, -y, 600f, 60f);
+            return y + 60f;
+        }
+
+        /// <summary>A gold-rimmed card on a deep board with a soft sheen across its top and turning rays behind its art.</summary>
+        private static RectTransform GoldCard(RectTransform parent, string name, float y, float w, float h, Color board, float raysX)
+        {
+            RectTransform card = UiKit.Place(UiKit.MakeRect(name, parent), 0.5f, 1f, 0f, -y, w, h);
             Image rim = UiKit.MakeImage(card, "Rim", UiKit.Rounded, new Color(1f, 0.76f, 0.22f));
             UiKit.Stretch(rim.rectTransform);
             rim.pixelsPerUnitMultiplier = 0.5f;
             var drop = rim.gameObject.AddComponent<Shadow>();
             drop.effectColor = new Color(0.02f, 0.06f, 0.20f, 0.4f);
             drop.effectDistance = new Vector2(0f, -8f);
-            Image board = UiKit.MakeImage(card, "Board", UiKit.Rounded, new Color(0.13f, 0.22f, 0.50f));
-            UiKit.Stretch(board.rectTransform, 9f, 9f, 9f, 9f);
-            board.pixelsPerUnitMultiplier = 0.55f;
+            Image inner = UiKit.MakeImage(card, "Board", UiKit.Rounded, board);
+            UiKit.Stretch(inner.rectTransform, 9f, 9f, 9f, 9f);
+            inner.pixelsPerUnitMultiplier = 0.55f;
             Image sheen = UiKit.MakeImage(card, "Sheen", UiKit.Rounded, new Color(0.45f, 0.62f, 1f, 0.30f));
-            UiKit.Place(sheen.rectTransform, 0.5f, 1f, 0f, -9f, 914f, 150f);
+            UiKit.Place(sheen.rectTransform, 0.5f, 1f, 0f, -9f, w - 18f, 150f);
             sheen.pixelsPerUnitMultiplier = 0.55f;
-            UiPremium.Rays(card, 560f, -262f, 0f, 0.85f);
+            UiPremium.Rays(card, 560f, raysX, 0f, 0.85f);
+            return card;
+        }
+
+        /// <summary>The featured coin pack: a wide gold-rimmed navy card, the art on turning rays, the value flag.</summary>
+        private void ShopFeatured(RectTransform parent, StoreProduct p, List<StoreProduct> packs, float y)
+        {
+            RectTransform card = GoldCard(parent, "Featured", y, ShopWidth, 330f, FeaturedBoard, -262f);
             Sprite bag = UiKit.Art("coin_bag");
             Image art = UiKit.MakeImage(card, "Art", bag != null ? bag : UiKit.Icon("chest"), Color.white);
             art.preserveAspect = true;
@@ -1266,7 +1373,7 @@ namespace MetroSort.Game
             UiKit.Place((RectTransform)buy.transform, 0.5f, 0f, 150f, 30f, 330f, 110f);
             _priceButtons[p.Id] = buy;
             ShineSweep.Add(buy, 0.4f);
-            UiPremium.Flag(card, "BEST VALUE", UiPremium.Red, 0f, 1f, 26f, 26f, 300f);
+            // The bundles carry BEST VALUE now; the coin pack keeps how much more it gives than the smallest one.
             int bonus = ValueBonus(p, packs);
             if (bonus >= 5) UiPremium.Flag(card, Loc.F("+{0}% more", bonus), UiPremium.Green, 1f, 1f, -26f, 26f, 340f);
         }
@@ -1289,10 +1396,10 @@ namespace MetroSort.Game
             return float.TryParse(digits.ToString(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out price);
         }
 
-        private void ShopPack(RectTransform body, StoreProduct p, float x, float w)
+        private void ShopPack(RectTransform parent, StoreProduct p, float x, float y, float w)
         {
             // The name rides on a flag over the top edge, so art, amount and button each get their own band.
-            Image card = UiPremium.MakeTile(body, "Pack", 0.5f, 1f, x, -466f, w, 330f);
+            Image card = UiPremium.MakeTile(parent, "Pack", 0.5f, 1f, x, -y, w, 330f);
             UiPremium.Rays(card.transform, 300f, 0f, 68f, 0.6f);
             Image art = UiKit.MakeImage(card.transform, "Art", UiKit.Icon("coins"), Color.white);
             art.preserveAspect = true;
@@ -1306,9 +1413,9 @@ namespace MetroSort.Game
             _priceButtons[p.Id] = buy;
         }
 
-        private void ShopFreeCoins(RectTransform body, float x, float w)
+        private void ShopFreeCoins(RectTransform parent, float x, float y, float w)
         {
-            Image card = UiPremium.MakeTile(body, "FreeCoins", 0.5f, 1f, x, -466f, w, 330f);
+            Image card = UiPremium.MakeTile(parent, "FreeCoins", 0.5f, 1f, x, -y, w, 330f);
             UiPremium.Rays(card.transform, 300f, 0f, 68f, 0.6f);
             Image art = UiKit.AddIcon(card.transform, UiKit.Art("video_coins") != null ? "video_coins" : "gift", 140f, 0.5f, 0.5f, 0f, 68f);
             art.gameObject.AddComponent<Bob>().Height = 4f;
@@ -1319,7 +1426,98 @@ namespace MetroSort.Game
             UiKit.Place((RectTransform)watch.transform, 0.5f, 0f, 0f, 16f, w - 60f, 92f);
         }
 
-        private void BuyProduct(StoreProduct p)
+        /// <summary>A bundle row: its art on turning rays, the name, the coins, what else it holds, and the price.</summary>
+        private void ShopBundle(RectTransform parent, StoreProduct p, float y, string flag, string artName)
+        {
+            Image card = UiPremium.MakeTile(parent, "Bundle", 0.5f, 1f, 0f, -y, ShopWidth, BundleHeight);
+            UiPremium.Rays(card.transform, 300f, -346f, 0f, 0.6f);
+            Sprite sprite = UiKit.Art(artName);
+            Image art = UiKit.MakeImage(card.transform, "Art", sprite != null ? sprite : UiKit.Icon("coins"), Color.white);
+            art.preserveAspect = true;
+            UiKit.Place(art.rectTransform, 0.5f, 0.5f, -346f, 0f, 190f, 190f);
+            art.gameObject.AddComponent<Bob>().Height = 4f;
+            Text title = UiKit.MakeText(card.transform, p.Title, 38, UiPremium.Ink, TextAnchor.MiddleLeft);
+            UiKit.Place(title.rectTransform, 0f, 1f, 226f, -18f, 380f, 52f);
+            UiKit.OneLine(title, 38, 22);
+            UiKit.AddIcon(card.transform, "coin", 64f, 0.5f, 0.5f, -208f, 12f);
+            Text amount = UiPremium.Heading(card.transform, "+" + p.Coins, 62, UiPremium.Gold, new Color(0.48f, 0.24f, 0.02f, 1f));
+            UiKit.Place(amount.rectTransform, 0.5f, 0.5f, -14f, 12f, 320f, 72f);
+            amount.alignment = TextAnchor.MiddleLeft;
+            BundleStrip(card.transform, p, -206f, -66f, 62f, 80f);
+            Button buy = UiPremium.PriceButton(card.transform, p.PriceLabel, UiPremium.Green, () => BuyProduct(p), 250f, 112f, false);
+            UiKit.Place((RectTransform)buy.transform, 1f, 0.5f, -24f, -6f, 250f, 112f);
+            _priceButtons[p.Id] = buy;
+            if (flag != null) UiPremium.Flag(card.transform, flag, flag == "BEST VALUE" ? UiPremium.Red : UiPremium.Orange, 1f, 1f, -24f, 26f, 300f);
+        }
+
+        /// <summary>
+        /// What a pack holds besides coins, in a row whose first item is centred at (x, y) in parent: each booster
+        /// on its coloured disc with an "xN" badge, then a heart with the infinity sign and the hours of unlimited lives.
+        /// </summary>
+        private static void BundleStrip(Transform parent, StoreProduct p, float x, float y, float size, float step)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                int n = p.Boosters != null && i < p.Boosters.Length ? p.Boosters[i] : 0;
+                if (n <= 0) continue;
+                Image disc = UiKit.MakeImage(parent, "Booster" + i, UiPremium.Round, BoosterColors[i]);
+                UiKit.Place(disc.rectTransform, 0.5f, 0.5f, x, y, size, size);
+                UiKit.AddIcon(disc.transform, BoosterIcon(i), size * 0.74f, 0.5f, 0.5f, 0f, size * 0.03f);
+                CountBadge(disc.transform, "x" + n, size);
+                x += step;
+            }
+            if (p.UnlimitedLivesMinutes > 0)
+            {
+                Image heart = UiKit.AddIcon(parent, "heart", size * 1.1f, 0.5f, 0.5f, x, y);
+                UiKit.AddIcon(heart.transform, "infinity", size * 0.62f, 0.5f, 0.5f, 0f, size * 0.05f);
+                CountBadge(heart.transform, Loc.F("{0} h", (p.UnlimitedLivesMinutes + 59) / 60), size);
+            }
+        }
+
+        /// <summary>A small red pill hanging off the bottom-right corner of an item: "x6", "3 h".</summary>
+        private static void CountBadge(Transform parent, string label, float size)
+        {
+            Image badge = UiKit.MakeImage(parent, "Count", UiPremium.Pill, UiPremium.Red);
+            UiKit.Place(badge.rectTransform, 1f, 0f, size * 0.24f, -size * 0.12f, size * 0.82f, size * 0.48f);
+            int font = Mathf.RoundToInt(size * 0.32f);
+            Text t = UiKit.MakeText(badge.transform, label, font, Color.white);
+            UiKit.Stretch(t.rectTransform, 6f, 2f, 6f, 0f);
+            UiKit.OneLine(t, font, 12);
+            UiKit.Emboss(t, new Color(0.45f, 0.04f, 0.04f, 0.9f));
+        }
+
+        /// <summary>The starter offer's card at the top of the shop: purple and gold, with its countdown.</summary>
+        private void ShopStarter(RectTransform section)
+        {
+            StoreProduct p = StoreCatalog.Find(StoreCatalog.StarterPack);
+            if (p == null) return;
+            RectTransform card = GoldCard(section, "StarterCard", 40f, ShopWidth, 400f, StarterBoard, -262f);
+            Sprite chest = UiKit.Art("chest");
+            Image art = UiKit.MakeImage(card, "Art", chest != null ? chest : UiKit.Icon("gift"), Color.white);
+            art.preserveAspect = true;
+            UiKit.Place(art.rectTransform, 0.5f, 0.5f, -262f, -4f, 280f, 280f);
+            art.gameObject.AddComponent<Bob>().Height = 7f;
+            UiPremium.Flag(card, "ONE-TIME OFFER", UiPremium.Red, 0f, 1f, 26f, 26f, 360f);
+            Image pill = UiKit.MakeImage(card, "Timer", UiPremium.Pill, new Color(0.05f, 0.10f, 0.30f, 0.92f));
+            UiKit.Place(pill.rectTransform, 1f, 1f, -26f, -24f, 330f, 62f);
+            _shopStarterTimer = UiPremium.Heading(pill.transform, "", 32, Color.white, UiPremium.DeepBlue);
+            UiKit.Stretch(_shopStarterTimer.rectTransform, 16f, 2f, 16f, 2f);
+            UiKit.OneLine(_shopStarterTimer, 32, 18);
+            Text title = UiPremium.Heading(card, p.Title, 46, Color.white, UiPremium.DeepBlue);
+            UiKit.Place(title.rectTransform, 0.5f, 0.5f, 165f, 86f, 520f, 56f);
+            UiKit.OneLine(title, 46, 26);
+            UiKit.AddIcon(card, "coin", 76f, 0.5f, 0.5f, 12f, 20f);
+            Text amount = UiPremium.Heading(card, "+" + p.Coins, 78, UiPremium.Gold, new Color(0.48f, 0.24f, 0.02f, 1f));
+            UiKit.Place(amount.rectTransform, 0.5f, 0.5f, 216f, 20f, 320f, 90f);
+            amount.alignment = TextAnchor.MiddleLeft;
+            BundleStrip(card, p, -46f, -54f, 66f, 84f);
+            Button buy = UiPremium.PriceButton(card, p.PriceLabel, UiPremium.Green, () => BuyProduct(p), 440f, 90f, false);
+            UiKit.Place((RectTransform)buy.transform, 0.5f, 0.5f, 165f, -150f, 440f, 90f);
+            _priceButtons[p.Id] = buy;
+            ShineSweep.Add(buy, 0.2f);
+        }
+
+        private void BuyProduct(StoreProduct p, Action<bool> after = null)
         {
             _app.Audio.Play(Sfx.Click);
             _app.Services.Store.Buy(p.Id, ok =>
@@ -1330,7 +1528,92 @@ namespace MetroSort.Game
                     if (ok) _app.Audio.Play(Sfx.Coins);
                     Toast(ok ? Loc.F("Thank you! {0} added", Loc.T(p.Title)) : "Purchase was not completed");
                 }
+                if (ok && p.OncePerPlayer) LayoutShop();
+                if (after != null) after(ok);
             });
+        }
+
+        // ------------------------------------------------------------------ starter offer popup
+
+        private GameObject _starterPopup;
+        private Text _starterPopupTimer;
+        private Action _starterThen;
+
+        /// <summary>The starter pack, presented once when its offer starts (between levels or on the menu).</summary>
+        private void BuildStarterOffer()
+        {
+            StoreProduct p = StoreCatalog.Find(StoreCatalog.StarterPack);
+            if (p == null) return;
+            RectTransform body;
+            _starterPopup = UiPremium.Modal(_root, "StarterOffer", "Starter Pack", 900f, 1130f, () => { _app.Audio.Play(Sfx.Click); CloseStarterPopup(); }, out body);
+            UiPremium.Rays(body, 640f, 0f, 0f, 0.8f);
+            RectTransform rays = (RectTransform)body.Find("Rays");
+            if (rays != null) { rays.anchorMin = rays.anchorMax = new Vector2(0.5f, 1f); rays.anchoredPosition = new Vector2(0f, -230f); }
+            Sprite chest = UiKit.Art("chest");
+            Image art = UiKit.MakeImage(body, "Art", chest != null ? chest : UiKit.Icon("gift"), Color.white);
+            art.preserveAspect = true;
+            UiKit.Place(art.rectTransform, 0.5f, 1f, 0f, -230f, 320f, 320f);
+            art.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            art.gameObject.AddComponent<Bob>().Height = 8f;
+            UiPremium.Flag(body, "ONE-TIME OFFER", UiPremium.Red, 0.5f, 1f, 0f, -24f, 420f);
+            UiKit.AddIcon(body, "coin", 100f, 0.5f, 1f, -150f, -452f);
+            Text amount = UiPremium.Heading(body, "+" + p.Coins, 110, UiPremium.Gold, new Color(0.48f, 0.24f, 0.02f, 1f));
+            UiKit.Place(amount.rectTransform, 0.5f, 1f, 90f, -410f, 380f, 120f);
+            amount.alignment = TextAnchor.MiddleLeft;
+            RectTransform strip = UiKit.Place(UiKit.MakeRect("Contents", body), 0.5f, 1f, 0f, -560f, 640f, 120f);
+            BundleStrip(strip, p, -256f, 0f, 104f, 128f);
+            Image pill = UiKit.MakeImage(body, "Timer", UiPremium.Pill, new Color(0.07f, 0.16f, 0.40f, 0.92f));
+            UiKit.Place(pill.rectTransform, 0.5f, 1f, 0f, -724f, 560f, 76f);
+            _starterPopupTimer = UiPremium.Heading(pill.transform, "", 40, Color.white, UiPremium.DeepBlue);
+            UiKit.Stretch(_starterPopupTimer.rectTransform, 20f, 4f, 20f, 4f);
+            UiKit.OneLine(_starterPopupTimer, 40, 22);
+            Button buy = UiPremium.PriceButton(body, p.PriceLabel, UiPremium.Green, () => BuyProduct(p, ok =>
+            {
+                // Bought: the reward plays over the screen underneath; the player goes on from there.
+                if (!ok) return;
+                _starterThen = null;
+                _starterPopup.SetActive(false);
+            }), 620f, 130f, false);
+            UiKit.Place((RectTransform)buy.transform, 0.5f, 1f, 0f, -834f, 620f, 130f);
+            _priceButtons[p.Id + "#popup"] = buy;
+            ShineSweep.Add(buy, 0.3f);
+        }
+
+        /// <summary>
+        /// Presents the starter offer the first time it is due (the store starts its 48 hours then). then runs when
+        /// the popup is closed without buying. False when nothing was shown.
+        /// </summary>
+        private bool OpenStarterOfferIfDue(Action then)
+        {
+            if (_starterPopup == null || _starterPopup.activeSelf || !_app.Services.Store.TryStartStarterOffer(Now())) return false;
+            _app.Services.Analytics.Track(AnalyticsEvents.StarterOfferShown, new Dictionary<string, object> { { "level", _app.Services.Save.Data.HighestUnlocked } });
+            _starterThen = then;
+            RefreshStarter();
+            _starterPopup.SetActive(true);
+            _app.Audio.Play(Sfx.Achievement);
+            return true;
+        }
+
+        private void CloseStarterPopup()
+        {
+            if (_starterPopup != null) _starterPopup.SetActive(false);
+            Action then = _starterThen;
+            _starterThen = null;
+            if (then != null) then();
+        }
+
+        /// <summary>The starter offer's countdowns; once it is over its card leaves the shop and its popup closes.</summary>
+        private void RefreshStarter()
+        {
+            if (_app == null || _shopContent == null) return;
+            StoreManager store = _app.Services.Store;
+            long now = Now();
+            bool available = store.StarterAvailable(now);
+            string left = Loc.F("Ends in {0}", Clock(store.StarterSecondsLeft(now)));
+            if (_shopStarterTimer != null) _shopStarterTimer.text = left;
+            if (_starterPopupTimer != null) _starterPopupTimer.text = left;
+            if (_shopStarter.gameObject.activeSelf != available) LayoutShop();
+            if (!available && _starterPopup != null && _starterPopup.activeSelf) CloseStarterPopup();
         }
 
         private void BuildLevels()
@@ -1795,6 +2078,8 @@ namespace MetroSort.Game
                 _intro = null;
             }
             Refresh();
+            // Back on the menu, the starter offer shows the first time it is due.
+            if (state == AppState.Menu) OpenStarterOfferIfDue(null);
         }
 
         /// <summary>Re-reads everything shown on screen. Cheap enough to call on any change.</summary>
@@ -1844,7 +2129,8 @@ namespace MetroSort.Game
             UiKit.LabelOf(_removeAdsButton).text = s.Store.AdsRemoved ? Loc.T("Done") : StoreCatalog.Find(StoreCatalog.RemoveAds).PriceLabel;
             foreach (KeyValuePair<string, Button> pb in _priceButtons)
             {
-                StoreProduct product = StoreCatalog.Find(pb.Key);
+                // "id#popup": a second button for the same product (the starter offer's popup)
+                StoreProduct product = StoreCatalog.Find(pb.Key.Split('#')[0]);
                 if (product != null) UiKit.LabelOf(pb.Value).text = product.PriceLabel;
             }
             _removeAdsButton.interactable = !s.Store.AdsRemoved;
@@ -2036,7 +2322,12 @@ namespace MetroSort.Game
         private void OpenShop()
         {
             _app.Services.Analytics.Track(AnalyticsEvents.ShopOpened, new Dictionary<string, object> { { "coins", _app.Services.Economy.Coins } });
+            // Seen here first, the starter offer's 48 hours start now (its popup then never comes).
+            if (_app.Services.Store.TryStartStarterOffer(Now()))
+                _app.Services.Analytics.Track(AnalyticsEvents.StarterOfferShown, new Dictionary<string, object> { { "level", _app.Services.Save.Data.HighestUnlocked } });
             Refresh();
+            RefreshStarter();
+            LayoutShop();
             _shop.SetActive(true);
         }
 
@@ -2704,11 +2995,13 @@ namespace MetroSort.Game
             if (_hudFill != null && Mathf.Abs(_hudFill.sizeDelta.x - _hudFillTarget) > 0.5f)
                 _hudFill.sizeDelta = new Vector2(Mathf.Lerp(_hudFill.sizeDelta.x, _hudFillTarget, Time.unscaledDeltaTime * 8f), _hudFill.sizeDelta.y);
             // The countdown on the daily gift ticks once a second while the menu is showing.
-            bool counting = (_menu != null && _menu.activeInHierarchy) || (_noLives != null && _noLives.activeInHierarchy);
+            bool counting = (_menu != null && _menu.activeInHierarchy) || (_noLives != null && _noLives.activeInHierarchy)
+                || (_shop != null && _shop.activeInHierarchy) || (_starterPopup != null && _starterPopup.activeInHierarchy);
             if (!counting || Time.unscaledTime < _dailyTick) return;
             _dailyTick = Time.unscaledTime + 1f;
             RefreshDaily();
             RefreshLives();
+            RefreshStarter();
         }
 
         private void OnDaily()
@@ -2731,8 +3024,7 @@ namespace MetroSort.Game
         private void OnContinue()
         {
             int finished = _app.Game.Level.Id;
-            // Interstitials are only ever considered here, between levels, never during a puzzle.
-            _app.Services.AdsCoordinator.OnLevelTransition(finished, () =>
+            Action next = () =>
             {
                 if (_app.Services.Levels.Has(finished + 1)) StartLevelChecked(finished + 1);
                 else
@@ -2740,7 +3032,11 @@ namespace MetroSort.Game
                     _app.GoToMenu();
                     Toast("You cleared every station. More are on the way!");
                 }
-            });
+            };
+            // The first time the starter offer is due it shows here, in place of this break's ad; closing it goes on.
+            if (OpenStarterOfferIfDue(next)) return;
+            // Interstitials are only ever considered here, between levels, never during a puzzle.
+            _app.Services.AdsCoordinator.OnLevelTransition(finished, next);
         }
 
         // ------------------------------------------------------------------ results

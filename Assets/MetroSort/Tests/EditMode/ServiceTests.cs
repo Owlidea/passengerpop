@@ -220,6 +220,69 @@ namespace MetroSort.Tests
         }
 
         [Test]
+        public void Bundle_GrantsCoinsBoostersAndUnlimitedLives()
+        {
+            const long now = 1_000_000;
+            var lives = new LivesManager(_save, _economy, _config);
+            var store = new StoreManager(new MockPurchaseService(), new AcceptAllReceiptValidator(), _economy, _save, _analytics,
+                _boosters, lives, () => now);
+            StoreProduct bundle = StoreCatalog.Find(StoreCatalog.BundleMedium);
+            Assert.IsTrue(bundle.IsBundle);
+            int coins = _economy.Coins;
+            var boosters = new int[4];
+            for (int i = 0; i < 4; i++) boosters[i] = _boosters.Count((BoosterType)i);
+            bool granted = false;
+            store.Buy(bundle.Id, ok => granted = ok);
+            Assert.IsTrue(granted);
+            Assert.AreEqual(coins + bundle.Coins, _economy.Coins);
+            for (int i = 0; i < 4; i++) Assert.AreEqual(boosters[i] + bundle.Boosters[i], _boosters.Count((BoosterType)i));
+            Assert.IsTrue(lives.IsUnlimited(now));
+            Assert.AreEqual(bundle.UnlimitedLivesMinutes * 60L, lives.UnlimitedSecondsLeft(now));
+        }
+
+        [Test]
+        public void StarterPack_IsSoldOnlyOnce()
+        {
+            var store = new StoreManager(new MockPurchaseService(), new AcceptAllReceiptValidator(), _economy, _save, _analytics,
+                _boosters, new LivesManager(_save, _economy, _config), () => 1_000_000);
+            int coins = _economy.Coins;
+            bool first = false, second = true;
+            store.Buy(StoreCatalog.StarterPack, ok => first = ok);
+            store.Buy(StoreCatalog.StarterPack, ok => second = ok);
+            Assert.IsTrue(first);
+            Assert.IsFalse(second);
+            Assert.IsTrue(store.StarterBought);
+            Assert.AreEqual(coins + StoreCatalog.Find(StoreCatalog.StarterPack).Coins, _economy.Coins);
+        }
+
+        [Test]
+        public void StarterOffer_OpensAtItsLevel_RunsFortyEightHours_AndEndsWhenBought()
+        {
+            var store = new StoreManager(new MockPurchaseService(), new AcceptAllReceiptValidator(), _economy, _save, _analytics,
+                _boosters, new LivesManager(_save, _economy, _config), () => 1_000_000);
+            const long t0 = 1_000_000;
+            _save.Data.HighestUnlocked = StoreManager.StarterOfferLevel - 1;
+            Assert.IsFalse(store.StarterAvailable(t0));
+            Assert.IsFalse(store.TryStartStarterOffer(t0));
+            _save.Data.HighestUnlocked = StoreManager.StarterOfferLevel;
+            Assert.IsTrue(store.StarterAvailable(t0));
+            Assert.IsTrue(store.TryStartStarterOffer(t0));
+            Assert.IsFalse(store.TryStartStarterOffer(t0 + 5), "the offer is presented only once");
+            Assert.AreEqual(StoreManager.StarterOfferSeconds - 100, store.StarterSecondsLeft(t0 + 100));
+            Assert.IsTrue(store.StarterAvailable(t0 + StoreManager.StarterOfferSeconds - 1));
+            Assert.IsFalse(store.StarterAvailable(t0 + StoreManager.StarterOfferSeconds));
+
+            // Reloaded from disk, the clock is still running; buying ends the offer.
+            _save.Data.StarterOfferStart = t0;
+            _save.Save();
+            SaveData reloaded = SaveData.FromJson(_save.Data.ToJson());
+            Assert.AreEqual(t0, reloaded.StarterOfferStart);
+            store.Buy(StoreCatalog.StarterPack, ok => { });
+            Assert.IsFalse(store.StarterAvailable(t0 + 10));
+            Assert.Contains(StoreCatalog.StarterPack, SaveData.FromJson(_save.Data.ToJson()).OneTimePurchases);
+        }
+
+        [Test]
         public void RemoveAds_CanBeRestored_AndStopsInterstitials()
         {
             var service = new MockPurchaseService();

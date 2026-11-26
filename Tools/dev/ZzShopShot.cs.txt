@@ -1,0 +1,92 @@
+using System.Collections;
+using System.IO;
+using System.Reflection;
+using MetroSort.Economy;
+using MetroSort.Game;
+using MetroSort.Persistence;
+using UnityEngine;
+using UnityEngine.TestTools;
+using UnityEngine.UI;
+
+namespace MetroSort.Tests
+{
+    // Development helper for the shop and the starter offer: copy into Assets/MetroSort/Tests/PlayMode as .cs, run
+    // the PlayMode tests filtered to ZzShopShot, convert Logs/shopshots/*.rgb with Tools/dev/rgb2png.py, then
+    // delete the copy and its .meta. A returning player at level 12 (Turkish, then English) meets the starter
+    // offer on the menu; the shop is filmed at the top, the middle and the bottom of its list.
+    public class ZzShopShot
+    {
+        private static IEnumerator Shot(string name)
+        {
+            yield return null;
+            Camera cam = GameApp.Instance.Station.Cam;
+            foreach (Canvas c in Object.FindObjectsByType<Canvas>())
+            {
+                c.renderMode = RenderMode.ScreenSpaceCamera;
+                c.worldCamera = cam;
+                c.planeDistance = 1f;
+            }
+            int w = 1080, h = 1920;
+            var rt = new RenderTexture(w, h, 24);
+            cam.targetTexture = rt;
+            yield return null;
+            yield return null;
+            cam.Render();
+            RenderTexture.active = rt;
+            var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+            tex.Apply();
+            RenderTexture.active = null;
+            cam.targetTexture = null;
+            Directory.CreateDirectory("Logs/shopshots");
+            File.WriteAllBytes("Logs/shopshots/" + name + ".rgb", tex.GetRawTextureData());
+            Debug.Log("SHOPSHOT " + name);
+        }
+
+        private static object Field(object target, string name)
+        {
+            return target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(target);
+        }
+
+        private static void Call(object target, string method, params object[] args)
+        {
+            target.GetType().GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Invoke(target, args);
+        }
+
+        private static IEnumerator Round(string language)
+        {
+            var store = new InMemoryFileStore();
+            SaveData data = SaveData.CreateNew(new EconomyConfig());
+            data.Language = language;
+            data.HighestUnlocked = 12;
+            data.Coins = 2350;
+            store.Write(SaveManager.FileName, data.ToJson());
+            GameApp app = GameApp.Create(store);
+            yield return new WaitForSeconds(1.2f);
+            var popup = (GameObject)Field(app.UI, "_starterPopup");
+            Debug.Log("SHOPSHOT starter popup on the menu: " + (popup != null && popup.activeSelf));
+            yield return Shot(language + "_starter_popup");
+            Call(app.UI, "CloseStarterPopup");
+            Call(app.UI, "OpenShop");
+            yield return new WaitForSeconds(0.6f);
+            yield return Shot(language + "_shop_top");
+            var scroll = (ScrollRect)Field(app.UI, "_shopScroll");
+            foreach (float at in new[] { 0.55f, 0f })
+            {
+                scroll.verticalNormalizedPosition = at;
+                yield return new WaitForSeconds(0.3f);
+                yield return Shot(language + "_shop_" + (at > 0f ? "middle" : "bottom"));
+            }
+            Object.Destroy(app.gameObject);
+            yield return null;
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator Capture()
+        {
+            yield return Round("tr");
+            yield return Round("en");
+        }
+    }
+}
