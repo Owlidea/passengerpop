@@ -8,7 +8,7 @@ using UnityEngine.TestTools;
 
 namespace MetroSort.Tests
 {
-    // Temporary: captures the premium HD passengers (variants 6 and 7) in a level, as raw RGB24 frames
+    // Temporary: captures the HD passengers (variants 0 to 7) in a level, as raw RGB24 frames
     // (bottom-up) in Logs/hdshots. Delete after use.
     public class ZzHdPassengerShot
     {
@@ -53,7 +53,9 @@ namespace MetroSort.Tests
             pcam.nearClipPlane = 0.02f;
             pcam.farClipPlane = 200f;
             pcam.enabled = false;
-            foreach (string want in new[] { "PassengerHD_6_albedo", "PassengerHD_7_albedo", "PassengerHD_2_albedo" })
+            foreach (string want in new[] { "PassengerHD_0_albedo", "PassengerHD_1_albedo", "PassengerHD_2_albedo",
+                "PassengerHD_3_albedo", "PassengerHD_4_albedo", "PassengerHD_5_albedo", "PassengerHD_6_albedo",
+                "PassengerHD_7_albedo" })
             {
                 PassengerView pick = null;
                 foreach (PassengerView v in Object.FindObjectsByType<PassengerView>())

@@ -1,8 +1,8 @@
 # Passenger Pop – Premium 3D yolcular
 
-Amaç: Dream Games kalitesinde, sevimli ve kişilikli yolcular. Bugünkü altı yolcu (`PassengerHD_0..5`) TRELLIS'in
-bulanık dokusundan geliyor. Yenileri, bu Mac'te kurulu Hunyuan3D-2 ile şekillendirilecek; renkler ve yüz Blender'da
-senin resimlerinden boyanacak.
+Amaç: Dream Games kalitesinde, sevimli ve kişilikli yolcular. Eski altı yolcu (`PassengerHD_0..5`) TRELLIS'in
+bulanık dokusundan geliyor. Yenileri bu Mac'te kurulu Hunyuan3D-2 ile şekilleniyor; renkler ve yüz Blender'da
+senin resimlerinden boyanıyor.
 
 ## Akış
 
@@ -13,7 +13,22 @@ Her yolcu için iki resim üret ve `MetroSort-Media/Gorseller/` klasörüne aşa
 2. **Dört yönden görünüş** `yolcu-hd-N-turnaround.png`: 1. resmi referans olarak ekle, **dört yön promptu**
    (her yolcu için aynı). Yatay 3:2. 3D şekil bundan çıkar; sırt ve saçın arkası artık tahmin edilmez.
 
-Önce **1 ve 3**'ü üret. Boru hattını bu ikisiyle denerim; iyi çıkarsa kalan altısına geçersin.
+**1 ve 3 hazır**: oyunda `PassengerHD_6` (okul kızı) ve `PassengerHD_7` (büyükanne).
+
+**Karar (26 Kasım 2026):** Kalan altı yolcu, eski TRELLIS yolcularının (`PassengerHD_0..5`) yerini alıyor. Oyunda yine
+sekiz yolcu olacak, hepsi yeni kalitede. Her yeni yolcu hazır oldukça kendi yuvasına yazılır; oyun yolcuları
+`PassengerHD_0`'dan sırayla yüklediği için başka bir ayar gerekmez:
+
+| Resim | Oyundaki yeri | Kimin yerine |
+|---|---|---|
+| `yolcu-hd-2` (ofis çalışanı) | `PassengerHD_0` | eski 0 (`yolcu-a-poz`) |
+| `yolcu-hd-4` (bıyıklı dede) | `PassengerHD_1` | eski 1 (`yolcu-varyant-1`) |
+| `yolcu-hd-5` (sporcu genç) | `PassengerHD_2` | eski 2 (`yolcu-varyant-2`) |
+| `yolcu-hd-6` (bob saçlı kadın) | `PassengerHD_3` | eski 3 (`yolcu-varyant-3`) |
+| `yolcu-hd-7` (küçük çocuk) | `PassengerHD_4` | eski 4 (`yolcu-varyant-4`) |
+| `yolcu-hd-8` (müzisyen) | `PassengerHD_5` | eski 5 (`yolcu-varyant-5`) |
+
+Sıra önemli değil; hangisini önce üretirsen o yuvaya geçer.
 
 Gerisini ben yaparım: Hunyuan3D-2 (çok açılı model) ile şekil, resimlerden renk ve yüz, sonra iskelet, şapkalar, hat
 renkleri, yüz ifadeleri ve bütün animasyonlar (`Tools/art/passenger.py`).

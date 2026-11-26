@@ -7,14 +7,14 @@ Tools/hunyuan/turnaround.py), and writes a textured GLB that passenger.py --hd u
 It also reads the face marks (eye and mouth centres and half-sizes) and the collar height off the front view and
 writes them next to the GLB as JSON, with the final triangle count; passenger.py picks them up.
 
-The face gets its own care, since the painted face is what makes the character:
+The face gets its own care, since the painted face is what makes the character (Tools/art/hdgeom.py,
+shared with passenger.py's older scans):
 - Hunyuan carves an open mouth as a cavity, while the pictures paint the mouth on; the cavity is filled with a
-  patch laid out as a smooth height field, so no triangle folds over (see fill_mouth);
+  patch laid out as a smooth height field, so no triangle folds over;
 - its nose, a ball standing well out of the face, is lowered to --nose of its height: the picture paints the
   nose's light and shade, and the ball's steep underside caught the Toy shader's pale rim light;
-- the reduction would leave a smooth face only a few dozen large facets (it spends its triangles on hair strands
-  and cloth folds), so the face keeps the shape's own density, up to --face-tris: the nose, the glasses and the
-  cheeks stay round;
+- the reduction spends its triangles on hair strands and cloth folds and leaves the smooth face coarse facets,
+  so the face keeps the shape's own density, up to --face-tris: the nose, the glasses and the cheeks stay round;
 - the face's UV islands get --face-boost times the texel density of the rest, so passenger.py can lay the
   picture's face on at close to the picture's own resolution.
 
@@ -36,6 +36,7 @@ from mathutils import Matrix
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import hdface
+import hdgeom
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 
@@ -81,27 +82,7 @@ for poly in me.polygons:
     poly.use_smooth = True
 
 
-def mesh_arrays():
-    """Vertex positions, vertex normals and triangles (vertex indices) of the mesh as it is now."""
-    me.update()
-    nv = len(me.vertices)
-    co_ = np.empty(nv * 3, dtype=np.float64)
-    me.vertices.foreach_get("co", co_)
-    nr_ = np.empty(nv * 3, dtype=np.float64)
-    me.vertices.foreach_get("normal", nr_)
-    me.calc_loop_triangles()
-    tri_ = np.empty(len(me.loop_triangles) * 3, dtype=np.int64)
-    me.loop_triangles.foreach_get("vertices", tri_)
-    return co_.reshape(-1, 3), nr_.reshape(-1, 3), tri_.reshape(-1, 3)
-
-
-def tri_edges(tri_):
-    """Unique edges (sorted vertex pairs) of a triangle list."""
-    e = np.concatenate([tri_[:, [0, 1]], tri_[:, [1, 2]], tri_[:, [2, 0]]])
-    return np.unique(np.sort(e, axis=1), axis=0)
-
-
-co, nr, tris = mesh_arrays()
+co, nr, tris = hdgeom.mesh_arrays(me)
 zmin, zmax = float(co[:, 2].min()), float(co[:, 2].max())
 height = zmax - zmin
 print("shape: %d vertices, %d triangles, height %.3f" % (len(co), len(tris), height))
@@ -265,275 +246,19 @@ else:
     print("face marks: no eyes found in the front view")
 
 
-# ---------------------------------------------------------------- face geometry
-def face_region(co_):
-    """Vertices of the face, from brow to chin and cheek to cheek as seen from the front, on the front half of
-    the head. Also returns the depth that splits the head into front and back."""
-    (xl, ze), (xr, _) = face["eyes"]
-    xm, zm = face["mouth"]
-    ehx, ehz = face["eye_half"]
-    g = xr - xl
-    em = ze - zm
-    z_top, z_bot = ze + em + ehz, zm - 0.9 * em
-    rx, rz = 0.75 * g + 2.2 * ehx, (z_top - z_bot) / 2
-    d = ((co_[:, 0] - (xl + xr) / 2) / rx) ** 2 + ((co_[:, 2] - (z_top + z_bot) / 2) / rz) ** 2
-    band = d < 1.0
-    y_mid = float(co_[band, 1].min() + co_[band, 1].max()) / 2
-    return band & (co_[:, 1] < y_mid), y_mid
-
-
-def fill_mouth():
-    """Hunyuan carves an open mouth as a cavity (with a lip ledge and teeth in it), while the pictures paint the
-    mouth on. Pushing the cavity's walls straight forward (what passenger.py did) folds the ledge over the floor:
-    the red shards in the first premium faces. Here the cavity, with a margin of face around it, is taken out as
-    one disc of the mesh; the disc is laid out flat seen from the front (each inner vertex at the mean of its
-    neighbours, the rim where it was: a fold-free layout) and lifted onto a smooth surface fitted to the face
-    around the mouth, plus the rim's own offset from that surface spread smoothly inwards, so it joins the face
-    without a step. Returns whether it was done."""
-    co_, nr_, tri_ = mesh_arrays()
-    _, y_mid = face_region(co_)
-    (xl, _), (xr, _) = face["eyes"]
-    g = xr - xl
-    xm, zm = face["mouth"]
-    hx, hz = face["mouth_half"]
-    x, z = co_[:, 0] - xm, co_[:, 2] - zm
-    front_ = co_[:, 1] < y_mid
-    outer = front_ & ((x / (hx + 0.35 * g)) ** 2 + (z / (hz + 0.3 * g)) ** 2 < 1.0)
-    core = front_ & ((x / hx) ** 2 + (z / hz) ** 2 < 1.0)
-    # the face around the mouth as a quadratic y(x, z), fitted robustly: the nose and the cavity are outliers
-    A = np.stack([np.ones_like(x), x, z, x * x, z * z, x * z], 1)
-    ring = outer & ~core & (nr_[:, 1] < -0.3)
-    sel = ring
-    for _ in range(5):
-        coef = np.linalg.lstsq(A[sel], co_[sel, 1], rcond=None)[0]
-        res = co_[:, 1] - A @ coef
-        mad = 1.4826 * float(np.median(np.abs(res[sel]))) + 1e-9
-        sel = ring & (np.abs(res) < 2.5 * mad)
-    behind = co_[:, 1] - A @ coef                   # > 0: behind the face surface
-    edges = tri_edges(tri_)
-    ea, eb = edges[:, 0], edges[:, 1]
-
-    def neighbours(mask):
-        n = np.zeros_like(mask)
-        n[eb[mask[ea]]] = True
-        n[ea[mask[eb]]] = True
-        return n & ~mask
-
-    # the mouth area, grown over the cavity (whatever lies clearly behind the face surface near the mouth)
-    region = core.copy()
-    deep = outer & (behind > 0.03 * g)
-    while True:
-        new = neighbours(region) & deep
-        if not new.any():
-            break
-        region |= new
-    cavity = int(region.sum())
-    for _ in range(2):
-        region |= neighbours(region) & front_
-    for attempt in range(4):
-        ft = tri_[region[tri_].all(1)]
-        # the connected piece of it that holds the mouth
-        emap = {}
-        for i, t in enumerate(ft):
-            for a_, b_ in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
-                emap.setdefault((min(a_, b_), max(a_, b_)), []).append(i)
-        cen = co_[ft].mean(1)
-        start = int(np.argmin((cen[:, 0] - xm) ** 2 + (cen[:, 2] - zm) ** 2))
-        seen, stack = {start}, [start]
-        while stack:
-            t = ft[stack.pop()]
-            for a_, b_ in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
-                for j in emap[(min(a_, b_), max(a_, b_))]:
-                    if j not in seen:
-                        seen.add(j)
-                        stack.append(j)
-        disc = ft[sorted(seen)]
-        e_all = np.sort(np.concatenate([disc[:, [0, 1]], disc[:, [1, 2]], disc[:, [2, 0]]]), axis=1)
-        e_uni, e_count = np.unique(e_all, axis=0, return_counts=True)
-        verts = np.unique(disc)
-        if len(verts) - len(e_uni) + len(disc) == 1:          # Euler characteristic of a disc
-            break
-        region |= neighbours(region) & front_               # close small holes and try again
-    else:
-        print("mouth not filled: the area around it is not a disc")
-        return False
-    n = len(verts)
-    la, lb = np.searchsorted(verts, e_uni[:, 0]), np.searchsorted(verts, e_uni[:, 1])
-    deg = np.bincount(la, minlength=n) + np.bincount(lb, minlength=n)
-    rim = np.zeros(n, dtype=bool)
-    rim[np.searchsorted(verts, e_uni[e_count == 1].ravel())] = True
-    inner = ~rim
-    P = co_[verts][:, [0, 2]].copy()
-    R = np.where(rim, behind[verts], 0.0)          # the rim's offset from the fitted surface, spread inwards
-    for _ in range(6000):
-        for c in (0, 1):
-            s = np.bincount(la, P[lb, c], n) + np.bincount(lb, P[la, c], n)
-            P[inner, c] = s[inner] / deg[inner]
-        s = np.bincount(la, R[lb], n) + np.bincount(lb, R[la], n)
-        R[inner] = s[inner] / deg[inner]
-    X, Z = P[:, 0] - xm, P[:, 1] - zm
-    new = co_.copy()
-    new[verts, 0] = P[:, 0]
-    new[verts, 2] = P[:, 1]
-    new[verts, 1] = np.stack([np.ones_like(X), X, Z, X * X, Z * Z, X * Z], 1) @ coef + R
-    me.vertices.foreach_set("co", new.ravel())
-    me.update()
-    tn = np.cross(new[disc[:, 1]] - new[disc[:, 0]], new[disc[:, 2]] - new[disc[:, 0]])
-    print("mouth filled: %d vertices (%d in the cavity, %d on the rim), cavity up to %.0f%% of the eye spacing "
-          "deep, %d of %d triangles facing back" % (n, cavity, int(rim.sum()), 100 * float(behind[verts].max()) / g,
-                                                    int((tn[:, 1] > 0).sum()), len(disc)))
-    return True
-
-
-def soften_nose():
-    """The pictures paint the nose with its own light and shade, while Hunyuan's nose is a ball standing well
-    out of the face and a little lower than the painted one: the Toy shader's rim light (strong where a surface
-    turns away from the camera) made its steep underside a pale patch under the painted nose. Its
-    height over the face is scaled by NOSE, along Y only (each point keeps its order along the view: nothing
-    folds). The nose is the point standing out most between the eyes and the mouth; glasses (their bridge sits
-    just above it) and a moustache below are outside its radius."""
-    co_, nr_, _ = mesh_arrays()
-    _, y_mid = face_region(co_)
-    (xl, ze), (xr, _) = face["eyes"]
-    g = xr - xl
-    xm, zm = face["mouth"]
-    em = ze - zm
-    xc, zc = (xl + xr) / 2, (ze + zm) / 2
-    x, z = co_[:, 0] - xc, co_[:, 2] - zc
-    front_ = co_[:, 1] < y_mid
-    # the face between eyes and mouth as a quadratic, fitted robustly (nose, glasses and eyes are outliers)
-    A = np.stack([np.ones_like(x), x, z, x * x, z * z, x * z], 1)
-    area = front_ & (np.abs(x) < 0.45 * g) & (np.abs(z) < 0.75 * em) & (nr_[:, 1] < -0.3)
-    sel = area
-    for _ in range(5):
-        coef = np.linalg.lstsq(A[sel], co_[sel, 1], rcond=None)[0]
-        res = co_[:, 1] - A @ coef
-        mad = 1.4826 * float(np.median(np.abs(res[sel]))) + 1e-9
-        sel = area & (np.abs(res) < 2.5 * mad)
-    out = -(co_[:, 1] - A @ coef)                      # > 0: in front of the face surface
-    cand = front_ & (np.abs(x) < 0.2 * g) & (co_[:, 2] > zm + 0.15 * em) & (co_[:, 2] < ze - 0.15 * em)
-    if not cand.any():
-        return
-    tip = np.nonzero(cand)[0][int(np.argmax(out[cand]))]
-    r = 0.2 * g
-    d = np.hypot(co_[:, 0] - co_[tip, 0], co_[:, 2] - co_[tip, 2])
-    t = np.clip((r - d) / (0.4 * r), 0.0, 1.0)         # 1 within 0.6 r of the tip, 0 from r on
-    w = t * t * (3 - 2 * t) * front_ * (out > 0)
-    new = co_.copy()
-    new[:, 1] += w * (1.0 - NOSE) * out
-    me.vertices.foreach_set("co", new.ravel())
-    me.update()
-    print("nose: stood %.0f%% of the eye spacing out of the face, now %.0f%% (%d vertices)"
-          % (100 * out[tip] / g, 100 * NOSE * out[tip] / g, int((w > 0).sum())))
-
-
-def tri_count():
-    return sum(len(p.vertices) - 2 for p in me.polygons)
-
-
-def decimate(target, group=None, protect=True):
-    """Collapse-decimates the mesh to about target triangles. With a vertex group, protect=True keeps the group
-    (its edges get a cost far above any other) and protect=False keeps everything else."""
-    now = tri_count()
-    if now <= target:
-        return
-    dec = ob.modifiers.new("Decimate", 'DECIMATE')
-    dec.ratio = target / now
-    dec.use_collapse_triangulate = True
-    if group:
-        dec.vertex_group = group
-        # the modifier adds cost to edges whose vertices weigh less than 1, so the kept part must weigh 0
-        dec.invert_vertex_group = protect
-        dec.vertex_group_factor = 1000.0
-    with bpy.context.temp_override(object=ob, active_object=ob, selected_objects=[ob]):
-        bpy.ops.object.modifier_apply(modifier="Decimate")
-
-
+# ---------------------------------------------------------------- face geometry and UV map
 mouth_filled = False
 if face:
-    mouth_filled = fill_mouth()
+    mouth_filled = hdgeom.fill_mouth(me, face)
     if NOSE != 1.0:
-        soften_nose()
-    co, nr, tris = mesh_arrays()
-    on_face, _ = face_region(co)
-    f_raw = int(on_face[tris].all(1).sum())
-    ob.vertex_groups.new(name="Face").add(np.nonzero(on_face)[0].tolist(), 1.0, 'REPLACE')
-    keep = min(f_raw, FACE_TRIS)
-    decimate(TRIS - keep + f_raw, "Face", protect=True)      # everything but the face down to its share
-    if f_raw > FACE_TRIS:
-        decimate(TRIS, "Face", protect=False)                 # then the face down to --face-tris
-    ob.vertex_groups.remove(ob.vertex_groups["Face"])         # (applying a modifier leaves old references stale)
-    co, nr, tris = mesh_arrays()
-    on_face, _ = face_region(co)
-    print("reduced to %d triangles, %d of them on the face (it had %d)" % (len(tris), int(on_face[tris].all(1).sum()), f_raw))
+        hdgeom.soften_nose(me, face, NOSE)
+    hdgeom.reduce(ob, face, TRIS, FACE_TRIS)
 else:
-    decimate(TRIS)
-    print("reduced to %d triangles" % tri_count())
+    hdgeom.decimate(ob, TRIS)
+    print("reduced to %d triangles" % hdgeom.tri_count(me))
+hdgeom.unwrap(ob, face, FACE_BOOST, SIZE)
 
-
-# ---------------------------------------------------------------- UV map
-bpy.context.view_layer.objects.active = ob
-ob.select_set(True)
-bpy.ops.object.mode_set(mode='EDIT')
-bpy.ops.mesh.select_all(action='SELECT')
-bpy.ops.uv.smart_project(angle_limit=math.radians(66.0), island_margin=0.003)
-bpy.ops.object.mode_set(mode='OBJECT')
-
-
-def uv_arrays():
-    """Per polygon (all triangles here): loop start, area, normal, whether it lies on the face; per loop: UV."""
-    npoly = len(me.polygons)
-    ls = np.empty(npoly, dtype=np.int64)
-    me.polygons.foreach_get("loop_start", ls)
-    area = np.empty(npoly)
-    me.polygons.foreach_get("area", area)
-    lv = np.empty(len(me.loops), dtype=np.int64)
-    me.loops.foreach_get("vertex_index", lv)
-    luv = np.empty(len(me.loops) * 2)
-    me.uv_layers.active.data.foreach_get("uv", luv)
-    luv = luv.reshape(-1, 2)
-    corners = ls[:, None] + np.arange(3)
-    co_, _, _ = mesh_arrays()
-    on_face_, _ = face_region(co_)
-    pn = np.empty(npoly * 3)
-    me.polygons.foreach_get("normal", pn)
-    face_poly = on_face_[lv[corners]].all(1) & (pn.reshape(-1, 3)[:, 1] < -0.2)
-    t = luv[corners]
-    uv_area = 0.5 * np.abs((t[:, 1, 0] - t[:, 0, 0]) * (t[:, 2, 1] - t[:, 0, 1]) - (t[:, 2, 0] - t[:, 0, 0]) * (t[:, 1, 1] - t[:, 0, 1]))
-    return corners, area, uv_area, face_poly, luv
-
-
-def density(sel, area, uv_area):
-    """Texels per model unit (at SIZE) over the selected polygons."""
-    return SIZE * math.sqrt(float(uv_area[sel].sum()) / max(float(area[sel].sum()), 1e-12))
-
-
-if face and FACE_BOOST != 1.0:
-    from bpy_extras import mesh_utils
-    corners, area, uv_area, face_poly, luv = uv_arrays()
-    boosted = 0
-    for island in mesh_utils.mesh_linked_uv_islands(me):
-        island = np.array(island, dtype=np.int64)
-        if area[island][face_poly[island]].sum() > 0.25 * area[island].sum():
-            lp = corners[island].ravel()
-            c = luv[lp].mean(0)
-            luv[lp] = c + (luv[lp] - c) * FACE_BOOST
-            boosted += len(island)
-    me.uv_layers.active.data.foreach_set("uv", luv.ravel())
-    bpy.ops.object.mode_set(mode='EDIT')
-    scene.tool_settings.use_uv_select_sync = True
-    bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.uv.pack_islands(rotate=True, margin=0.003)
-    bpy.ops.object.mode_set(mode='OBJECT')
-    me.update()
-    print("face UV islands (%d triangles) scaled up %.1fx before packing" % (boosted, FACE_BOOST))
-if face:
-    corners, area, uv_area, face_poly, luv = uv_arrays()
-    (xl, _), (xr, _) = face["eyes"]
-    d_face, d_rest = density(face_poly, area, uv_area), density(~face_poly, area, uv_area)
-    print("texels per unit: face %.0f, rest %.0f; eye spacing %.0f texels at %d" % (d_face, d_rest, d_face * (xr - xl), SIZE))
-
-co, nr, tris = mesh_arrays()
+co, nr, tris = hdgeom.mesh_arrays(me)
 for view in views:
     view.zbuf = view.depth_buffer(co, tris)
 

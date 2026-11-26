@@ -3,13 +3,15 @@
 Run:  Blender --background --python Tools/art/passenger.py -- [--preview DIR]
 Output: Assets/MetroSort/Resources/Characters/Passenger.fbx
 
-HD variants (sculpted bodies, face painted back from the concept picture by Tools/art/hdface.py):
+HD variants (sculpted bodies, face painted back from the concept picture by Tools/art/hdface.py; the older TRELLIS
+scans, variants 0 .. 5 until the premium passengers replace them):
     Blender --background --python Tools/art/passenger.py -- --hd MetroSort-Media/yolcu-trellis.glb --variant 0 \
         --art MetroSort-Media/Gorseller/yolcu-a-poz.png
     Blender --background --python Tools/art/passenger.py -- --hd MetroSort-Media/yolcu-varyant-N.glb --variant N \
         --art MetroSort-Media/Gorseller/yolcu-varyant-N.png          (N = 1 .. 5)
 Premium passengers (Hunyuan3D-2 multi-view shape, painted by Tools/art/hdbake.py, face marks in the JSON next to
-the GLB, heads already drawn big so no chibi growth):
+the GLB, heads already drawn big so no chibi growth); yolcu-hd-1 and -3 are variants 6 and 7, and the other six
+take variants 0 .. 5 in the order listed in MetroSort-Media/Yolcu-Premium-Promptlari.md:
     Blender --background --python Tools/art/passenger.py -- --hd MetroSort-Media/3D/yolcu-hd-1-painted.glb \
         --variant 6 --art MetroSort-Media/Gorseller/yolcu-hd-1.png --chibi 1.0      (add --bun for a hair bun)
 Output: Assets/MetroSort/Resources/Characters/PassengerHD_N.fbx and PassengerHD_N_albedo.png
@@ -42,7 +44,15 @@ if HD and os.path.exists(os.path.splitext(HD_SRC)[0] + ".json"):
     HD_JSON = json.load(open(os.path.splitext(HD_SRC)[0] + ".json"))
 PREMIUM = bool(HD_JSON)
 # phones draw dozens of passengers at once: the scanned mesh is reduced to about this (--tris to change)
-HD_TRIS = int(argv[argv.index("--tris") + 1]) if "--tris" in argv else 6000
+HD_TRIS = int(argv[argv.index("--tris") + 1]) if "--tris" in argv else 8000
+# The older scans get the premium shapes' face care (Tools/art/hdgeom.py, as hdbake.py does): up to this many of
+# the triangles stay on the face, its UV islands get this many times the texel density of the rest (in a fresh
+# texture this big), and the nose is lowered to this share of its height.
+FACE_TRIS = int(argv[argv.index("--face-tris") + 1]) if "--face-tris" in argv else 1500
+FACE_BOOST = float(argv[argv.index("--face-boost") + 1]) if "--face-boost" in argv else 2.0
+NOSE = float(argv[argv.index("--nose") + 1]) if "--nose" in argv else 0.3
+HD_TEX = 2048
+MOUTH_FILLED = False  # HD: the mouth cavity was filled (hdgeom.fill_mouth), so flatten_mouth has nothing to do
 # hdbake.py has already reduced its shapes to the budget, keeping the face dense; reducing again would not
 HD_TRIS = max(HD_TRIS, HD_JSON.get("tris") or 0)
 PROJ = None           # HD: how the concept art was laid on the face (hd_body), for the overlays (hd_face)
@@ -51,6 +61,7 @@ SKIN_UV = None        # HD: the plain skin patch in the body texture
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import kit
 import hdface
+import hdgeom
 from kit import Part, MATS
 
 COLORS = {
@@ -88,6 +99,25 @@ CHIBI = float(argv[argv.index("--chibi") + 1]) if "--chibi" in argv else 1.28
 def smooth01(a, b, x):
     t = min(1.0, max(0.0, (x - a) / (b - a)))
     return t * t * (3 - 2 * t)
+
+
+# Where each HD variant's painted eyes and mouth are, read off a front render (x and z in model units, after
+# scaling, rest pose with no head tilt): ((left eye x, z), (right eye x, z)), eye half-size (x, z), mouth centre
+# (x, z), mouth half-size.
+# Picked by hand: detecting them from the texture mixed them up with eyebrows, dark hair and red noses.
+FACE_MARKS = {
+    0: (((-0.163, 1.049), (0.150, 1.055)), (0.062, 0.062), (0.000, 0.911), (0.056, 0.019)),
+    1: (((-0.106, 0.994), (0.119, 1.000)), (0.056, 0.056), (0.006, 0.919), (0.031, 0.013)),
+    2: (((-0.113, 0.999), (0.119, 0.999)), (0.060, 0.060), (0.000, 0.867), (0.062, 0.031)),
+    3: (((-0.131, 1.137), (0.125, 1.137)), (0.052, 0.060), (0.000, 0.949), (0.050, 0.019)),
+    4: (((-0.113, 1.093), (0.119, 1.093)), (0.060, 0.060), (0.006, 0.943), (0.081, 0.050)),
+    5: (((-0.094, 1.120), (0.106, 1.120)), (0.044, 0.044), (0.000, 1.027), (0.069, 0.015)),
+}
+# Shapes painted by Tools/art/hdbake.py bring their marks, read off the front view (see HD_JSON).
+if HD_JSON.get("face_marks"):
+    _m = HD_JSON["face_marks"]
+    FACE_MARKS[HD_VARIANT] = ((tuple(_m[0][0]), tuple(_m[0][1])), tuple(_m[1]), tuple(_m[2]), tuple(_m[3]))
+    print("HD face marks from the picture", FACE_MARKS[HD_VARIANT])
 
 
 if HD:
@@ -225,13 +255,40 @@ if HD:
         return Vector((p[0] * HAT_K, (p[1] - 0.0385) * HAT_K + CROWN_Y, (p[2] - 1.553) * HAT_K + HEAD_TOP - 0.01))
 
     # measured on the full scan; only now reduced for phones
-    tris = sum(len(p.vertices) - 2 for p in hd.data.polygons)
-    if tris > HD_TRIS:
-        dec = hd.modifiers.new("Decimate", 'DECIMATE')
-        dec.ratio = HD_TRIS / tris
-        with bpy.context.temp_override(object=hd, active_object=hd, selected_objects=[hd]):
-            bpy.ops.object.modifier_apply(modifier="Decimate")
-        print("HD decimated", tris, "->", sum(len(p.vertices) - 2 for p in hd.data.polygons))
+    marks = FACE_MARKS.get(HD_VARIANT)
+    if PREMIUM:
+        pass      # hdbake.py has reduced it already, keeping the face dense, and painted it for its own UV map
+    elif marks:
+        # The premium shapes' face care (Tools/art/hdgeom.py): mouth cavity filled, nose lowered, the face kept
+        # dense through the reduction, then a fresh UV map giving the face more texels, with the scan's texture
+        # carried over onto it.
+        import numpy as np
+        sz = CHIBI * CHIBI_S
+        FACE = {"eyes": (grown(*marks[0][0]), grown(*marks[0][1])), "eye_half": (marks[1][0] * sz, marks[1][1] * sz),
+                "mouth": grown(*marks[2]), "mouth_half": (marks[3][0] * sz, marks[3][1] * sz)}
+        MOUTH_FILLED = hdgeom.fill_mouth(hd.data, FACE)
+        if NOSE != 1.0:
+            hdgeom.soften_nose(hd.data, FACE, NOSE)
+        hdgeom.reduce(hd, FACE, HD_TRIS, FACE_TRIS)
+        scan = next(i for i in bpy.data.images if i.size[0] > 0)
+        w0, h0 = scan.size
+        scan_px = np.array(scan.pixels[:], dtype=np.float32).reshape(h0, w0, 4)
+        hd.data.uv_layers.active.name = "Scan"
+        hd.data.uv_layers.active = hd.data.uv_layers.new(name="UVMap")
+        hdgeom.unwrap(hd, FACE, FACE_BOOST, HD_TEX)
+        carried = hdgeom.transfer_texture(hd.data, "Scan", scan_px, HD_TEX, hdface.sample)
+        hd.data.uv_layers.remove(hd.data.uv_layers["Scan"])
+        scan.scale(HD_TEX, HD_TEX)
+        scan.pixels = carried.ravel()
+        print("HD scan texture %dx%d carried onto the new UV map at %d" % (w0, h0, HD_TEX))
+    else:
+        tris = sum(len(p.vertices) - 2 for p in hd.data.polygons)
+        if tris > HD_TRIS:
+            dec = hd.modifiers.new("Decimate", 'DECIMATE')
+            dec.ratio = HD_TRIS / tris
+            with bpy.context.temp_override(object=hd, active_object=hd, selected_objects=[hd]):
+                bpy.ops.object.modifier_apply(modifier="Decimate")
+            print("HD decimated", tris, "->", sum(len(p.vertices) - 2 for p in hd.data.polygons))
 
 
 # ---------------------------------------------------------------- armature
@@ -522,7 +579,7 @@ def flatten_mouth():
     over as seen from the front) onto a smooth surface fitted to the ring of face around it."""
     import numpy as np
     marks = FACE_MARKS.get(HD_VARIANT)
-    if not marks or HD_JSON.get("mouth_filled"):        # hdbake.py fills the mouth cavity without fold-overs
+    if not marks or HD_JSON.get("mouth_filled") or MOUTH_FILLED:   # filled without fold-overs (hdgeom)
         return
     cx, cz = grown(*marks[2])
     rx = max(marks[3][0] * CHIBI * CHIBI_S * 2.0, 0.07)
@@ -629,23 +686,6 @@ def hd_body():
     return ob
 
 
-# Where each HD variant's painted eyes and mouth are, read off a front render (x and z in model units, after
-# scaling, rest pose with no head tilt): ((left eye x, z), (right eye x, z)), eye half-size (x, z), mouth centre
-# (x, z), mouth half-size.
-# Picked by hand: detecting them from the texture mixed them up with eyebrows, dark hair and red noses.
-FACE_MARKS = {
-    0: (((-0.163, 1.049), (0.150, 1.055)), (0.062, 0.062), (0.000, 0.911), (0.056, 0.019)),
-    1: (((-0.106, 0.994), (0.119, 1.000)), (0.056, 0.056), (0.006, 0.919), (0.031, 0.013)),
-    2: (((-0.113, 0.999), (0.119, 0.999)), (0.060, 0.060), (0.000, 0.867), (0.062, 0.031)),
-    3: (((-0.131, 1.137), (0.125, 1.137)), (0.052, 0.060), (0.000, 0.949), (0.050, 0.019)),
-    4: (((-0.113, 1.093), (0.119, 1.093)), (0.060, 0.060), (0.006, 0.943), (0.081, 0.050)),
-    5: (((-0.094, 1.120), (0.106, 1.120)), (0.044, 0.044), (0.000, 1.027), (0.069, 0.015)),
-}
-# Shapes painted by Tools/art/hdbake.py bring their marks, read off the front view (see HD_JSON).
-if HD_JSON.get("face_marks"):
-    _m = HD_JSON["face_marks"]
-    FACE_MARKS[HD_VARIANT] = ((tuple(_m[0][0]), tuple(_m[0][1])), tuple(_m[1]), tuple(_m[2]), tuple(_m[3]))
-    print("HD face marks from the picture", FACE_MARKS[HD_VARIANT])
 
 
 def hd_face():
