@@ -69,7 +69,7 @@ namespace MetroSort.EditorTools
         {
             PlayerSettings.companyName = "Metro Sort Studio";
             PlayerSettings.productName = "Passenger Pop";
-            PlayerSettings.bundleVersion = "1.0.0";
+            PlayerSettings.bundleVersion = "1.0.1";
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToPortrait = true;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
@@ -85,8 +85,8 @@ namespace MetroSort.EditorTools
             PlayerSettings.Android.minSdkVersion = (AndroidSdkVersions)26; // Android 8.0
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
             // Google Play takes each version code once: raise it before every upload (1 was the 1.0.0 launch,
-            // 2 the launcher icon fix).
-            PlayerSettings.Android.bundleVersionCode = 2;
+            // 2 the launcher icon fix, 3 the 1.0.1 shop update).
+            PlayerSettings.Android.bundleVersionCode = 3;
             // The project had an empty format list, which shipped every "compressed" texture as raw RGBA (the art
             // alone was 182 MB). ASTC runs on every OpenGL ES 3.2 / Vulkan phone; older GPUs get it decoded.
             PlayerSettings.Android.textureCompressionFormats = new[] { TextureCompressionFormat.ASTC };
@@ -98,7 +98,7 @@ namespace MetroSort.EditorTools
             EditorUserBuildSettings.buildAppBundle = true;
             PlayerSettings.iOS.targetOSVersionString = "15.0";
             // App Store Connect takes each build number once per version: raise it before every upload.
-            PlayerSettings.iOS.buildNumber = "2";
+            PlayerSettings.iOS.buildNumber = "3";
             PlayerSettings.iOS.targetDevice = iOSTargetDevice.iPhoneOnly;
             // The App Store team (OWLIDEA BILISIM TEKNOLOJILERI LTD. STI.), so the export archives without signing edits.
             PlayerSettings.iOS.appleDeveloperTeamID = "7ULGPGPVQ3";
