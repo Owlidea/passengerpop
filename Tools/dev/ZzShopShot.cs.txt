@@ -12,8 +12,9 @@ namespace MetroSort.Tests
 {
     // Development helper for the shop and the starter offer: copy into Assets/MetroSort/Tests/PlayMode as .cs, run
     // the PlayMode tests filtered to ZzShopShot, convert Logs/shopshots/*.rgb with Tools/dev/rgb2png.py, then
-    // delete the copy and its .meta. A returning player at level 12 (Turkish, then English) meets the starter
-    // offer on the menu; the shop is filmed at the top, the middle and the bottom of its list.
+    // delete the copy and its .meta. A returning player at level 12 (Turkish) meets the starter offer on the
+    // menu; a new player at level 1 (English) finds it in the shop without a countdown. The shop is filmed at the
+    // top, the middle and the bottom of its list.
     public class ZzShopShot
     {
         private static IEnumerator Shot(string name)
@@ -53,12 +54,12 @@ namespace MetroSort.Tests
             target.GetType().GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Invoke(target, args);
         }
 
-        private static IEnumerator Round(string language)
+        private static IEnumerator Round(string language, int level)
         {
             var store = new InMemoryFileStore();
             SaveData data = SaveData.CreateNew(new EconomyConfig());
             data.Language = language;
-            data.HighestUnlocked = 12;
+            data.HighestUnlocked = level;
             data.Coins = 2350;
             store.Write(SaveManager.FileName, data.ToJson());
             GameApp app = GameApp.Create(store);
@@ -85,8 +86,8 @@ namespace MetroSort.Tests
         [UnityTest]
         public IEnumerator Capture()
         {
-            yield return Round("tr");
-            yield return Round("en");
+            yield return Round("tr", 12);   // the starter popup, then the shop with its countdown
+            yield return Round("en", 1);    // a new player: the starter pack in the shop, no popup, no countdown
         }
     }
 }

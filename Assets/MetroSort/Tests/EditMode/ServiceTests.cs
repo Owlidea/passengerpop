@@ -256,17 +256,21 @@ namespace MetroSort.Tests
         }
 
         [Test]
-        public void StarterOffer_OpensAtItsLevel_RunsFortyEightHours_AndEndsWhenBought()
+        public void StarterOffer_SitsInTheShopFromTheStart_RunsFortyEightHoursFromItsLevel_AndEndsWhenBought()
         {
             var store = new StoreManager(new MockPurchaseService(), new AcceptAllReceiptValidator(), _economy, _save, _analytics,
                 _boosters, new LivesManager(_save, _economy, _config), () => 1_000_000);
             const long t0 = 1_000_000;
-            _save.Data.HighestUnlocked = StoreManager.StarterOfferLevel - 1;
-            Assert.IsFalse(store.StarterAvailable(t0));
+            // On sale from the first level (App Review must find it), with no countdown and no popup yet.
+            _save.Data.HighestUnlocked = 1;
+            Assert.IsTrue(store.StarterAvailable(t0));
+            Assert.IsTrue(store.StarterAvailable(t0 + 10 * StoreManager.StarterOfferSeconds), "no clock before its level");
+            Assert.IsFalse(store.StarterTimerRunning);
             Assert.IsFalse(store.TryStartStarterOffer(t0));
             _save.Data.HighestUnlocked = StoreManager.StarterOfferLevel;
             Assert.IsTrue(store.StarterAvailable(t0));
             Assert.IsTrue(store.TryStartStarterOffer(t0));
+            Assert.IsTrue(store.StarterTimerRunning);
             Assert.IsFalse(store.TryStartStarterOffer(t0 + 5), "the offer is presented only once");
             Assert.AreEqual(StoreManager.StarterOfferSeconds - 100, store.StarterSecondsLeft(t0 + 100));
             Assert.IsTrue(store.StarterAvailable(t0 + StoreManager.StarterOfferSeconds - 1));

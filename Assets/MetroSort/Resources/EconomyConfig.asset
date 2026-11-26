@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11545d0f4e6f4491cbae82d7701ca39c, type: 3}
   m_Name: EconomyConfig
   m_EditorClassIdentifier: MetroSort.Game::MetroSort.Game.EconomyConfigAsset
-  startingCoins: 150
+  startingCoins: 200
   startingBoosters: 05000000030000000100000001000000i
-  boosterCosts: 0f0000001e0000005000000032000000i
-  coinsPerLevel: 20
-  coinsPerStar: 5
-  replayCoins: 5
-  dailyReward: 60
-  rewardedAdCoins: 40
+  boosterCosts: 280000003c0000009600000064000000i
+  coinsPerLevel: 10
+  coinsPerStar: 3
+  replayCoins: 3
+  dailyReward: 50
+  rewardedAdCoins: 30
   interstitialFreeUntilLevel: 10
   interstitialEveryNLevels: 3

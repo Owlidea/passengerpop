@@ -10,16 +10,16 @@ namespace MetroSort.Game
     [CreateAssetMenu(fileName = "EconomyConfig", menuName = "Metro Sort/Economy Config")]
     public sealed class EconomyConfigAsset : ScriptableObject
     {
-        public int startingCoins = 150;
+        public int startingCoins = 200;
         [Tooltip("Undo, Hint, Extra Platform, Shuffle")]
         public int[] startingBoosters = { 5, 3, 1, 1 };
         [Tooltip("Undo, Hint, Extra Platform, Shuffle")]
-        public int[] boosterCosts = { 15, 30, 80, 50 };
-        public int coinsPerLevel = 20;
-        public int coinsPerStar = 5;
-        public int replayCoins = 5;
-        public int dailyReward = 60;
-        public int rewardedAdCoins = 40;
+        public int[] boosterCosts = { 40, 60, 150, 100 };
+        public int coinsPerLevel = 10;
+        public int coinsPerStar = 3;
+        public int replayCoins = 3;
+        public int dailyReward = 50;
+        public int rewardedAdCoins = 30;
         public int interstitialFreeUntilLevel = 10;
         public int interstitialEveryNLevels = 3;
 

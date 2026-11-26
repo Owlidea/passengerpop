@@ -4,36 +4,43 @@ using MetroSort.Persistence;
 
 namespace MetroSort.Economy
 {
-    /// <summary>All tunable economy numbers in one place. The Unity layer can override these from a ScriptableObject.</summary>
+    /// <summary>
+    /// All tunable economy numbers in one place. The Unity layer can override these from a ScriptableObject
+    /// (Resources/EconomyConfig.asset; keep the two in step).
+    /// Retuned 2026-11-26 so that coins matter: a first clear pays about 17 plus the star chest (about 33 a level
+    /// in all, it was about 58) and a continue costs 150 (was 80). Against the declared difficulty curve an
+    /// attentive player stays in credit until about level 200 and then needs ads, waiting for lives or a pack;
+    /// before, they piled up about 16000 spare coins by level 700 and had no reason to buy.
+    /// </summary>
     public sealed class EconomyConfig
     {
-        public int StartingCoins = 150;
+        public int StartingCoins = 200;
         /// <summary>Indexed by BoosterType: Undo, Hint, ExtraPlatform, Shuffle.</summary>
         public int[] StartingBoosters = { 5, 3, 1, 1 };
-        public int[] BoosterCosts = { 15, 30, 80, 50 };
-        public int CoinsPerLevel = 20;
-        public int CoinsPerStar = 5;
-        public int ReplayCoins = 5;
-        public int DailyReward = 60;
-        public int RewardedAdCoins = 40;
+        public int[] BoosterCosts = { 40, 60, 150, 100 };
+        public int CoinsPerLevel = 10;
+        public int CoinsPerStar = 3;
+        public int ReplayCoins = 3;
+        public int DailyReward = 50;
+        public int RewardedAdCoins = 30;
         /// <summary>No interstitials at or below this level (tutorial and early game stay ad-free).</summary>
         public int InterstitialFreeUntilLevel = 10;
         public int InterstitialEveryNLevels = 3;
         /// <summary>Lives: the most a player can hold, how long one takes to come back, and the coin price of a full refill.</summary>
         public int MaxLives = 5;
         public int LifeRefillSeconds = 30 * 60;
-        public int LivesRefillCost = 120;
+        public int LivesRefillCost = 200;
         /// <summary>Unlimited lives: a stretch of time in which a lost level costs nothing (offer price in coins).</summary>
         public int UnlimitedLivesSeconds = 60 * 60;
-        public int UnlimitedLivesCost = 350;
+        public int UnlimitedLivesCost = 500;
 
         // Star chest: every new star a level earns goes into the chest; it opens when full.
         public int StarChestStars = 10;
-        public int StarChestCoins = 100;
+        public int StarChestCoins = 60;
 
         // First clear of a Hard / Super Hard level pays this on top.
-        public int HardLevelBonus = 15;
-        public int SuperHardLevelBonus = 30;
+        public int HardLevelBonus = 10;
+        public int SuperHardLevelBonus = 20;
     }
 
     public sealed class EconomyManager

@@ -230,23 +230,25 @@ namespace MetroSort.Purchases
         public const string BundleMedium = "com.metrosort.bundle.medium";
         public const string BundleLarge = "com.metrosort.bundle.large";
 
-        // Coin packs kept low on purpose (2026-11-21); bundles added 2026-11-26. The labels are fallbacks: on a
-        // device the store's own prices, in the player's currency, replace them (RevenueCatPurchaseService); set the
-        // real prices in Google Play Console and App Store Connect. In coin terms (boosters at their shop price,
-        // an hour of unlimited lives at 350) the one-time starter pack is the best deal, about 1040 coins per
-        // dollar against 505 for the smallest coin pack; the bundles give 820 to 1000.
+        // Coin packs kept low on purpose (2026-11-21); bundles added 2026-11-26 and priced for a new game the same
+        // day: $0.99 to $9.99, half the first ladder ($1.99 to $19.99), contents kept. The labels are fallbacks:
+        // on a device the store's own prices, in the player's currency, replace them (RevenueCatPurchaseService);
+        // set the real prices in Google Play Console and App Store Connect. In coin terms (boosters at their shop
+        // price, an hour of unlimited lives at 500; economy of 2026-11-26) the one-time starter pack is the best
+        // deal, about 2780 coins per dollar against 505 for the smallest coin pack; the bundles give 1590 to 2320,
+        // more the bigger they are.
         public static readonly StoreProduct[] Products =
         {
             new StoreProduct { Id = CoinsSmall, Title = "Pocket of Coins", PriceLabel = "$0.99", Coins = 500, Consumable = true },
             new StoreProduct { Id = CoinsLarge, Title = "Vault of Coins", PriceLabel = "$2.99", Coins = 1800, Consumable = true },
             new StoreProduct { Id = RemoveAds, Title = "Remove Ads", PriceLabel = "$1.99", Coins = 0, Consumable = false },
-            new StoreProduct { Id = StarterPack, Title = "Starter Pack", PriceLabel = "$1.99", Coins = 1200, Consumable = true,
+            new StoreProduct { Id = StarterPack, Title = "Starter Pack", PriceLabel = "$0.99", Coins = 1200, Consumable = true,
                 Boosters = new[] { 3, 3, 3, 3 }, UnlimitedLivesMinutes = 60, OncePerPlayer = true },
-            new StoreProduct { Id = BundleSmall, Title = "Traveller Bundle", PriceLabel = "$4.99", Coins = 3200, Consumable = true,
+            new StoreProduct { Id = BundleSmall, Title = "Traveller Bundle", PriceLabel = "$2.99", Coins = 3200, Consumable = true,
                 Boosters = new[] { 3, 3, 3, 3 }, UnlimitedLivesMinutes = 60 },
-            new StoreProduct { Id = BundleMedium, Title = "Conductor Bundle", PriceLabel = "$9.99", Coins = 7000, Consumable = true,
+            new StoreProduct { Id = BundleMedium, Title = "Conductor Bundle", PriceLabel = "$4.99", Coins = 7000, Consumable = true,
                 Boosters = new[] { 6, 6, 6, 6 }, UnlimitedLivesMinutes = 180 },
-            new StoreProduct { Id = BundleLarge, Title = "Station Master Bundle", PriceLabel = "$19.99", Coins = 15000, Consumable = true,
+            new StoreProduct { Id = BundleLarge, Title = "Station Master Bundle", PriceLabel = "$9.99", Coins = 15000, Consumable = true,
                 Boosters = new[] { 12, 12, 12, 12 }, UnlimitedLivesMinutes = 480 }
         };
 
@@ -268,9 +270,12 @@ namespace MetroSort.Purchases
     /// <summary>Turns purchase results into entitlements exactly once per transaction.</summary>
     public sealed class StoreManager
     {
-        /// <summary>The starter pack is offered once the player reaches this level ...</summary>
+        /// <summary>
+        /// The starter pack sits in the shop from the first level (App Review must be able to find it). Once the
+        /// player reaches this level it is presented once, and from then on it stays only ...
+        /// </summary>
         public const int StarterOfferLevel = 10;
-        /// <summary>... for this long after the offer is first shown.</summary>
+        /// <summary>... this long.</summary>
         public const long StarterOfferSeconds = 48L * 60 * 60;
 
         private readonly IPurchaseService _service;
@@ -302,25 +307,31 @@ namespace MetroSort.Purchases
 
         public bool StarterBought { get { return _save.Data.OneTimePurchases.Contains(StoreCatalog.StarterPack); } }
 
-        /// <summary>The starter offer runs: the level is reached, the pack not bought, and its 48 hours not over.</summary>
+        /// <summary>The starter pack is on sale: not bought yet, and its 48 hours (if they have started) not over.</summary>
         public bool StarterAvailable(long now)
         {
-            if (StarterBought || _save.Data.HighestUnlocked < StarterOfferLevel) return false;
+            if (StarterBought) return false;
             long start = _save.Data.StarterOfferStart;
             return start == 0 || now < start + StarterOfferSeconds;
         }
 
-        /// <summary>Time left on the starter offer (all of it until the offer is first shown).</summary>
+        /// <summary>The 48 hours are running (the offer has been presented): the game shows its countdown.</summary>
+        public bool StarterTimerRunning { get { return _save.Data.StarterOfferStart != 0; } }
+
+        /// <summary>Time left on the starter offer (all of it until the offer is presented).</summary>
         public long StarterSecondsLeft(long now)
         {
             long start = _save.Data.StarterOfferStart;
             return start == 0 ? StarterOfferSeconds : Math.Max(0, start + StarterOfferSeconds - now);
         }
 
-        /// <summary>Starts the starter offer's clock when it is first shown. True only then: the game presents it once.</summary>
+        /// <summary>
+        /// Presents the starter offer the first time it is due (its level reached, not bought): starts its 48 hours
+        /// and returns true. False ever after, and before the level.
+        /// </summary>
         public bool TryStartStarterOffer(long now)
         {
-            if (_save.Data.StarterOfferStart != 0 || !StarterAvailable(now)) return false;
+            if (_save.Data.StarterOfferStart != 0 || _save.Data.HighestUnlocked < StarterOfferLevel || !StarterAvailable(now)) return false;
             _save.Data.StarterOfferStart = now;
             _save.Save();
             if (Changed != null) Changed();

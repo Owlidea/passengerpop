@@ -1244,12 +1244,11 @@ namespace MetroSort.Game
             {
                 y = ShopHeading(rest, "Bundles", y);
                 bundles.Sort((a, b) => b.Coins.CompareTo(a.Coins));
-                string[] arts = { "coin_bag", "chest", "coins" };
                 for (int i = 0; i < bundles.Count; i++)
                 {
                     string flag = i == 0 ? "BEST VALUE" : (i == 1 && bundles.Count > 2 ? "MOST POPULAR" : null);
                     y += flag != null ? 46f : 24f;             // flags ride over the card's top edge
-                    ShopBundle(rest, bundles[i], y, flag, arts[Mathf.Min(i, arts.Length - 1)]);
+                    ShopBundle(rest, bundles[i], y, flag);
                     y += BundleHeight;
                 }
                 y += 34f;
@@ -1427,11 +1426,11 @@ namespace MetroSort.Game
         }
 
         /// <summary>A bundle row: its art on turning rays, the name, the coins, what else it holds, and the price.</summary>
-        private void ShopBundle(RectTransform parent, StoreProduct p, float y, string flag, string artName)
+        private void ShopBundle(RectTransform parent, StoreProduct p, float y, string flag)
         {
             Image card = UiPremium.MakeTile(parent, "Bundle", 0.5f, 1f, 0f, -y, ShopWidth, BundleHeight);
             UiPremium.Rays(card.transform, 300f, -346f, 0f, 0.6f);
-            Sprite sprite = UiKit.Art(artName);
+            Sprite sprite = PackArt(p);
             Image art = UiKit.MakeImage(card.transform, "Art", sprite != null ? sprite : UiKit.Icon("coins"), Color.white);
             art.preserveAspect = true;
             UiKit.Place(art.rectTransform, 0.5f, 0.5f, -346f, 0f, 190f, 190f);
@@ -1448,6 +1447,22 @@ namespace MetroSort.Game
             UiKit.Place((RectTransform)buy.transform, 1f, 0.5f, -24f, -6f, 250f, 112f);
             _priceButtons[p.Id] = buy;
             if (flag != null) UiPremium.Flag(card.transform, flag, flag == "BEST VALUE" ? UiPremium.Red : UiPremium.Orange, 1f, 1f, -24f, 26f, 300f);
+        }
+
+        /// <summary>
+        /// The picture of a pack, each a little richer than the one before (MetroSort-Media/Magaza-Paket-Promptu.md):
+        /// a gift box, a suitcase, the conductor's satchel, the station master's wagon. Null for other products.
+        /// </summary>
+        private static Sprite PackArt(StoreProduct p)
+        {
+            switch (p.Id)
+            {
+                case StoreCatalog.StarterPack: return UiKit.Art("pack_starter");
+                case StoreCatalog.BundleSmall: return UiKit.Art("pack_traveller");
+                case StoreCatalog.BundleMedium: return UiKit.Art("pack_conductor");
+                case StoreCatalog.BundleLarge: return UiKit.Art("pack_station");
+                default: return null;
+            }
         }
 
         /// <summary>
@@ -1492,8 +1507,8 @@ namespace MetroSort.Game
             StoreProduct p = StoreCatalog.Find(StoreCatalog.StarterPack);
             if (p == null) return;
             RectTransform card = GoldCard(section, "StarterCard", 40f, ShopWidth, 400f, StarterBoard, -262f);
-            Sprite chest = UiKit.Art("chest");
-            Image art = UiKit.MakeImage(card, "Art", chest != null ? chest : UiKit.Icon("gift"), Color.white);
+            Sprite pack = PackArt(p);
+            Image art = UiKit.MakeImage(card, "Art", pack != null ? pack : UiKit.Icon("gift"), Color.white);
             art.preserveAspect = true;
             UiKit.Place(art.rectTransform, 0.5f, 0.5f, -262f, -4f, 280f, 280f);
             art.gameObject.AddComponent<Bob>().Height = 7f;
@@ -1549,8 +1564,8 @@ namespace MetroSort.Game
             UiPremium.Rays(body, 640f, 0f, 0f, 0.8f);
             RectTransform rays = (RectTransform)body.Find("Rays");
             if (rays != null) { rays.anchorMin = rays.anchorMax = new Vector2(0.5f, 1f); rays.anchoredPosition = new Vector2(0f, -230f); }
-            Sprite chest = UiKit.Art("chest");
-            Image art = UiKit.MakeImage(body, "Art", chest != null ? chest : UiKit.Icon("gift"), Color.white);
+            Sprite pack = PackArt(p);
+            Image art = UiKit.MakeImage(body, "Art", pack != null ? pack : UiKit.Icon("gift"), Color.white);
             art.preserveAspect = true;
             UiKit.Place(art.rectTransform, 0.5f, 1f, 0f, -230f, 320f, 320f);
             art.rectTransform.pivot = new Vector2(0.5f, 0.5f);
@@ -1609,9 +1624,15 @@ namespace MetroSort.Game
             StoreManager store = _app.Services.Store;
             long now = Now();
             bool available = store.StarterAvailable(now);
+            // Until the offer is presented (at its level) the pack simply sits in the shop, with no countdown.
+            bool running = store.StarterTimerRunning;
             string left = Loc.F("Ends in {0}", Clock(store.StarterSecondsLeft(now)));
-            if (_shopStarterTimer != null) _shopStarterTimer.text = left;
-            if (_starterPopupTimer != null) _starterPopupTimer.text = left;
+            foreach (Text timer in new[] { _shopStarterTimer, _starterPopupTimer })
+            {
+                if (timer == null) continue;
+                timer.text = left;
+                timer.transform.parent.gameObject.SetActive(running);
+            }
             if (_shopStarter.gameObject.activeSelf != available) LayoutShop();
             if (!available && _starterPopup != null && _starterPopup.activeSelf) CloseStarterPopup();
         }

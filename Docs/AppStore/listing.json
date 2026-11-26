@@ -134,6 +134,138 @@
         "pt-BR": "Sem anúncios entre os níveis.",
         "it": "Niente più pubblicità tra i livelli."
       }
+    },
+    {
+      "productId": "com.metrosort.starter",
+      "type": "Consumable",
+      "referenceName": "Starter Pack",
+      "priceUsd": "0.99",
+      "names": {
+        "en-US": "Starter Pack",
+        "tr": "Başlangıç Paketi",
+        "de-DE": "Startpaket",
+        "fr-FR": "Pack de départ",
+        "es-ES": "Pack de inicio",
+        "pt-BR": "Pacote Inicial",
+        "it": "Pacchetto iniziale"
+      },
+      "descriptions": {
+        "en-US": "1200 coins, 12 boosters, unlimited lives",
+        "tr": "1200 jeton, 12 güçlendirici, sınırsız can",
+        "de-DE": "1200 Münzen, 12 Booster, unbegrenzte Leben",
+        "fr-FR": "1200 pièces, 12 bonus, vies illimitées",
+        "es-ES": "1200 monedas, 12 potenciadores y vidas",
+        "pt-BR": "1200 moedas, 12 reforços, vidas ilimitadas",
+        "it": "1200 monete, 12 potenziamenti, vite infinite"
+      },
+      "playDescriptions": {
+        "en-US": "One-time offer: 1200 coins, 3 of each booster and 1 hour of unlimited lives for your train puzzles.",
+        "tr": "Tek seferlik fırsat: Tren bulmacaları için 1200 jeton, her güçlendiriciden 3 tane ve 1 saat sınırsız can.",
+        "de-DE": "Einmaliges Angebot: 1200 Münzen, je 3 von jedem Booster und 1 Stunde unbegrenzte Leben für deine Zugrätsel.",
+        "fr-FR": "Offre unique : 1200 pièces, 3 de chaque bonus et 1 heure de vies illimitées pour tes puzzles de train.",
+        "es-ES": "Oferta única: 1200 monedas, 3 de cada potenciador y 1 hora de vidas ilimitadas para tus puzles de trenes.",
+        "pt-BR": "Oferta única: 1200 moedas, 3 de cada reforço e 1 hora de vidas ilimitadas para seus quebra-cabeças de trem.",
+        "it": "Offerta unica: 1200 monete, 3 di ogni potenziamento e 1 ora di vite infinite per i tuoi puzzle di treni."
+      }
+    },
+    {
+      "productId": "com.metrosort.bundle.small",
+      "type": "Consumable",
+      "referenceName": "Traveller Bundle",
+      "priceUsd": "2.99",
+      "names": {
+        "en-US": "Traveller Bundle",
+        "tr": "Yolcu Paketi",
+        "de-DE": "Reisenden-Paket",
+        "fr-FR": "Pack Voyageur",
+        "es-ES": "Pack Viajero",
+        "pt-BR": "Pacote Viajante",
+        "it": "Pacchetto Viaggiatore"
+      },
+      "descriptions": {
+        "en-US": "3200 coins, 12 boosters, unlimited lives",
+        "tr": "3200 jeton, 12 güçlendirici, sınırsız can",
+        "de-DE": "3200 Münzen, 12 Booster, unbegrenzte Leben",
+        "fr-FR": "3200 pièces, 12 bonus, vies illimitées",
+        "es-ES": "3200 monedas, 12 potenciadores y vidas",
+        "pt-BR": "3200 moedas, 12 reforços, vidas ilimitadas",
+        "it": "3200 monete, 12 potenziamenti, vite infinite"
+      },
+      "playDescriptions": {
+        "en-US": "3200 coins, 3 of each booster and 1 hour of unlimited lives for your train puzzles.",
+        "tr": "Tren bulmacaları için 3200 jeton, her güçlendiriciden 3 tane ve 1 saat sınırsız can.",
+        "de-DE": "3200 Münzen, je 3 von jedem Booster und 1 Stunde unbegrenzte Leben für deine Zugrätsel.",
+        "fr-FR": "3200 pièces, 3 de chaque bonus et 1 heure de vies illimitées pour tes puzzles de train.",
+        "es-ES": "3200 monedas, 3 de cada potenciador y 1 hora de vidas ilimitadas para tus puzles de trenes.",
+        "pt-BR": "3200 moedas, 3 de cada reforço e 1 hora de vidas ilimitadas para seus quebra-cabeças de trem.",
+        "it": "3200 monete, 3 di ogni potenziamento e 1 ora di vite infinite per i tuoi puzzle di treni."
+      }
+    },
+    {
+      "productId": "com.metrosort.bundle.medium",
+      "type": "Consumable",
+      "referenceName": "Conductor Bundle",
+      "priceUsd": "4.99",
+      "names": {
+        "en-US": "Conductor Bundle",
+        "tr": "Kondüktör Paketi",
+        "de-DE": "Schaffner-Paket",
+        "fr-FR": "Pack Contrôleur",
+        "es-ES": "Pack Conductor",
+        "pt-BR": "Pacote Condutor",
+        "it": "Pacchetto Controllore"
+      },
+      "descriptions": {
+        "en-US": "7000 coins, 24 boosters, unlimited lives",
+        "tr": "7000 jeton, 24 güçlendirici, sınırsız can",
+        "de-DE": "7000 Münzen, 24 Booster, unbegrenzte Leben",
+        "fr-FR": "7000 pièces, 24 bonus, vies illimitées",
+        "es-ES": "7000 monedas, 24 potenciadores y vidas",
+        "pt-BR": "7000 moedas, 24 reforços, vidas ilimitadas",
+        "it": "7000 monete, 24 potenziamenti, vite infinite"
+      },
+      "playDescriptions": {
+        "en-US": "7000 coins, 6 of each booster and 3 hours of unlimited lives for your train puzzles.",
+        "tr": "Tren bulmacaları için 7000 jeton, her güçlendiriciden 6 tane ve 3 saat sınırsız can.",
+        "de-DE": "7000 Münzen, je 6 von jedem Booster und 3 Stunden unbegrenzte Leben für deine Zugrätsel.",
+        "fr-FR": "7000 pièces, 6 de chaque bonus et 3 heures de vies illimitées pour tes puzzles de train.",
+        "es-ES": "7000 monedas, 6 de cada potenciador y 3 horas de vidas ilimitadas para tus puzles de trenes.",
+        "pt-BR": "7000 moedas, 6 de cada reforço e 3 horas de vidas ilimitadas para seus quebra-cabeças de trem.",
+        "it": "7000 monete, 6 di ogni potenziamento e 3 ore di vite infinite per i tuoi puzzle di treni."
+      }
+    },
+    {
+      "productId": "com.metrosort.bundle.large",
+      "type": "Consumable",
+      "referenceName": "Station Master Bundle",
+      "priceUsd": "9.99",
+      "names": {
+        "en-US": "Station Master Bundle",
+        "tr": "İstasyon Şefi Paketi",
+        "de-DE": "Bahnhofsvorsteher-Paket",
+        "fr-FR": "Pack Chef de gare",
+        "es-ES": "Pack Jefe de Estación",
+        "pt-BR": "Pacote Chefe de Estação",
+        "it": "Pacchetto Capostazione"
+      },
+      "descriptions": {
+        "en-US": "15000 coins, 48 boosters, unlimited lives",
+        "tr": "15000 jeton, 48 güçlendirici, sınırsız can",
+        "de-DE": "15000 Münzen, 48 Booster, unbegrenzte Leben",
+        "fr-FR": "15000 pièces, 48 bonus, vies illimitées",
+        "es-ES": "15000 monedas, 48 potenciadores y vidas",
+        "pt-BR": "15000 moedas, 48 reforços, vidas ilimitadas",
+        "it": "15000 monete, 48 potenziamenti, vite infinite"
+      },
+      "playDescriptions": {
+        "en-US": "15000 coins, 12 of each booster and 8 hours of unlimited lives for your train puzzles.",
+        "tr": "Tren bulmacaları için 15000 jeton, her güçlendiriciden 12 tane ve 8 saat sınırsız can.",
+        "de-DE": "15000 Münzen, je 12 von jedem Booster und 8 Stunden unbegrenzte Leben für deine Zugrätsel.",
+        "fr-FR": "15000 pièces, 12 de chaque bonus et 8 heures de vies illimitées pour tes puzzles de train.",
+        "es-ES": "15000 monedas, 12 de cada potenciador y 8 horas de vidas ilimitadas para tus puzles de trenes.",
+        "pt-BR": "15000 moedas, 12 de cada reforço e 8 horas de vidas ilimitadas para seus quebra-cabeças de trem.",
+        "it": "15000 monete, 12 di ogni potenziamento e 8 ore di vite infinite per i tuoi puzzle di treni."
+      }
     }
   ]
 }
