@@ -1,0 +1,73 @@
+{
+ "sheet": "MetroSort-Media/Gorseller/yolcu-hd-1-turnaround.png",
+ "size": [
+  1536,
+  1024
+ ],
+ "views": {
+  "front": {
+   "crop": [
+    0,
+    0,
+    455,
+    1024
+   ],
+   "alpha_box": [
+    29,
+    127,
+    444,
+    866
+   ],
+   "width": 416,
+   "height": 740
+  },
+  "left": {
+   "crop": [
+    454,
+    0,
+    764,
+    1024
+   ],
+   "alpha_box": [
+    465,
+    129,
+    757,
+    866
+   ],
+   "width": 293,
+   "height": 738
+  },
+  "back": {
+   "crop": [
+    763,
+    0,
+    1183,
+    1024
+   ],
+   "alpha_box": [
+    770,
+    130,
+    1178,
+    866
+   ],
+   "width": 409,
+   "height": 737
+  },
+  "right": {
+   "crop": [
+    1182,
+    0,
+    1536,
+    1024
+   ],
+   "alpha_box": [
+    1187,
+    130,
+    1479,
+    866
+   ],
+   "width": 293,
+   "height": 737
+  }
+ }
+}

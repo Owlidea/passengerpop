@@ -1,0 +1,107 @@
+using System.Collections;
+using System.IO;
+using System.Reflection;
+using MetroSort.Game;
+using MetroSort.Persistence;
+using UnityEngine;
+using UnityEngine.TestTools;
+
+namespace MetroSort.Tests
+{
+    // Temporary: captures the premium HD passengers (variants 6 and 7) in a level, as raw RGB24 frames
+    // (bottom-up) in Logs/hdshots. Delete after use.
+    public class ZzHdPassengerShot
+    {
+        private static IEnumerator Shot(Camera cam, string name, int w, int h)
+        {
+            var rt = new RenderTexture(w, h, 24);
+            cam.targetTexture = rt;
+            yield return null;
+            cam.Render();
+            RenderTexture.active = rt;
+            var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+            tex.Apply();
+            RenderTexture.active = null;
+            cam.targetTexture = null;
+            Directory.CreateDirectory("Logs/hdshots");
+            File.WriteAllBytes("Logs/hdshots/" + name + ".rgb", tex.GetRawTextureData());
+            Debug.Log("HDSHOT " + name + " " + w + "x" + h);
+        }
+
+        [UnityTest]
+        public IEnumerator Capture()
+        {
+            GameApp app = GameApp.Create(new InMemoryFileStore());
+            GameSettings.FastTrains = false;
+            app.Services.Save.Data.HighestUnlocked = 9999;
+            yield return null;
+            yield return null;
+            app.Game.StartLevel(42);
+            yield return new WaitForSeconds(1.6f);
+            foreach (Canvas c in Object.FindObjectsByType<Canvas>()) c.enabled = false;
+            Camera cam = app.Station.Cam;
+            yield return Shot(cam, "level", 1080, 1920);
+
+            // Portraits: each wanted variant is moved out beside the station for a moment and filmed from the
+            // front and from three quarters with a camera of its own.
+            FieldInfo albedo = typeof(PassengerView).GetField("_hdAlbedo", BindingFlags.NonPublic | BindingFlags.Instance);
+            var pcam = new GameObject("PortraitCam").AddComponent<Camera>();
+            pcam.clearFlags = CameraClearFlags.SolidColor;
+            pcam.backgroundColor = new Color(0.86f, 0.84f, 0.80f);
+            pcam.fieldOfView = 22f;
+            pcam.nearClipPlane = 0.02f;
+            pcam.farClipPlane = 200f;
+            pcam.enabled = false;
+            foreach (string want in new[] { "PassengerHD_6_albedo", "PassengerHD_7_albedo", "PassengerHD_2_albedo" })
+            {
+                PassengerView pick = null;
+                foreach (PassengerView v in Object.FindObjectsByType<PassengerView>())
+                {
+                    var t = albedo.GetValue(v) as Texture2D;
+                    if (v.gameObject.activeInHierarchy && t != null && t.name == want) { pick = v; break; }
+                }
+                if (pick == null) { Debug.Log("HDSHOT no view uses " + want); continue; }
+                Transform model = null;
+                foreach (Transform t in pick.GetComponentsInChildren<Transform>(true)) if (t.name == "Model") { model = t; break; }
+                Vector3 old = pick.transform.position;
+                pick.transform.position = old + new Vector3(40f, 0f, 0f);
+                yield return null;
+                yield return null;
+                // framed on the body itself (other renderers, such as the halo, sit far above it)
+                Bounds b = new Bounds(model.position, Vector3.zero);
+                foreach (SkinnedMeshRenderer r in model.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+                    if (r.name == "Body") b = r.bounds;
+                Vector3 face = model.TransformDirection(Vector3.forward);
+                face.y = 0f;
+                face.Normalize();
+                float h = b.size.y;
+                string tag = want.Replace("PassengerHD_", "v").Replace("_albedo", "");
+                foreach (float angle in new[] { 0f, 40f })
+                {
+                    Vector3 dir = Quaternion.Euler(0f, angle, 0f) * face;
+                    pcam.transform.position = b.center + dir * (3.4f * h) + Vector3.up * (0.25f * h);
+                    pcam.transform.LookAt(b.center + Vector3.up * (0.08f * h));
+                    yield return Shot(pcam, "portrait_" + tag + "_" + (int)angle, 600, 800);
+                }
+                // the face, between the head bone (neck) and the hat bone (crown)
+                Transform headBone = null, hatBone = null;
+                foreach (Transform t in model.GetComponentsInChildren<Transform>(true))
+                {
+                    if (t.name == "Head") headBone = t;
+                    else if (t.name == "Hat") hatBone = t;
+                }
+                Vector3 neck = headBone != null ? headBone.position : b.center;
+                Vector3 crown = hatBone != null ? hatBone.position : b.max;
+                Vector3 head = Vector3.Lerp(neck, crown, 0.45f);
+                float span = Mathf.Max(0.05f, Vector3.Distance(neck, crown));
+                pcam.transform.position = head + face * (3.4f * span);
+                pcam.transform.LookAt(head);
+                yield return Shot(pcam, "portrait_" + tag + "_face", 600, 800);
+                pick.transform.position = old;
+            }
+            Object.Destroy(app.gameObject);
+            yield return null;
+        }
+    }
+}

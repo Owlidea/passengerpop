@@ -8,13 +8,17 @@ HD variants (sculpted bodies, face painted back from the concept picture by Tool
         --art MetroSort-Media/Gorseller/yolcu-a-poz.png
     Blender --background --python Tools/art/passenger.py -- --hd MetroSort-Media/yolcu-varyant-N.glb --variant N \
         --art MetroSort-Media/Gorseller/yolcu-varyant-N.png          (N = 1 .. 5)
+Premium passengers (Hunyuan3D-2 multi-view shape, painted by Tools/art/hdbake.py, face marks in the JSON next to
+the GLB, heads already drawn big so no chibi growth):
+    Blender --background --python Tools/art/passenger.py -- --hd MetroSort-Media/3D/yolcu-hd-1-painted.glb \
+        --variant 6 --art MetroSort-Media/Gorseller/yolcu-hd-1.png --chibi 1.0      (add --bun for a hair bun)
 Output: Assets/MetroSort/Resources/Characters/PassengerHD_N.fbx and PassengerHD_N_albedo.png
 
 Blender space: Z up, the character faces -Y, 1 unit = 1 Unity unit. Parts are skinned rigidly (one bone
 each). Optional parts (hair styles, hats, skirt ...) are separate objects parented to bones; the game shows
 and hides them by name and recolours material slots by name.
 """
-import bpy, bmesh, math, os, sys
+import bpy, bmesh, json, math, os, sys
 from mathutils import Vector, Matrix, Euler
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -31,7 +35,16 @@ HD_VARIANT = int(argv[argv.index("--variant") + 1]) if "--variant" in argv else 
 HD_ART = argv[argv.index("--art") + 1] if "--art" in argv else None
 if HD:
     OUT = os.path.join(ROOT, "Assets", "MetroSort", "Resources", "Characters", "PassengerHD_%d.fbx" % HD_VARIANT)
-HD_TRIS = 6000        # phones draw dozens of passengers at once: the scanned mesh is reduced to about this
+# Shapes painted by Tools/art/hdbake.py bring what was read off their pictures (face marks, neck height) in a
+# JSON file next to the GLB; such "premium" models also get a filled mouth and a brighter jacket reference.
+HD_JSON = {}
+if HD and os.path.exists(os.path.splitext(HD_SRC)[0] + ".json"):
+    HD_JSON = json.load(open(os.path.splitext(HD_SRC)[0] + ".json"))
+PREMIUM = bool(HD_JSON)
+# phones draw dozens of passengers at once: the scanned mesh is reduced to about this (--tris to change)
+HD_TRIS = int(argv[argv.index("--tris") + 1]) if "--tris" in argv else 6000
+# hdbake.py has already reduced its shapes to the budget, keeping the face dense; reducing again would not
+HD_TRIS = max(HD_TRIS, HD_JSON.get("tris") or 0)
 PROJ = None           # HD: how the concept art was laid on the face (hd_body), for the overlays (hd_face)
 SKIN_UV = None        # HD: the plain skin patch in the body texture
 
@@ -67,7 +80,9 @@ def face_y(x, z, lift=0.0):
 
 # ---------------------------------------------------------------- HD body: import and measure
 HD_H = 1.52           # overall height of the HD character (top of the hair), about that of the built one
-CHIBI = 1.28          # head growth for chibi proportions (the figure keeps HD_H, so the body gets shorter)
+# head growth for chibi proportions (the figure keeps HD_H, so the body gets shorter); --chibi 1.0 for models
+# whose pictures already have big heads
+CHIBI = float(argv[argv.index("--chibi") + 1]) if "--chibi" in argv else 1.28
 
 
 def smooth01(a, b, x):
@@ -118,6 +133,11 @@ if HD:
         if len(sl) > 8 and (best is None or max(sl) < best[0]):
             best = (max(sl), z)
     NECK_Z = best[1]
+    if HD_JSON.get("neck_z"):
+        # Big hair hanging beside the neck (pigtails, a bob) hides the narrowest slice; the picture's collar
+        # says where the neck is.
+        print("HD neck from the picture's collar %.3f (slice search said %.3f)" % (HD_JSON["neck_z"], NECK_Z))
+        NECK_Z = HD_JSON["neck_z"]
 
     # Chibi proportions, to match the 2D art: the head grows about the neck, then the whole figure is scaled
     # back to HD_H, so the body comes out shorter. The blend under the neck keeps the shoulders as they were.
@@ -160,6 +180,39 @@ if HD:
     LEG_X = sum(abs(c.x) for c in legs) / len(legs)
     toe_y = min(c.y for c in V if c.z < 0.06 * H)
     print("HD measures", "TX %.3f neck %.3f shoulder %s tip %s legx %.3f" % (TX, NECK_Z, tuple(round(a, 3) for a in SH), tuple(round(a, 3) for a in TIP), LEG_X))
+
+    def squash_bun():
+        """--bun: a hair bun on top of the head lifts every hat off the head. The line hats are always worn, so
+        the bun is squashed into a low knot under the hat. It starts where the head, above its widest level,
+        first narrows to under 62% of that width (a round head only gets that narrow right at its top)."""
+        if "--bun" not in argv:
+            return False
+        top = max(c.z for c in V)
+        z0 = NECK_Z + 0.05 * H
+        nb = 40
+        widths = []
+        for i in range(nb):
+            a_, b_ = z0 + (top - z0) * i / nb, z0 + (top - z0) * (i + 1) / nb
+            sl = [abs(c.x) for c in V if a_ <= c.z < b_]
+            widths.append(max(sl) if sl else 0.0)
+        imax = max(range(nb), key=lambda i: widths[i])
+        waist = next((j for j in range(imax + 1, nb) if 0 < widths[j] < 0.62 * widths[imax]), None)
+        if waist is None:
+            print("HD bun: the head never narrows enough, nothing squashed")
+            return False
+        z_cut = z0 + (top - z0) * (waist + 0.5) / nb
+        ring = [c for c in V if abs(c.z - z_cut) < (top - z0) / nb]
+        cy_ = sum(c.y for c in ring) / len(ring) if ring else 0.0
+        for v in hd.data.vertices:
+            if v.co.z > z_cut:
+                v.co.z = z_cut + (v.co.z - z_cut) * 0.4
+                v.co.x *= 0.85
+                v.co.y = cy_ + (v.co.y - cy_) * 0.85
+        print("HD bun squashed above z %.3f (head top was %.3f)" % (z_cut, top))
+        return True
+
+    if squash_bun():
+        V = [v.co.copy() for v in hd.data.vertices]
     HEAD_TOP = max(c.z for c in V)
     crown = [c for c in V if c.z > NECK_Z + 0.62 * (HEAD_TOP - NECK_Z)]
     CROWN_W = max(abs(c.x) for c in crown)
@@ -469,7 +522,7 @@ def flatten_mouth():
     over as seen from the front) onto a smooth surface fitted to the ring of face around it."""
     import numpy as np
     marks = FACE_MARKS.get(HD_VARIANT)
-    if not marks:
+    if not marks or HD_JSON.get("mouth_filled"):        # hdbake.py fills the mouth cavity without fold-overs
         return
     cx, cz = grown(*marks[2])
     rx = max(marks[3][0] * CHIBI * CHIBI_S * 2.0, 0.07)
@@ -495,7 +548,9 @@ def flatten_mouth():
         fit = float(np.dot(coef, [1, x, z, x * x, z * z, x * z]))
         w = 1 - d
         w = w * w * (3 - 2 * w)
-        if fit > v.co.y:                     # only ever push a bump back, never pull the face out
+        # only ever push a bump back, never pull the face out; premium models also fill a sculpted open mouth,
+        # since their pictures paint it on
+        if fit > v.co.y or PREMIUM:
             v.co.y = v.co.y + (fit - v.co.y) * w
             moved += 1
     me.update()
@@ -533,7 +588,7 @@ def hd_body():
     # Everything keeps the colours of its design; only the jacket is tinted with the line colour, per texel.
     tips = [(TIP.x, TIP.y, TIP.z), (-TIP.x, TIP.y, TIP.z)]
     jacket = hdface.jacket_mask(px, pos, valid, HIP_Z - 0.06 * H, NECK_Z - 0.01 * H, tips, (TIP - WRIST).length * 1.25)
-    out = hdface.finish_texture(px, valid, jacket)
+    out = hdface.finish_texture(px, valid, jacket, ref_percentile=65 if PREMIUM else None)
     print("HD jacket texels", int(jacket.sum()))
     # A patch of plain skin colour in a free corner of the texture, for eyelids and patches laid on the face.
     rgb = out[..., :3]
@@ -562,6 +617,11 @@ def hd_body():
     me.materials.clear()
     mat = bpy.data.materials.get("Body") or bpy.data.materials.new("Body")
     mat.name = "Body"
+    # hdbake.py's GLB brings a "Body" material with its texture; the FBX would carry that texture's local path
+    # (the game sets its own material and texture)
+    if mat.node_tree:
+        for node in [n for n in mat.node_tree.nodes if n.type == 'TEX_IMAGE']:
+            mat.node_tree.nodes.remove(node)
     me.materials.append(mat)
     ob.parent = rig
     mod = ob.modifiers.new("Armature", 'ARMATURE')
@@ -581,6 +641,11 @@ FACE_MARKS = {
     4: (((-0.113, 1.093), (0.119, 1.093)), (0.060, 0.060), (0.006, 0.943), (0.081, 0.050)),
     5: (((-0.094, 1.120), (0.106, 1.120)), (0.044, 0.044), (0.000, 1.027), (0.069, 0.015)),
 }
+# Shapes painted by Tools/art/hdbake.py bring their marks, read off the front view (see HD_JSON).
+if HD_JSON.get("face_marks"):
+    _m = HD_JSON["face_marks"]
+    FACE_MARKS[HD_VARIANT] = ((tuple(_m[0][0]), tuple(_m[0][1])), tuple(_m[1]), tuple(_m[2]), tuple(_m[3]))
+    print("HD face marks from the picture", FACE_MARKS[HD_VARIANT])
 
 
 def hd_face():

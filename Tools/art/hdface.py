@@ -111,9 +111,49 @@ def find_eyes(img):
             if best is None or score > best[0]:
                 best = (score, a, b)
     if best is None:
-        return None
+        return find_closed_eyes(img)
     a, b = sorted(best[1:], key=lambda e: e[1])
     return {"left": (a[1], a[2]), "right": (b[1], b[2]), "half": ((a[3] + b[3]) / 2, (a[4] + b[4]) / 2), "height": height, "top": top}
+
+
+def find_closed_eyes(img):
+    """Fallback for closed or narrow eyes (smiling arcs, lines) that find_eyes rejects as not roundish: the two
+    largest dark blobs in the eye band of the head, one each side of the middle, level and about as far out."""
+    fg = foreground(img)
+    ys, xs = np.nonzero(fg)
+    top, bottom = ys.min(), ys.max()
+    hgt = bottom - top
+    lum = img[..., :3] @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
+    dark = (lum < 0.32) & fg
+    dark[:top + int(0.12 * hgt)] = False
+    dark[int(top + 0.40 * hgt):] = False
+    rows = fg[top:int(top + 0.40 * hgt)]
+    cols = np.nonzero(rows[int(rows.shape[0] * 0.6)])[0]
+    cx = (cols.min() + cols.max()) / 2 if len(cols) else img.shape[1] / 2
+    found = []
+    for cy_, cx_ in components(dark):
+        area = len(cy_)
+        if area < (0.006 * hgt) ** 2 or area > (0.08 * hgt) ** 2:
+            continue
+        found.append((area, (cx_.min() + cx_.max()) / 2.0, (cy_.min() + cy_.max()) / 2.0,
+                      (cx_.max() - cx_.min() + 1) / 2.0, (cy_.max() - cy_.min() + 1) / 2.0))
+    best = None
+    for i in range(len(found)):
+        for j in range(i + 1, len(found)):
+            a, b = found[i], found[j]
+            if abs(a[2] - b[2]) > 0.03 * hgt or (a[1] - cx) * (b[1] - cx) >= 0:
+                continue
+            sym = abs(abs(a[1] - cx) - abs(b[1] - cx)) / max(abs(a[1] - cx), 1.0)
+            if sym > 0.35:
+                continue
+            score = min(a[0], b[0]) * (1 - sym)
+            if best is None or score > best[0]:
+                best = (score, a, b)
+    if best is None:
+        return None
+    a, b = sorted(best[1:], key=lambda e: e[1])
+    return {"left": (a[1], a[2]), "right": (b[1], b[2]),
+            "half": ((a[3] + b[3]) / 2, max(a[4], b[4], (a[3] + b[3]) / 4)), "height": hgt, "top": top}
 
 
 def texel_geometry(me, W, H):
@@ -226,15 +266,17 @@ def jacket_mask(px, pos, valid, z_low, z_high, hands=(), hand_r=0.0):
     return m
 
 
-def finish_texture(px, valid, jacket):
+def finish_texture(px, valid, jacket, ref_percentile=None):
     """Jacket texels keep only their shading (around 0.5, the game multiplies by twice the line colour) and
     are flagged in alpha; everything else keeps its colour with alpha 0. Empty texels between UV islands are
-    filled from their neighbours, so filtering never pulls in stray colour."""
+    filled from their neighbours, so filtering never pulls in stray colour. ref_percentile: the jacket
+    brightness that maps to 0.5 (default the mean); painted pictures have deep folds, so a higher percentile
+    keeps the lit cloth at the line colour instead of darker."""
     out = px.copy()
     rgb = out[..., :3]
     lum = rgb @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
     if jacket.any():
-        mean = lum[jacket].mean()
+        mean = lum[jacket].mean() if ref_percentile is None else float(np.percentile(lum[jacket], ref_percentile))
         rgb[jacket] = np.clip((lum[jacket] / mean * 0.5)[:, None], 0, 1)
     out[..., 3] = jacket.astype(np.float32)
     filled = valid.copy()
